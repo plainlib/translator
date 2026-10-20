@@ -8,7 +8,8 @@ unit translator;
 interface
 
 uses
-  TranslatorRegister, LazarusPackageIntf;
+  Translate, Languages, LangDetect, Network, ScriptRunner, TranslatorRegister, 
+  LazarusPackageIntf;
 
 implementation
 

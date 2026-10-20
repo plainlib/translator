@@ -49,18 +49,68 @@ SOFTWARE."/>
     <Version Major="1"/>
     <Files>
       <Item>
-        <Filename Value="translatorregister.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="TranslatorRegister"/>
+        <Filename Value="src\translate.pas"/>
+        <UnitName Value="Translate"/>
+      </Item>
+      <Item>
+        <Filename Value="src\languages.pas"/>
+        <UnitName Value="Languages"/>
+      </Item>
+      <Item>
+        <Filename Value="src\langdetect.pas"/>
+        <UnitName Value="LangDetect"/>
+      </Item>
+      <Item>
+        <Filename Value="src\network.pas"/>
+        <UnitName Value="Network"/>
+      </Item>
+      <Item>
+        <Filename Value="src\scriptrunner.pas"/>
+        <UnitName Value="ScriptRunner"/>
+      </Item>
+      <Item>
+        <Filename Value="src\languages_data.inc"/>
+        <Type Value="Include"/>
+      </Item>
+      <Item>
+        <Filename Value="src\currency_data.inc"/>
+        <Type Value="Include"/>
+      </Item>
+      <Item>
+        <Filename Value="src\currencycrypto_data.inc"/>
+        <Type Value="Include"/>
+      </Item>
+      <Item>
+        <Filename Value="src\units_data.inc"/>
+        <Type Value="Include"/>
+      </Item>
+      <Item>
+        <Filename Value="src\langprofiles_data.inc"/>
+        <Type Value="Include"/>
+      </Item>
+      <Item>
+        <Filename Value="src\flags.lrs"/>
+        <Type Value="LRS"/>
       </Item>
       <Item>
         <Filename Value="translator.lrs"/>
         <Type Value="LRS"/>
       </Item>
+      <Item>
+        <Filename Value="translatorregister.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="TranslatorRegister"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
         <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="pascalscript"/>
+      </Item>
+      <Item>
+        <PackageName Value="laz_synapse"/>
       </Item>
       <Item>
         <PackageName Value="helpers"/>
