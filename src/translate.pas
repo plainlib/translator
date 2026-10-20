@@ -61,6 +61,51 @@ type
 
   TTranslateThread = class;  // defined below the base class
 
+type
+  { Proxy options for the Object Inspector }
+  TTranslateProxy = class(TPersistent)
+  private
+    FMode: TProxyMode;
+    FType: TProxyType;
+    FHost: string;
+    FPort: string;
+    FAuthentication: boolean;
+    FLogin: string;
+    FPassword: string;
+    FOnChange: TNotifyEvent;
+    procedure Changed;
+  public
+    procedure Assign(Source: TPersistent); override;
+    function ToProxy: TProxy;
+    procedure FromProxy(const AProxy: TProxy);
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  published
+    property Mode: TProxyMode read FMode write FMode default pmNone;
+    property Type_: TProxyType read FType write FType default ptHTTP;
+    property Host: string read FHost write FHost;
+    property Port: string read FPort write FPort;
+    property Authentication: boolean read FAuthentication write FAuthentication default False;
+    property Login: string read FLogin write FLogin;
+    property Password: string read FPassword write FPassword;
+  end;
+
+  { Timeout options for the Object Inspector }
+  TTranslateTimeout = class(TPersistent)
+  private
+    FConnection: integer;
+    FRequest: integer;
+    FOnChange: TNotifyEvent;
+    procedure Changed;
+  public
+    procedure Assign(Source: TPersistent); override;
+    function ToTimeout: TTimeout;
+    procedure FromTimeout(const ATimeout: TTimeout);
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  published
+    property Connection: integer read FConnection write FConnection default 10000;
+    property Request: integer read FRequest write FRequest default 30000;
+  end;
+
   { TCustomTranslate }
   TCustomTranslate = class(TComponent)
   private
@@ -104,8 +149,8 @@ type
     FLanguagesTargetOriginal: TStringList;
     FLanguageCodes: TStringArray;
     FLangType: TLangType;
-    FProxy: TProxy;
-    FTimeout: TTimeout;
+    FProxy: TTranslateProxy;
+    FTimeout: TTranslateTimeout;
 
     FInitUserAgent: string;
     FInitHeaders: TStringList;
@@ -128,8 +173,6 @@ type
     FActiveThreads: TList;
     FCancelled: boolean;
     FRawTranslate: string;
-    FLangDetect: boolean;
-    FThreadsWaitTime: integer;
 
     // Configuration file for designer use
     FConfigFile: string;
@@ -151,28 +194,6 @@ type
     procedure SetLangSource(const Value: string);
     function GetLangTarget: string;
     procedure SetLangTarget(const Value: string);
-
-    // Flattened proxy properties
-    function GetProxyMode: TProxyMode;
-    procedure SetProxyMode(Value: TProxyMode);
-    function GetProxyType: TProxyType;
-    procedure SetProxyType(Value: TProxyType);
-    function GetProxyHost: string;
-    procedure SetProxyHost(const Value: string);
-    function GetProxyPort: string;
-    procedure SetProxyPort(const Value: string);
-    function GetProxyAuthentication: boolean;
-    procedure SetProxyAuthentication(Value: boolean);
-    function GetProxyLogin: string;
-    procedure SetProxyLogin(const Value: string);
-    function GetProxyPassword: string;
-    procedure SetProxyPassword(const Value: string);
-
-    // Flattened timeout properties
-    function GetTimeoutConnection: integer;
-    procedure SetTimeoutConnection(Value: integer);
-    function GetTimeoutRequest: integer;
-    procedure SetTimeoutRequest(Value: integer);
   protected
     // Fires OnChange for designer notifications
     procedure Changed;
@@ -243,8 +264,10 @@ type
     property ScriptParameters: TStringList read FScriptParameters write FScriptParameters;
     property ScriptResponse: TStringList read FScriptResponse write FScriptResponse;
     property AllowProxy: boolean read FAllowProxy write FAllowProxy;
-    property Proxy: TProxy read FProxy write FProxy;
-    property Timeout: TTimeout read FTimeout write FTimeout;
+
+    // Designer-friendly wrappers; use ToProxy/ToTimeout for the Network layer
+    property Proxy: TTranslateProxy read FProxy;
+    property Timeout: TTranslateTimeout read FTimeout;
 
     // Languages from config, eg en=en
     property Languages: TStringList read FLanguages write FLanguages;
@@ -266,9 +289,7 @@ type
     // Thread state
     property RawTranslate: string read FRawTranslate;
     property TranslateThread: TTranslateThread read FTranslateThread;
-    property LangDetect: boolean read FLangDetect write FLangDetect;
     property Cancelled: boolean read FCancelled write FCancelled;
-    property ThreadsWaitTime: integer read FThreadsWaitTime write FThreadsWaitTime;
 
     // Thread events
     property OnTranslateStart: TNotifyEvent read FOnTranslateStart write FOnTranslateStart;
@@ -277,19 +298,6 @@ type
 
     // Configuration file for designer use - loads INI when set
     property ConfigFile: string read FConfigFile write SetConfigFile;
-
-    // Flattened proxy properties (records cannot be published)
-    property ProxyMode: TProxyMode read GetProxyMode write SetProxyMode;
-    property ProxyType: TProxyType read GetProxyType write SetProxyType;
-    property ProxyHost: string read GetProxyHost write SetProxyHost;
-    property ProxyPort: string read GetProxyPort write SetProxyPort;
-    property ProxyAuthentication: boolean read GetProxyAuthentication write SetProxyAuthentication;
-    property ProxyLogin: string read GetProxyLogin write SetProxyLogin;
-    property ProxyPassword: string read GetProxyPassword write SetProxyPassword;
-
-    // Flattened timeout properties
-    property TimeoutConnection: integer read GetTimeoutConnection write SetTimeoutConnection;
-    property TimeoutRequest: integer read GetTimeoutRequest write SetTimeoutRequest;
 
     // Fired when a designer-visible property changes
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -305,25 +313,13 @@ type
     property LangSource;
     property LangTarget;
 
-    // Detect mode: silent translation used only for language detection
-    property LangDetect;
-    property ThreadsWaitTime;
-
     // Allow the request to use the proxy below
     property AllowProxy;
 
-    // Proxy (records cannot be published, so the fields are flattened)
-    property ProxyMode;
-    property ProxyType;
-    property ProxyHost;
-    property ProxyPort;
-    property ProxyAuthentication;
-    property ProxyLogin;
-    property ProxyPassword;
-
-    // Timeouts
-    property TimeoutConnection;
-    property TimeoutRequest;
+    // Proxy and timeout are TPersistent, so the Object Inspector
+    // shows them as expandable nested groups
+    property Proxy;
+    property Timeout;
 
     // Lifecycle events
     property OnTranslateStart;
@@ -342,19 +338,16 @@ type
     FSourceText: string;
     FExceptionMessage: string;
     FCancelled: boolean;
-    FLangDetect: boolean;
   protected
     procedure Execute; override;
     function GetIsTerminated: boolean;
     function GetIsCancelled: boolean;
     function GetResultText: string;
   public
-    constructor Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; ALangDetect: boolean;
-      AFreeOnTerminate: boolean = True);
+    constructor Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; AFreeOnTerminate: boolean = True);
     procedure Cancel;
     property IsTerminated: boolean read GetIsTerminated;
     property IsCancelled: boolean read GetIsCancelled;
-    property LangDetect: boolean read FLangDetect;
     property ExceptionMessage: string read FExceptionMessage;
     property ResultText: string read GetResultText;
   end;
@@ -363,12 +356,96 @@ const
   DEFAULT_LANG = 'en';
   EMPTY_LANG = 'empty';
   REGEXP_ERROR = 'REGEX_ERROR: ';
+  THREADS_WAIT_TIME = 5000;
 
 implementation
 
 uses StringsHelper, StringHelper, Localize, OSUtils, Languages;
 
-  {%Region -fold TTranslate }
+  {%Region -fold TTranslateProxy }
+
+procedure TTranslateProxy.Changed;
+begin
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
+
+procedure TTranslateProxy.Assign(Source: TPersistent);
+begin
+  if Source is TTranslateProxy then
+  begin
+    FMode := TTranslateProxy(Source).FMode;
+    FType := TTranslateProxy(Source).FType;
+    FHost := TTranslateProxy(Source).FHost;
+    FPort := TTranslateProxy(Source).FPort;
+    FAuthentication := TTranslateProxy(Source).FAuthentication;
+    FLogin := TTranslateProxy(Source).FLogin;
+    FPassword := TTranslateProxy(Source).FPassword;
+    Changed;
+  end
+  else
+    inherited Assign(Source);
+end;
+
+function TTranslateProxy.ToProxy: TProxy;
+begin
+  Result.ProxyMode := FMode;
+  Result.ProxyType := FType;
+  Result.Host := FHost;
+  Result.Port := FPort;
+  Result.Authentication := FAuthentication;
+  Result.Login := FLogin;
+  Result.Password := FPassword;
+end;
+
+procedure TTranslateProxy.FromProxy(const AProxy: TProxy);
+begin
+  FMode := AProxy.ProxyMode;
+  FType := AProxy.ProxyType;
+  FHost := AProxy.Host;
+  FPort := AProxy.Port;
+  FAuthentication := AProxy.Authentication;
+  FLogin := AProxy.Login;
+  FPassword := AProxy.Password;
+  Changed;
+end;
+
+{ TTranslateTimeout }
+
+procedure TTranslateTimeout.Changed;
+begin
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
+
+procedure TTranslateTimeout.Assign(Source: TPersistent);
+begin
+  if Source is TTranslateTimeout then
+  begin
+    FConnection := TTranslateTimeout(Source).FConnection;
+    FRequest := TTranslateTimeout(Source).FRequest;
+    Changed;
+  end
+  else
+    inherited Assign(Source);
+end;
+
+function TTranslateTimeout.ToTimeout: TTimeout;
+begin
+  Result.Connection := FConnection;
+  Result.Request := FRequest;
+end;
+
+procedure TTranslateTimeout.FromTimeout(const ATimeout: TTimeout);
+begin
+  FConnection := ATimeout.Connection;
+  FRequest := ATimeout.Request;
+  Changed;
+end;
+
+{%EndRegion}
+
+{%Region -fold TCustomTranslate }
 
 constructor TCustomTranslate.Create(AOwner: TComponent);
 begin
@@ -448,9 +525,14 @@ begin
   FTranslateThread := nil;
   FCancelled := False;
   FRawTranslate := string.Empty;
-  FLangDetect := False;
-  FThreadsWaitTime := 5000;
   FConfigFile := string.Empty;
+  FProxy := TTranslateProxy.Create;
+  FProxy.Mode := pmNone;
+  FProxy.Type_ := ptHTTP;
+  FTimeout := TTranslateTimeout.Create;
+  FTimeout.Connection := CONNECT_TIMEOUT;
+  FTimeout.Request := REQUEST_TIMEOUT;
+
   FOnTranslateStart := nil;
   FOnTranslateComplete := nil;
   FOnTranslateFinish := nil;
@@ -466,7 +548,7 @@ begin
   // Wait for all translation threads with the configured global timeout
   if Assigned(FActiveThreads) then
   begin
-    TotalDeadline := TOS.GetTickCountXp + DWORD(FThreadsWaitTime);
+    TotalDeadline := TOS.GetTickCountXp + DWORD(THREADS_WAIT_TIME);
     repeat
       // Sweep finished threads from the end
       i := FActiveThreads.Count - 1;
@@ -514,6 +596,8 @@ begin
   FInitParameters.Free;
   FParameterValues.Free;
   FParameterEncode.Free;
+  FreeAndNil(FProxy);
+  FreeAndNil(FTimeout);
   inherited Destroy;
 end;
 
@@ -572,114 +656,6 @@ begin
   Changed;
 end;
 
-function TCustomTranslate.GetProxyMode: TProxyMode;
-begin
-  Result := FProxy.ProxyMode;
-end;
-
-procedure TCustomTranslate.SetProxyMode(Value: TProxyMode);
-begin
-  if FProxy.ProxyMode = Value then Exit;
-  FProxy.ProxyMode := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetProxyType: TProxyType;
-begin
-  Result := FProxy.ProxyType;
-end;
-
-procedure TCustomTranslate.SetProxyType(Value: TProxyType);
-begin
-  if FProxy.ProxyType = Value then Exit;
-  FProxy.ProxyType := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetProxyHost: string;
-begin
-  Result := FProxy.Host;
-end;
-
-procedure TCustomTranslate.SetProxyHost(const Value: string);
-begin
-  if FProxy.Host = Value then Exit;
-  FProxy.Host := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetProxyPort: string;
-begin
-  Result := FProxy.Port;
-end;
-
-procedure TCustomTranslate.SetProxyPort(const Value: string);
-begin
-  if FProxy.Port = Value then Exit;
-  FProxy.Port := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetProxyAuthentication: boolean;
-begin
-  Result := FProxy.Authentication;
-end;
-
-procedure TCustomTranslate.SetProxyAuthentication(Value: boolean);
-begin
-  if FProxy.Authentication = Value then Exit;
-  FProxy.Authentication := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetProxyLogin: string;
-begin
-  Result := FProxy.Login;
-end;
-
-procedure TCustomTranslate.SetProxyLogin(const Value: string);
-begin
-  if FProxy.Login = Value then Exit;
-  FProxy.Login := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetProxyPassword: string;
-begin
-  Result := FProxy.Password;
-end;
-
-procedure TCustomTranslate.SetProxyPassword(const Value: string);
-begin
-  if FProxy.Password = Value then Exit;
-  FProxy.Password := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetTimeoutConnection: integer;
-begin
-  Result := FTimeout.Connection;
-end;
-
-procedure TCustomTranslate.SetTimeoutConnection(Value: integer);
-begin
-  if FTimeout.Connection = Value then Exit;
-  FTimeout.Connection := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetTimeoutRequest: integer;
-begin
-  Result := FTimeout.Request;
-end;
-
-procedure TCustomTranslate.SetTimeoutRequest(Value: integer);
-begin
-  if FTimeout.Request = Value then Exit;
-  FTimeout.Request := Value;
-  Changed;
-end;
-
 procedure TCustomTranslate.SyncGetParameterValue;
 begin
   FResultOk := True;
@@ -699,7 +675,7 @@ begin
   FServiceOnlyButton := False;
   FServiceProxy := True;
   FAllowProxy := True;
-  FProxy := Default(TProxy);
+  FProxy.FromProxy(Default(TProxy));
   FServiceColorRecent := clBlue;
   FServiceDescription.Clear;
   FWebMethod := wmGet;
@@ -1001,7 +977,7 @@ begin
   try
     // Call overloaded WebRequest (caller takes ownership)
     responseBody := TNetwork.WebRequest(wmGet, FInitUrl, string.Empty, InitHeaders, FInitUserAgent,
-      string.Empty, string.Empty, FAllowProxy, FProxy, FTimeout, FCookies, responseHeaders, Error, localHTTP);
+      string.Empty, string.Empty, FAllowProxy, FProxy.ToProxy, FTimeout.ToTimeout, FCookies, responseHeaders, Error, localHTTP);
 
     if Error then Exit(responseBody);
 
@@ -1056,7 +1032,7 @@ begin
     FCurrentHTTP := localHTTP;
     try
       responseBody := TNetwork.WebRequest(wmGet, TempUrl, string.Empty, TempHeaders, FUserAgent, FContentType,
-        FAccept, FAllowProxy, FProxy, FTimeout, FCookies, responseHeaders, Error, localHTTP);
+        FAccept, FAllowProxy, FProxy.ToProxy, FTimeout.ToTimeout, FCookies, responseHeaders, Error, localHTTP);
 
       if Error then
       begin
@@ -1131,7 +1107,7 @@ begin
     FCurrentHTTP := localHTTP;
     try
       responseBody := TNetwork.WebRequest(wmPost, TempUrl, TempData, TempHeaders, FUserAgent, FContentType,
-        FAccept, FAllowProxy, FProxy, FTimeout, FCookies, responseHeaders, Error, localHTTP);
+        FAccept, FAllowProxy, FProxy.ToProxy, FTimeout.ToTimeout, FCookies, responseHeaders, Error, localHTTP);
 
       if Error then
       begin
@@ -1785,7 +1761,7 @@ begin
     FRawTranslate := string.Empty;
     ThDone := False;
 
-    Th := TTranslateThread.Create(Self, @FRawTranslate, @ThDone, FLangDetect);
+    Th := TTranslateThread.Create(Self, @FRawTranslate, @ThDone);
     FTranslateThread := Th;
     FActiveThreads.Add(Th);
 
@@ -2378,8 +2354,7 @@ end;
 
 {%Region -fold TTranslateThread }
 
-constructor TTranslateThread.Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; ALangDetect: boolean;
-  AFreeOnTerminate: boolean = True);
+constructor TTranslateThread.Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; AFreeOnTerminate: boolean = True);
 begin
   inherited Create(True);
   FreeOnTerminate := AFreeOnTerminate;
@@ -2390,7 +2365,6 @@ begin
   FExceptionMessage := string.Empty;
   FResult := AResult;
   FDone := ADone;
-  FLangDetect := ALangDetect;
 
   if Assigned(FDone) then
     FDone^ := False;
