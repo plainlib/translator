@@ -55,7 +55,22 @@ type
     ImageIndex: integer;
   end;
 
-  { Event used to request a user-supplied parameter value from the host application }
+  { Action proposed by language detection analysis }
+  TLanguageDetectAction = (ldaNone, ldaSwap, ldaChangeSource, ldaChangeTarget, ldaChangeBoth);
+
+  { Language detection analysis result, passed to OnLanguageDetected }
+  TLanguageDetectResult = record
+    DetectedLanguage: string;  // Normalized detected language code
+    OldSource: string;         // Source language before analysis
+    OldTarget: string;         // Target language before analysis
+    NewSource: string;         // Suggested source code (empty means no change)
+    NewTarget: string;         // Suggested target code (empty means no change)
+    Action: TLanguageDetectAction;
+    Applied: boolean;          // True when Detect.AutoApply already applied the result
+  end;
+
+  { Translate Events }
+  TLanguageDetectEvent = procedure(Sender: TObject; const AResult: TLanguageDetectResult) of object;
   TGetParameterEvent = procedure(const AParamName: string; var AValue: string; var AHandled: boolean) of object;
   TTranslateNotify = procedure(Sender: TObject; const AText: string) of object;
 
@@ -80,12 +95,19 @@ type
     procedure FromProxy(const AProxy: TProxy);
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   published
+    // Proxy mode: none, system, or custom from the fields below
     property Mode: TProxyMode read FMode write FMode default pmNone;
+    // Proxy protocol used for custom mode, HTTP by default
     property Type_: TProxyType read FType write FType default ptHTTP;
+    // Proxy server host name or IP address
     property Host: string read FHost write FHost;
+    // Proxy server port as a string to allow empty values
     property Port: string read FPort write FPort;
+    // Enables login and password authentication on the proxy
     property Authentication: boolean read FAuthentication write FAuthentication default False;
+    // User name sent when proxy authentication is enabled
     property Login: string read FLogin write FLogin;
+    // Password sent when proxy authentication is enabled
     property Password: string read FPassword write FPassword;
   end;
 
@@ -102,15 +124,69 @@ type
     procedure FromTimeout(const ATimeout: TTimeout);
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   published
+    // Connection timeout in milliseconds, used while opening the socket
     property Connection: integer read FConnection write FConnection default 10000;
+    // Request timeout in milliseconds, covers the whole HTTP exchange
     property Request: integer read FRequest write FRequest default 30000;
+  end;
+
+  { Nested language detection settings }
+  TDetectSettings = class(TPersistent)
+  private
+    FAllowProxy: boolean;
+    FConfigFile: string;
+    FBuiltinDetect: boolean;
+    FEnabled: boolean;
+    FAutoApply: boolean;
+    FAutoSwap: boolean;
+    FSmartSwap: boolean;
+    FSmartHard: boolean;
+    FPrimaryLanguage: string;
+    FSecondaryLanguage: string;
+    FOnChange: TNotifyEvent;
+    procedure Changed;
+    procedure SetConfigFile(const Value: string);
+    procedure SetUseBuiltin(Value: boolean);
+    procedure SetEnabled(Value: boolean);
+    procedure SetAutoApply(Value: boolean);
+    procedure SetAutoSwap(Value: boolean);
+    procedure SetSmartSwap(Value: boolean);
+    procedure SetSmartHard(Value: boolean);
+    procedure SetPrimaryLanguage(const Value: string);
+    procedure SetSecondaryLanguage(const Value: string);
+    procedure SetAllowProxy(Value: boolean);
+  public
+    constructor Create;
+    procedure Assign(Source: TPersistent); override;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  published
+    // Apply the detection result automatically; no OnLanguageDetected handler needed
+    property AutoApply: boolean read FAutoApply write SetAutoApply default False;
+    // Allows the detect engine to use the configured proxy
+    property AllowProxy: boolean read FAllowProxy write SetAllowProxy default True;
+    // Path to the detect service INI, ignored when UseBuiltin is True
+    property ConfigFile: string read FConfigFile write SetConfigFile;
+    // Use the built-in offline detector instead of an HTTP service
+    property BuiltinDetect: boolean read FBuiltinDetect write SetUseBuiltin default True;
+    // Run detection before each translation and notify via OnLanguageDetected
+    property Enabled: boolean read FEnabled write SetEnabled default False;
+    // Allow plain swap when detected language matches the target
+    property AutoSwap: boolean read FAutoSwap write SetAutoSwap default True;
+    // Compare detected language with the pair instead of blind swap
+    property SmartSwap: boolean read FSmartSwap write SetSmartSwap default False;
+    // Restrict smart swap to the primary and secondary pair only
+    property SmartHard: boolean read FSmartHard write SetSmartHard default False;
+    // Main language code used by smart swap as the expected source
+    property PrimaryLanguage: string read FPrimaryLanguage write SetPrimaryLanguage;
+    // Second language code used by smart swap as the expected target
+    property SecondaryLanguage: string read FSecondaryLanguage write SetSecondaryLanguage;
   end;
 
   { TCustomTranslate }
   TCustomTranslate = class(TComponent)
   private
-    FLangSource: string;
-    FLangTarget: string;
+    FSourceLanguage: string;
+    FTargetLanguage: string;
     FTextToTranslate: string;
     FIsTruncated: boolean;
     FCookies: TStringList;
@@ -176,7 +252,16 @@ type
 
     // Built-in language detection profiles state
     FProfilesLoaded: boolean;
-    FAutoLoadProfiles: boolean;
+
+    // Nested detection settings and internal HTTP detect engine
+    FDetect: TDetectSettings;
+    FDetectEngine: TCustomTranslate;
+    FLoadedDetectConfig: string;
+    FLastBuiltinDetect: boolean;
+
+    // Detection event and cross-thread result buffer
+    FOnLanguageDetected: TLanguageDetectEvent;
+    FPendingDetectResult: TLanguageDetectResult;
 
     // Configuration file for designer use
     FConfigFile: string;
@@ -187,7 +272,6 @@ type
     FOnTranslateFinish: TNotifyEvent;
     FOnChange: TNotifyEvent;
 
-    procedure SetAutoLoadProfiles(Value: boolean);
     procedure SyncGetParameterValue;
     procedure ThreadTerminated(Sender: TObject);
     procedure ThreadTerminatedAsync(Sender: TObject);
@@ -200,10 +284,24 @@ type
     procedure SetTimeout(Value: TTranslateTimeout);
 
     // Language accessors (fire OnChange)
-    function GetLangSource: string;
-    procedure SetLangSource(const Value: string);
-    function GetLangTarget: string;
-    procedure SetLangTarget(const Value: string);
+    function GetSourceLanguage: string;
+    procedure SetSourceLanguage(const Value: string);
+    function GetTargetLanguage: string;
+    procedure SetTargetLanguage(const Value: string);
+
+    // Detect settings handler and internal detect engine plumbing
+    procedure SetDetect(Value: TDetectSettings);
+    procedure DetectChanged(Sender: TObject);
+    procedure ProxyChanged(Sender: TObject);
+    procedure TimeoutChanged(Sender: TObject);
+    procedure EnsureDetectEngine;
+    function DetectLanguageInternal(const AText: string): string;
+    function AnalyzeLanguage(const AText: string): TLanguageDetectResult;
+    procedure ApplyDetectResult(const AResult: TLanguageDetectResult);
+    procedure DoLanguageDetected;
+    procedure FireLanguageDetected(const AResult: TLanguageDetectResult);
+    function FindLanguageCode(const ALangCode: string): string;
+    function ShouldAutoDetect(ADetectLanguage: boolean): boolean;
   protected
     // Fires OnChange for designer notifications
     procedure Changed;
@@ -227,8 +325,8 @@ type
     function CleanTranslatedText(const OriginalText, TranslatedText: string): string;
     function Translate: string;
     // Thread management
-    function TranslateSync(const AText: string): string;
-    procedure TranslateAsync(const AText: string);
+    function TranslateSync(const AText: string; ADetectLanguage: boolean = True): string;
+    procedure TranslateAsync(const AText: string; ADetectLanguage: boolean = True);
     function IsTranslating: boolean;
     procedure CancelTranslate;
 
@@ -253,8 +351,15 @@ type
     class procedure ClearSection(AIni: TIniFile; const ASection: string; AErase: boolean); static;
     class function GetIniDirectory(AppName: string; fileName: string = string.Empty): string;
 
-    property LangSource: string read GetLangSource write SetLangSource;
-    property LangTarget: string read GetLangTarget write SetLangTarget;
+    { Properties }
+    property Detect: TDetectSettings read FDetect write SetDetect;
+    property DetectEngine: TCustomTranslate read FDetectEngine;
+    property OnLanguageDetected: TLanguageDetectEvent read FOnLanguageDetected write FOnLanguageDetected;
+    // True when built-in detection profiles are loaded in memory
+    property ProfilesLoaded: boolean read FProfilesLoaded;
+
+    property SourceLanguage: string read GetSourceLanguage write SetSourceLanguage;
+    property TargetLanguage: string read GetTargetLanguage write SetTargetLanguage;
     property TextToTranslate: string read FTextToTranslate write FTextToTranslate;
     property ParametersAge: TDateTime read FParametersAge write FParametersAge;
     property ParameterValues: TStringList read FParameterValues write FParameterValues;
@@ -331,16 +436,16 @@ type
     property ConfigFile;
 
     // Source language code, overrides the INI value when not empty
-    property LangSource;
+    property SourceLanguage;
 
     // Target language code, overrides the INI value when not empty
-    property LangTarget;
+    property TargetLanguage;
 
     // Allow this service to use the proxy configured below
     property AllowProxy;
 
-    // Load built-in detection profiles automatically; set False to release them
-    property AutoLoadProfiles: boolean read FAutoLoadProfiles write SetAutoLoadProfiles default False;
+    // Language detection settings
+    property Detect;
 
     // Proxy settings, expandable group in the Object Inspector
     property Proxy;
@@ -360,6 +465,9 @@ type
     // Fires when the service needs a user-supplied parameter value
     property OnGetParameter;
 
+    // Fires when detection proposes a language change; caller applies it
+    property OnLanguageDetected;
+
     // Fires when a designer-visible property changes
     property OnChange;
   end;
@@ -371,6 +479,7 @@ type
     FResult: PString;
     FDone: PBoolean;
     FSourceText: string;
+    FDetectLanguage: boolean;
     FExceptionMessage: string;
     FCancelled: boolean;
   protected
@@ -379,7 +488,8 @@ type
     function GetIsCancelled: boolean;
     function GetResultText: string;
   public
-    constructor Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; AFreeOnTerminate: boolean = True);
+    constructor Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; ADetectLanguage: boolean = True;
+      AFreeOnTerminate: boolean = True);
     procedure Cancel;
     property IsTerminated: boolean read GetIsTerminated;
     property IsCancelled: boolean read GetIsCancelled;
@@ -397,7 +507,119 @@ implementation
 
 uses StringsHelper, StringHelper, Localize, OSUtils, Languages, LangDetect;
 
-  {%Region -fold TTranslateProxy }
+  {%Region -fold TDetectSettings }
+
+constructor TDetectSettings.Create;
+begin
+  inherited Create;
+  FAllowProxy := True;
+  FBuiltinDetect := True;
+  FEnabled := False;
+  FAutoApply := False;
+  FAutoSwap := True;
+  FSmartSwap := False;
+  FSmartHard := False;
+end;
+
+procedure TDetectSettings.Changed;
+begin
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
+
+procedure TDetectSettings.SetConfigFile(const Value: string);
+begin
+  if FConfigFile = Value then Exit;
+  FConfigFile := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetUseBuiltin(Value: boolean);
+begin
+  if FBuiltinDetect = Value then Exit;
+  FBuiltinDetect := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetEnabled(Value: boolean);
+begin
+  if FEnabled = Value then Exit;
+  FEnabled := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetAutoApply(Value: boolean);
+begin
+  if FAutoApply = Value then Exit;
+  FAutoApply := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetAutoSwap(Value: boolean);
+begin
+  if FAutoSwap = Value then Exit;
+  FAutoSwap := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetSmartSwap(Value: boolean);
+begin
+  if FSmartSwap = Value then Exit;
+  FSmartSwap := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetSmartHard(Value: boolean);
+begin
+  if FSmartHard = Value then Exit;
+  FSmartHard := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetPrimaryLanguage(const Value: string);
+begin
+  if FPrimaryLanguage = Value then Exit;
+  FPrimaryLanguage := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetSecondaryLanguage(const Value: string);
+begin
+  if FSecondaryLanguage = Value then Exit;
+  FSecondaryLanguage := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.SetAllowProxy(Value: boolean);
+begin
+  if FAllowProxy = Value then Exit;
+  FAllowProxy := Value;
+  Changed;
+end;
+
+procedure TDetectSettings.Assign(Source: TPersistent);
+begin
+  if Source is TDetectSettings then
+  begin
+    FAllowProxy := TDetectSettings(Source).FAllowProxy;
+    FConfigFile := TDetectSettings(Source).FConfigFile;
+    FBuiltinDetect := TDetectSettings(Source).FBuiltinDetect;
+    FEnabled := TDetectSettings(Source).FEnabled;
+    FAutoApply := TDetectSettings(Source).FAutoApply;
+    FAutoSwap := TDetectSettings(Source).FAutoSwap;
+    FSmartSwap := TDetectSettings(Source).FSmartSwap;
+    FSmartHard := TDetectSettings(Source).FSmartHard;
+    FPrimaryLanguage := TDetectSettings(Source).FPrimaryLanguage;
+    FSecondaryLanguage := TDetectSettings(Source).FSecondaryLanguage;
+    Changed;
+  end
+  else
+    inherited Assign(Source);
+end;
+
+{%EndRegion}
+
+{%Region -fold TTranslateProxy }
 
 procedure TTranslateProxy.Changed;
 begin
@@ -482,6 +704,364 @@ end;
 
 {%Region -fold TCustomTranslate }
 
+{ Private }
+
+procedure TCustomTranslate.SyncGetParameterValue;
+begin
+  FResultOk := True;
+  FResultValue := string.Empty;
+  if Assigned(FOnGetParameter) then
+    FOnGetParameter(FParamName, FResultValue, FResultOk);
+end;
+
+procedure TCustomTranslate.ThreadTerminated(Sender: TObject);
+var
+  Idx: integer;
+begin
+  if Sender = FTranslateThread then
+    FTranslateThread := nil;
+
+  if Assigned(FActiveThreads) then
+  begin
+    Idx := FActiveThreads.IndexOf(Sender);
+    if Idx >= 0 then
+      FActiveThreads.Delete(Idx);
+  end;
+end;
+
+procedure TCustomTranslate.ThreadTerminatedAsync(Sender: TObject);
+var
+  Idx: integer;
+  Text: string;
+  WasCancelled: boolean;
+begin
+  // Snapshot before firing user events, so a new async call from a handler
+  // does not see a half-updated state
+  Text := FRawTranslate;
+  WasCancelled := FCancelled;
+
+  // Clear the active thread first so user handlers may start a new async call
+  if Sender = FTranslateThread then
+    FTranslateThread := nil;
+
+  if Assigned(FActiveThreads) then
+  begin
+    Idx := FActiveThreads.IndexOf(Sender);
+    if Idx >= 0 then
+      FActiveThreads.Delete(Idx);
+  end;
+
+  try
+    if not WasCancelled and (Text.Trim <> string.Empty) then
+    begin
+      if Assigned(FOnTranslateComplete) then
+        FOnTranslateComplete(Self, Text);
+    end;
+  finally
+    if Assigned(FOnTranslateFinish) then
+      FOnTranslateFinish(Self);
+  end;
+end;
+
+procedure TCustomTranslate.SetConfigFile(const Value: string);
+begin
+  if FConfigFile = Value then Exit;
+  FConfigFile := Value;
+  // Load INI content immediately so the designer shows real values
+  if (Value <> string.Empty) and FileExists(Value) then
+    LoadIniSettings(Value);
+  Changed;
+end;
+
+procedure TCustomTranslate.SetProxy(Value: TTranslateProxy);
+begin
+  FProxy.Assign(Value);
+end;
+
+procedure TCustomTranslate.SetTimeout(Value: TTranslateTimeout);
+begin
+  FTimeout.Assign(Value);
+end;
+
+function TCustomTranslate.GetSourceLanguage: string;
+begin
+  Result := FSourceLanguage;
+end;
+
+procedure TCustomTranslate.SetSourceLanguage(const Value: string);
+begin
+  if FSourceLanguage = Value then Exit;
+  FSourceLanguage := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetTargetLanguage: string;
+begin
+  Result := FTargetLanguage;
+end;
+
+procedure TCustomTranslate.SetTargetLanguage(const Value: string);
+begin
+  if FTargetLanguage = Value then Exit;
+  FTargetLanguage := Value;
+  Changed;
+end;
+
+procedure TCustomTranslate.SetDetect(Value: TDetectSettings);
+begin
+  FDetect.Assign(Value);
+end;
+
+procedure TCustomTranslate.DetectChanged(Sender: TObject);
+begin
+  // Unload built-in profiles only when BuiltinDetect switches off. Loading is
+  // deferred to DetectLanguageInternal because LFM applies sub-properties one
+  // by one in file order, and Enabled may arrive before BuiltinDetect.
+  if FLastBuiltinDetect and not FDetect.BuiltinDetect then
+    UnloadDetectProfiles;
+  FLastBuiltinDetect := FDetect.BuiltinDetect;
+
+  // Force reload of detect engine INI on next use
+  FLoadedDetectConfig := string.Empty;
+  // Keep runtime proxy gate in sync with stored intent
+  if Assigned(FDetectEngine) then
+    FDetectEngine.AllowProxy := FDetect.AllowProxy and FDetectEngine.ServiceProxy;
+end;
+
+procedure TCustomTranslate.ProxyChanged(Sender: TObject);
+begin
+  if Assigned(FDetectEngine) then
+    FDetectEngine.Proxy.Assign(FProxy);
+end;
+
+procedure TCustomTranslate.TimeoutChanged(Sender: TObject);
+begin
+  if Assigned(FDetectEngine) then
+    FDetectEngine.Timeout.Assign(FTimeout);
+end;
+
+procedure TCustomTranslate.EnsureDetectEngine;
+begin
+  if FDetect.BuiltinDetect then Exit;
+  if FDetect.ConfigFile = string.Empty then Exit;
+
+  if not Assigned(FDetectEngine) then
+  begin
+    FDetectEngine := TTranslate.Create(Self);
+    FDetectEngine.OnGetParameter := FOnGetParameter;
+    FDetectEngine.UserParameters := FUserParameters;
+    FDetectEngine.Proxy.Assign(FProxy);
+    FDetectEngine.Timeout.Assign(FTimeout);
+    FLoadedDetectConfig := string.Empty;
+  end;
+
+  if FLoadedDetectConfig <> FDetect.ConfigFile then
+  begin
+    if FileExists(FDetect.ConfigFile) then
+    begin
+      FDetectEngine.LoadIniSettings(FDetect.ConfigFile);
+      FLoadedDetectConfig := FDetect.ConfigFile;
+    end;
+  end;
+
+  // Re-apply proxy gate now that ServiceProxy is known from INI
+  FDetectEngine.AllowProxy := FDetect.AllowProxy and FDetectEngine.ServiceProxy;
+end;
+
+function TCustomTranslate.DetectLanguageInternal(const AText: string): string;
+var
+  Sample: string;
+begin
+  Result := string.Empty;
+
+  if FDetect.BuiltinDetect then
+  begin
+    // Safety net: profiles are loaded on BuiltinDetect transitions, but
+    // force-load here too in case the component was created with Builtin=True
+    LoadDetectProfiles;
+    Sample := AText.ExtractTextSample;
+    Result := DetectLanguage(Sample, FSourceLanguage);
+  end
+  else
+  begin
+    if FDetect.ConfigFile = string.Empty then Exit;
+
+    EnsureDetectEngine;
+    if not Assigned(FDetectEngine) then Exit;
+
+    Sample := AText.ExtractTextSample;
+    FDetectEngine.SourceLanguage := FSourceLanguage;
+    FDetectEngine.TargetLanguage := FTargetLanguage;
+    FDetectEngine.TextToTranslate := Sample;
+    // Synchronous fetch from the current worker thread, no nested thread
+    Result := Trim(FDetectEngine.Translate);
+  end;
+
+  Result := NormalizeLanguageCode(LowerCase(Result));
+end;
+
+function TCustomTranslate.AnalyzeLanguage(const AText: string): TLanguageDetectResult;
+var
+  LangSrc, LangTar, LangDetect, LangPrimary, LangSecondary: string;
+  NewSrcCode, NewTarCode: string;
+  NeedSrcChange, NeedTarChange: boolean;
+begin
+  Result := Default(TLanguageDetectResult);
+  Result.OldSource := FSourceLanguage;
+  Result.OldTarget := FTargetLanguage;
+  Result.Action := ldaNone;
+
+  if FCancelled then Exit;
+  if not FDetect.Enabled then Exit;
+
+  LangDetect := DetectLanguageInternal(AText);
+  if FCancelled then Exit;
+  if (LangDetect = string.Empty) or (Length(LangDetect) > 5) or (LangDetect = UNKNOWN) then Exit;
+
+  Result.DetectedLanguage := LangDetect;
+
+  LangSrc := LowerCase(FSourceLanguage);
+  LangTar := LowerCase(FTargetLanguage);
+  LangPrimary := LowerCase(FDetect.PrimaryLanguage);
+  LangSecondary := LowerCase(FDetect.SecondaryLanguage);
+
+  // Skip special codes such as 'auto'
+  if TLanguages.IsSpecialCode(LangSrc) or TLanguages.IsSpecialCode(LangTar) then Exit;
+
+  if not FDetect.SmartSwap then
+  begin
+    // Simple swap: only when detected language matches the target
+    if FDetect.AutoSwap and (LangTar = LangDetect) then
+    begin
+      Result.Action := ldaSwap;
+      Result.NewSource := FTargetLanguage;
+      Result.NewTarget := FSourceLanguage;
+    end;
+    Exit;
+  end;
+
+  // Smart swap: straight swap when the pair is a known primary/secondary match
+  if ((LangSrc = LangDetect) or (LangTar = LangDetect)) and ((not FDetect.SmartHard) or
+    (((LangSrc = LangPrimary) and (LangTar = LangSecondary)) or ((LangSrc = LangSecondary) and (LangTar = LangPrimary)))) then
+  begin
+    if FDetect.AutoSwap and (LangTar = LangDetect) then
+    begin
+      Result.Action := ldaSwap;
+      Result.NewSource := FTargetLanguage;
+      Result.NewTarget := FSourceLanguage;
+    end;
+    Exit;
+  end;
+
+  // Smart swap: adjust source and optionally target
+  NeedSrcChange := False;
+  NeedTarChange := False;
+  NewSrcCode := string.Empty;
+  NewTarCode := string.Empty;
+
+  if LangSrc <> LangDetect then
+  begin
+    if LangDetect = LangPrimary then
+    begin
+      if LangSrc <> LangPrimary then
+      begin
+        NewSrcCode := FindLanguageCode(LangPrimary);
+        NeedSrcChange := NewSrcCode <> string.Empty;
+      end;
+      if FDetect.SmartHard and (LangTar <> LangSecondary) then
+      begin
+        NewTarCode := FindLanguageCode(LangSecondary);
+        NeedTarChange := NewTarCode <> string.Empty;
+      end;
+    end
+    else
+    begin
+      NewSrcCode := FindLanguageCode(LangDetect);
+      NeedSrcChange := NewSrcCode <> string.Empty;
+      if FDetect.SmartHard and (LangTar <> LangPrimary) then
+      begin
+        NewTarCode := FindLanguageCode(LangPrimary);
+        NeedTarChange := NewTarCode <> string.Empty;
+      end;
+    end;
+  end;
+
+  Result.NewSource := NewSrcCode;
+  Result.NewTarget := NewTarCode;
+
+  if NeedSrcChange and NeedTarChange then
+    Result.Action := ldaChangeBoth
+  else if NeedSrcChange then
+    Result.Action := ldaChangeSource
+  else if NeedTarChange then
+    Result.Action := ldaChangeTarget
+  else
+    Result.Action := ldaNone;
+end;
+
+procedure TCustomTranslate.ApplyDetectResult(const AResult: TLanguageDetectResult);
+begin
+  case AResult.Action of
+    ldaSwap, ldaChangeBoth:
+    begin
+      if AResult.NewSource <> string.Empty then
+        FSourceLanguage := AResult.NewSource;
+      if AResult.NewTarget <> string.Empty then
+        FTargetLanguage := AResult.NewTarget;
+    end;
+    ldaChangeSource:
+      if AResult.NewSource <> string.Empty then
+        FSourceLanguage := AResult.NewSource;
+    ldaChangeTarget:
+      if AResult.NewTarget <> string.Empty then
+        FTargetLanguage := AResult.NewTarget;
+    ldaNone:
+      ; // nothing to apply
+  end;
+end;
+
+procedure TCustomTranslate.DoLanguageDetected;
+begin
+  if Assigned(FOnLanguageDetected) then
+    FOnLanguageDetected(Self, FPendingDetectResult);
+end;
+
+procedure TCustomTranslate.FireLanguageDetected(const AResult: TLanguageDetectResult);
+begin
+  if not Assigned(FOnLanguageDetected) then Exit;
+  FPendingDetectResult := AResult;
+  // Detection runs inside the translate thread, so marshal the event to the main thread
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    TThread.Synchronize(nil, @DoLanguageDetected)
+  else
+    DoLanguageDetected;
+end;
+
+function TCustomTranslate.FindLanguageCode(const ALangCode: string): string;
+var
+  Idx: integer;
+begin
+  Result := string.Empty;
+  Idx := Languages.IndexOfNameIgnoreCase(ALangCode);
+  if Idx >= 0 then
+    Result := Languages.Names[Idx];
+end;
+
+function TCustomTranslate.ShouldAutoDetect(ADetectLanguage: boolean): boolean;
+begin
+  Result := ADetectLanguage and FDetect.Enabled and not FCancelled;
+end;
+
+{ Protected }
+
+procedure TCustomTranslate.Changed;
+begin
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
+
+{ Public }
+
 constructor TCustomTranslate.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -549,8 +1129,8 @@ begin
   FInitLiveTime := 60;
   FAllowProxy := True;
 
-  FLangSource := DEFAULT_LANG;
-  FLangTarget := Language;
+  FSourceLanguage := DEFAULT_LANG;
+  FTargetLanguage := Language;
   FCookies := TStringList.Create;
   FCurrentHTTP := nil;
   FHTTPList := TList.Create;
@@ -562,13 +1142,25 @@ begin
   FRawTranslate := string.Empty;
   FConfigFile := string.Empty;
   FProfilesLoaded := False;
-  FAutoLoadProfiles := False;
   FProxy := TTranslateProxy.Create;
+  FProxy.OnChange := @ProxyChanged;
   FProxy.Mode := pmNone;
   FProxy.Type_ := ptHTTP;
   FTimeout := TTranslateTimeout.Create;
+  FTimeout.OnChange := @TimeoutChanged;
   FTimeout.Connection := CONNECT_TIMEOUT;
   FTimeout.Request := REQUEST_TIMEOUT;
+
+  // Nested detection settings
+  FDetect := TDetectSettings.Create;
+  FDetect.OnChange := @DetectChanged;
+
+  // Detect engine is created lazily only when an INI config is used
+  FDetectEngine := nil;
+  FLoadedDetectConfig := string.Empty;
+  FLastBuiltinDetect := FDetect.BuiltinDetect;
+  FOnLanguageDetected := nil;
+  FPendingDetectResult := Default(TLanguageDetectResult);
 
   FOnTranslateStart := nil;
   FOnTranslateComplete := nil;
@@ -635,114 +1227,9 @@ begin
   FParameterEncode.Free;
   FreeAndNil(FProxy);
   FreeAndNil(FTimeout);
+  FreeAndNil(FDetectEngine);
+  FreeAndNil(FDetect);
   inherited Destroy;
-end;
-
-procedure TCustomTranslate.ThreadTerminated(Sender: TObject);
-var
-  Idx: integer;
-begin
-  if Sender = FTranslateThread then
-    FTranslateThread := nil;
-
-  if Assigned(FActiveThreads) then
-  begin
-    Idx := FActiveThreads.IndexOf(Sender);
-    if Idx >= 0 then
-      FActiveThreads.Delete(Idx);
-  end;
-end;
-
-procedure TCustomTranslate.ThreadTerminatedAsync(Sender: TObject);
-var
-  Idx: integer;
-  Text: string;
-  WasCancelled: boolean;
-begin
-  // Snapshot before firing user events, so a new async call from a handler
-  // does not see a half-updated state
-  Text := FRawTranslate;
-  WasCancelled := FCancelled;
-
-  // Clear the active thread first so user handlers may start a new async call
-  if Sender = FTranslateThread then
-    FTranslateThread := nil;
-
-  if Assigned(FActiveThreads) then
-  begin
-    Idx := FActiveThreads.IndexOf(Sender);
-    if Idx >= 0 then
-      FActiveThreads.Delete(Idx);
-  end;
-
-  try
-    if not WasCancelled and (Text.Trim <> string.Empty) then
-    begin
-      if Assigned(FOnTranslateComplete) then
-        FOnTranslateComplete(Self, Text);
-    end;
-  finally
-    if Assigned(FOnTranslateFinish) then
-      FOnTranslateFinish(Self);
-  end;
-end;
-
-procedure TCustomTranslate.Changed;
-begin
-  if Assigned(FOnChange) then
-    FOnChange(Self);
-end;
-
-procedure TCustomTranslate.SetConfigFile(const Value: string);
-begin
-  if FConfigFile = Value then Exit;
-  FConfigFile := Value;
-  // Load INI content immediately so the designer shows real values
-  if (Value <> string.Empty) and FileExists(Value) then
-    LoadIniSettings(Value);
-  Changed;
-end;
-
-procedure TCustomTranslate.SetProxy(Value: TTranslateProxy);
-begin
-  FProxy.Assign(Value);
-end;
-
-procedure TCustomTranslate.SetTimeout(Value: TTranslateTimeout);
-begin
-  FTimeout.Assign(Value);
-end;
-
-function TCustomTranslate.GetLangSource: string;
-begin
-  Result := FLangSource;
-end;
-
-procedure TCustomTranslate.SetLangSource(const Value: string);
-begin
-  if FLangSource = Value then Exit;
-  FLangSource := Value;
-  Changed;
-end;
-
-function TCustomTranslate.GetLangTarget: string;
-begin
-  Result := FLangTarget;
-end;
-
-procedure TCustomTranslate.SetLangTarget(const Value: string);
-begin
-  if FLangTarget = Value then Exit;
-  FLangTarget := Value;
-  Changed;
-end;
-
-procedure TCustomTranslate.SyncGetParameterValue;
-begin
-  FResultOk := True;
-  FResultValue := string.Empty;
-  if Assigned(FOnGetParameter) then
-    FOnGetParameter(FParamName, FResultValue, FResultOk);
 end;
 
 procedure TCustomTranslate.Clear;
@@ -935,8 +1422,8 @@ begin
     FParameterValues.Values['text'] := string.Empty;
   FParameterEncode.Values['text'] := ifthen(FEncodeText, '1', '0');
 
-  FParameterValues.Values['source'] := ifthen(FLangSource = EMPTY_LANG, string.Empty, FLangSource);
-  FParameterValues.Values['target'] := FLangTarget;
+  FParameterValues.Values['source'] := ifthen(FSourceLanguage = EMPTY_LANG, string.Empty, FSourceLanguage);
+  FParameterValues.Values['target'] := FTargetLanguage;
 
   // TimeStamp
   FParameterValues.Values['timestamp'] := TOS.GetTimestamp.ToString;
@@ -1096,7 +1583,7 @@ begin
 
     TempUrl := FUrl;
     TempUrl := SetParameters(TempUrl);
-    if (FLangSource = EMPTY_LANG) or (FLangSource = EMPTY_LANG) then
+    if (FSourceLanguage = EMPTY_LANG) or (FSourceLanguage = EMPTY_LANG) then
       TempUrl := TempUrl.RemoveEmptyParams;
 
     TempHeaders := nil;
@@ -1168,7 +1655,7 @@ begin
     TempData := FPostData;
     TempData := SetParameters(TempData);
 
-    if (FLangSource = EMPTY_LANG) or (FLangSource = EMPTY_LANG) then
+    if (FSourceLanguage = EMPTY_LANG) or (FSourceLanguage = EMPTY_LANG) then
     begin
       TempUrl := TempUrl.RemoveEmptyParams;
       TempData := TempData.RemoveEmptyParams;
@@ -1819,7 +2306,7 @@ begin
   Temp.TryFormatJson(Result);
 end;
 
-function TCustomTranslate.TranslateSync(const AText: string): string;
+function TCustomTranslate.TranslateSync(const AText: string; ADetectLanguage: boolean = True): string;
 var
   Th: TTranslateThread;
   ThDone: boolean;
@@ -1842,7 +2329,7 @@ begin
     FRawTranslate := string.Empty;
     ThDone := False;
 
-    Th := TTranslateThread.Create(Self, @FRawTranslate, @ThDone);
+    Th := TTranslateThread.Create(Self, @FRawTranslate, @ThDone, ADetectLanguage);
     FTranslateThread := Th;
     FActiveThreads.Add(Th);
 
@@ -1879,7 +2366,7 @@ begin
   end;
 end;
 
-procedure TCustomTranslate.TranslateAsync(const AText: string);
+procedure TCustomTranslate.TranslateAsync(const AText: string; ADetectLanguage: boolean = True);
 begin
   // Already cancelled - just notify finish and return
   if FCancelled then
@@ -1895,7 +2382,7 @@ begin
   FTextToTranslate := AText;
   FRawTranslate := string.Empty;
 
-  FTranslateThread := TTranslateThread.Create(Self, @FRawTranslate, nil);
+  FTranslateThread := TTranslateThread.Create(Self, @FRawTranslate, nil, ADetectLanguage);
   FActiveThreads.Add(FTranslateThread);
 
   if Assigned(FOnTranslateStart) then FOnTranslateStart(Self);
@@ -1938,7 +2425,7 @@ begin
   if ACurrentLang <> string.Empty then
     CurrentLang := ACurrentLang
   else
-    CurrentLang := FLangSource;
+    CurrentLang := FSourceLanguage;
 
   // Extract a shorter sample to speed up detection on long texts
   if ASampleSize > 0 then
@@ -1966,16 +2453,6 @@ begin
   if not FProfilesLoaded then Exit;
   TLangDetect.UnloadProfiles;
   FProfilesLoaded := False;
-end;
-
-procedure TCustomTranslate.SetAutoLoadProfiles(Value: boolean);
-begin
-  if FAutoLoadProfiles = Value then Exit;
-  FAutoLoadProfiles := Value;
-  if Value then
-    LoadDetectProfiles
-  else
-    UnloadDetectProfiles;
 end;
 
 {%EndRegion}
@@ -2522,13 +2999,15 @@ end;
 
 {%Region -fold TTranslateThread }
 
-constructor TTranslateThread.Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; AFreeOnTerminate: boolean = True);
+constructor TTranslateThread.Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean;
+  ADetectLanguage: boolean = True; AFreeOnTerminate: boolean = True);
 begin
   inherited Create(True);
   FreeOnTerminate := AFreeOnTerminate;
 
   FTrans := ATrans;
   FSourceText := FTrans.TextToTranslate;
+  FDetectLanguage := ADetectLanguage;
   FCancelled := False;
   FExceptionMessage := string.Empty;
   FResult := AResult;
@@ -2557,10 +3036,33 @@ begin
 end;
 
 procedure TTranslateThread.Execute;
+var
+  DetResult: TLanguageDetectResult;
 begin
   try
     if IsCancelled then Exit;
     try
+      // Language detection runs first, in the same thread as translation
+      if FTrans.ShouldAutoDetect(FDetectLanguage) then
+      begin
+        DetResult := FTrans.AnalyzeLanguage(FSourceText);
+        if IsCancelled then Exit;
+        // Fire only when detection actually produced a language
+        if DetResult.DetectedLanguage <> string.Empty then
+        begin
+          // Apply in the worker thread before the event fires so the
+          // event handler sees the state matching AResult.Applied
+          if FTrans.Detect.AutoApply and (DetResult.Action <> ldaNone) then
+          begin
+            FTrans.ApplyDetectResult(DetResult);
+            DetResult.Applied := True;
+          end;
+          // Event is informational when Applied = True
+          FTrans.FireLanguageDetected(DetResult);
+          if IsCancelled then Exit;
+        end;
+      end;
+
       if Length(Trim(FSourceText)) > 0 then
         FResult^ := FTrans.Translate
       else

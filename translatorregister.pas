@@ -50,6 +50,7 @@ procedure Register;
 begin
   RegisterComponents('Trayslate', [TTranslate]);
   RegisterPropertyEditor(TypeInfo(string), TTranslate, 'ConfigFile', TTranslateConfigFilePropertyEditor);
+  RegisterPropertyEditor(TypeInfo(string), TDetectSettings, 'ConfigFile', TTranslateConfigFilePropertyEditor);
 
   // Needed so LFM streaming can find the nested persistent classes by name
   RegisterClass(TTranslateProxy);
