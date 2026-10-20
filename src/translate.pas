@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------------
-//  Trayslate © 2026 by Alexander Tverskoy
-//  Licensed under the GNU General Public License, Version 3 (GPL-3.0)
-//  You may obtain a copy of the License at https://www.gnu.org/licenses/gpl-3.0.html
+//  Translator Package © 2026 by Alexander Tverskoy
+//  Licensed under the MIT License
+//  You may obtain a copy of the License at https://opensource.org/licenses/MIT
 //-----------------------------------------------------------------------------------
 
 unit Translate;
@@ -57,9 +57,12 @@ type
 
   { Event used to request a user-supplied parameter value from the host application }
   TGetParameterEvent = procedure(const AParamName: string; var AValue: string; var AHandled: boolean) of object;
+  TTranslateNotify = procedure(Sender: TObject; const AText: string) of object;
 
-  { TTranslate }
-  TTranslate = class
+  TTranslateThread = class;  // defined below the base class
+
+  { TCustomTranslate }
+  TCustomTranslate = class(TComponent)
   private
     FLangSource: string;
     FLangTarget: string;
@@ -119,9 +122,62 @@ type
     FResultOk: boolean;
     FUserParameters: TStringList;
     FOnGetParameter: TGetParameterEvent;
+
+    // Thread management
+    FTranslateThread: TTranslateThread;
+    FActiveThreads: TList;
+    FCancelled: boolean;
+    FRawTranslate: string;
+    FLangDetect: boolean;
+    FThreadsWaitTime: integer;
+
+    // Configuration file for designer use
+    FConfigFile: string;
+
+    // Translate lifecycle events
+    FOnTranslateStart: TNotifyEvent;
+    FOnTranslateComplete: TTranslateNotify;
+    FOnTranslateFinish: TNotifyEvent;
+    FOnChange: TNotifyEvent;
+
     procedure SyncGetParameterValue;
+    procedure ThreadTerminated(Sender: TObject);
+
+    // Config file handling
+    procedure SetConfigFile(const Value: string);
+
+    // Language accessors (fire OnChange)
+    function GetLangSource: string;
+    procedure SetLangSource(const Value: string);
+    function GetLangTarget: string;
+    procedure SetLangTarget(const Value: string);
+
+    // Flattened proxy properties
+    function GetProxyMode: TProxyMode;
+    procedure SetProxyMode(Value: TProxyMode);
+    function GetProxyType: TProxyType;
+    procedure SetProxyType(Value: TProxyType);
+    function GetProxyHost: string;
+    procedure SetProxyHost(const Value: string);
+    function GetProxyPort: string;
+    procedure SetProxyPort(const Value: string);
+    function GetProxyAuthentication: boolean;
+    procedure SetProxyAuthentication(Value: boolean);
+    function GetProxyLogin: string;
+    procedure SetProxyLogin(const Value: string);
+    function GetProxyPassword: string;
+    procedure SetProxyPassword(const Value: string);
+
+    // Flattened timeout properties
+    function GetTimeoutConnection: integer;
+    procedure SetTimeoutConnection(Value: integer);
+    function GetTimeoutRequest: integer;
+    procedure SetTimeoutRequest(Value: integer);
+  protected
+    // Fires OnChange for designer notifications
+    procedure Changed;
   public
-    constructor Create;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
     procedure Clear;
@@ -139,6 +195,10 @@ type
     // Clean translated text by replacing <br> and HTML entities only if they were not present in the original.
     function CleanTranslatedText(const OriginalText, TranslatedText: string): string;
     function Translate: string;
+    // Thread management
+    function TranslateSync(const AText: string): string;
+    function IsTranslating: boolean;
+    procedure CancelTranslate;
 
     { Ini config }
     procedure SaveIniSettings(AFileName: string);
@@ -151,8 +211,8 @@ type
     class procedure ClearSection(AIni: TIniFile; const ASection: string; AErase: boolean); static;
     class function GetIniDirectory(AppName: string; fileName: string = string.Empty): string;
 
-    property LangSource: string read FLangSource write FLangSource;
-    property LangTarget: string read FLangTarget write FLangTarget;
+    property LangSource: string read GetLangSource write SetLangSource;
+    property LangTarget: string read GetLangTarget write SetLangTarget;
     property TextToTranslate: string read FTextToTranslate write FTextToTranslate;
     property ParametersAge: TDateTime read FParametersAge write FParametersAge;
     property ParameterValues: TStringList read FParameterValues write FParameterValues;
@@ -202,12 +262,81 @@ type
 
     property UserParameters: TStringList read FUserParameters write FUserParameters;
     property OnGetParameter: TGetParameterEvent read FOnGetParameter write FOnGetParameter;
+
+    // Thread state
+    property RawTranslate: string read FRawTranslate;
+    property TranslateThread: TTranslateThread read FTranslateThread;
+    property LangDetect: boolean read FLangDetect write FLangDetect;
+    property Cancelled: boolean read FCancelled write FCancelled;
+    property ThreadsWaitTime: integer read FThreadsWaitTime write FThreadsWaitTime;
+
+    // Thread events
+    property OnTranslateStart: TNotifyEvent read FOnTranslateStart write FOnTranslateStart;
+    property OnTranslateComplete: TTranslateNotify read FOnTranslateComplete write FOnTranslateComplete;
+    property OnTranslateFinish: TNotifyEvent read FOnTranslateFinish write FOnTranslateFinish;
+
+    // Configuration file for designer use - loads INI when set
+    property ConfigFile: string read FConfigFile write SetConfigFile;
+
+    // Flattened proxy properties (records cannot be published)
+    property ProxyMode: TProxyMode read GetProxyMode write SetProxyMode;
+    property ProxyType: TProxyType read GetProxyType write SetProxyType;
+    property ProxyHost: string read GetProxyHost write SetProxyHost;
+    property ProxyPort: string read GetProxyPort write SetProxyPort;
+    property ProxyAuthentication: boolean read GetProxyAuthentication write SetProxyAuthentication;
+    property ProxyLogin: string read GetProxyLogin write SetProxyLogin;
+    property ProxyPassword: string read GetProxyPassword write SetProxyPassword;
+
+    // Flattened timeout properties
+    property TimeoutConnection: integer read GetTimeoutConnection write SetTimeoutConnection;
+    property TimeoutRequest: integer read GetTimeoutRequest write SetTimeoutRequest;
+
+    // Fired when a designer-visible property changes
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  { TTranslate }
+  TTranslate = class(TCustomTranslate)
+  published
+    // INI path - loads all service settings into the component
+    property ConfigFile;
+
+    // Language override for quick tests (empty means use the INI value)
+    property LangSource;
+    property LangTarget;
+
+    // Detect mode: silent translation used only for language detection
+    property LangDetect;
+    property ThreadsWaitTime;
+
+    // Allow the request to use the proxy below
+    property AllowProxy;
+
+    // Proxy (records cannot be published, so the fields are flattened)
+    property ProxyMode;
+    property ProxyType;
+    property ProxyHost;
+    property ProxyPort;
+    property ProxyAuthentication;
+    property ProxyLogin;
+    property ProxyPassword;
+
+    // Timeouts
+    property TimeoutConnection;
+    property TimeoutRequest;
+
+    // Lifecycle events
+    property OnTranslateStart;
+    property OnTranslateComplete;
+    property OnTranslateFinish;
+    property OnGetParameter;
+    property OnChange;
   end;
 
   { TTranslateThread }
   TTranslateThread = class(TThread)
   private
-    FTrans: TTranslate;
+    FTrans: TCustomTranslate;
     FResult: PString;
     FDone: PBoolean;
     FSourceText: string;
@@ -220,7 +349,8 @@ type
     function GetIsCancelled: boolean;
     function GetResultText: string;
   public
-    constructor Create(ATrans: TTranslate; AResult: PString; ADone: PBoolean; ALangDetect: boolean; AFreeOnTerminate: boolean = True);
+    constructor Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; ALangDetect: boolean;
+      AFreeOnTerminate: boolean = True);
     procedure Cancel;
     property IsTerminated: boolean read GetIsTerminated;
     property IsCancelled: boolean read GetIsCancelled;
@@ -240,9 +370,9 @@ uses StringsHelper, StringHelper, Localize, OSUtils, Languages;
 
   {%Region -fold TTranslate }
 
-constructor TTranslate.Create;
+constructor TCustomTranslate.Create(AOwner: TComponent);
 begin
-  inherited Create;
+  inherited Create(AOwner);
   FServiceName := 'default';
   FServiceIcon := string.Empty;
   FServiceColorRecent := clBlue;
@@ -312,10 +442,59 @@ begin
   FCookies := TStringList.Create;
   FCurrentHTTP := nil;
   FHTTPList := TList.Create;
+
+  // Thread management
+  FActiveThreads := TList.Create;
+  FTranslateThread := nil;
+  FCancelled := False;
+  FRawTranslate := string.Empty;
+  FLangDetect := False;
+  FThreadsWaitTime := 5000;
+  FConfigFile := string.Empty;
+  FOnTranslateStart := nil;
+  FOnTranslateComplete := nil;
+  FOnTranslateFinish := nil;
+  FOnChange := nil;
 end;
 
-destructor TTranslate.Destroy;
+destructor TCustomTranslate.Destroy;
+var
+  TotalDeadline: DWORD;
+  i: integer;
+  Th: TTranslateThread;
 begin
+  // Wait for all translation threads with the configured global timeout
+  if Assigned(FActiveThreads) then
+  begin
+    TotalDeadline := TOS.GetTickCountXp + DWORD(FThreadsWaitTime);
+    repeat
+      // Sweep finished threads from the end
+      i := FActiveThreads.Count - 1;
+      while i >= 0 do
+      begin
+        Th := TTranslateThread(FActiveThreads[i]);
+        if not Assigned(Th) or Th.Finished then
+          FActiveThreads.Delete(i);
+        Dec(i);
+      end;
+
+      if FActiveThreads.Count = 0 then Break;
+      if TOS.GetTickCountXp >= TotalDeadline then
+      begin
+        {$IFDEF DEBUG}
+          UseHeapTrace := False;
+        {$ENDIF}
+        Break;
+      end;
+
+      // Keep the message loop alive so threads can post Synchronize calls
+      Application.ProcessMessages;
+      Sleep(1);
+    until False;
+
+    FreeAndNil(FActiveThreads);
+  end;
+
   FreeAndNil(FCookies);
   FreeAndNil(FHeaders);
   FreeAndNil(FCustomParameters);
@@ -338,7 +517,170 @@ begin
   inherited Destroy;
 end;
 
-procedure TTranslate.SyncGetParameterValue;
+procedure TCustomTranslate.ThreadTerminated(Sender: TObject);
+var
+  Idx: integer;
+begin
+  if Sender = FTranslateThread then
+    FTranslateThread := nil;
+
+  if Assigned(FActiveThreads) then
+  begin
+    Idx := FActiveThreads.IndexOf(Sender);
+    if Idx >= 0 then
+      FActiveThreads.Delete(Idx);
+  end;
+end;
+
+procedure TCustomTranslate.Changed;
+begin
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
+
+procedure TCustomTranslate.SetConfigFile(const Value: string);
+begin
+  if FConfigFile = Value then Exit;
+  FConfigFile := Value;
+  // Load INI content immediately so the designer shows real values
+  if (Value <> string.Empty) and FileExists(Value) then
+    LoadIniSettings(Value);
+  Changed;
+end;
+
+function TCustomTranslate.GetLangSource: string;
+begin
+  Result := FLangSource;
+end;
+
+procedure TCustomTranslate.SetLangSource(const Value: string);
+begin
+  if FLangSource = Value then Exit;
+  FLangSource := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetLangTarget: string;
+begin
+  Result := FLangTarget;
+end;
+
+procedure TCustomTranslate.SetLangTarget(const Value: string);
+begin
+  if FLangTarget = Value then Exit;
+  FLangTarget := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetProxyMode: TProxyMode;
+begin
+  Result := FProxy.ProxyMode;
+end;
+
+procedure TCustomTranslate.SetProxyMode(Value: TProxyMode);
+begin
+  if FProxy.ProxyMode = Value then Exit;
+  FProxy.ProxyMode := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetProxyType: TProxyType;
+begin
+  Result := FProxy.ProxyType;
+end;
+
+procedure TCustomTranslate.SetProxyType(Value: TProxyType);
+begin
+  if FProxy.ProxyType = Value then Exit;
+  FProxy.ProxyType := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetProxyHost: string;
+begin
+  Result := FProxy.Host;
+end;
+
+procedure TCustomTranslate.SetProxyHost(const Value: string);
+begin
+  if FProxy.Host = Value then Exit;
+  FProxy.Host := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetProxyPort: string;
+begin
+  Result := FProxy.Port;
+end;
+
+procedure TCustomTranslate.SetProxyPort(const Value: string);
+begin
+  if FProxy.Port = Value then Exit;
+  FProxy.Port := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetProxyAuthentication: boolean;
+begin
+  Result := FProxy.Authentication;
+end;
+
+procedure TCustomTranslate.SetProxyAuthentication(Value: boolean);
+begin
+  if FProxy.Authentication = Value then Exit;
+  FProxy.Authentication := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetProxyLogin: string;
+begin
+  Result := FProxy.Login;
+end;
+
+procedure TCustomTranslate.SetProxyLogin(const Value: string);
+begin
+  if FProxy.Login = Value then Exit;
+  FProxy.Login := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetProxyPassword: string;
+begin
+  Result := FProxy.Password;
+end;
+
+procedure TCustomTranslate.SetProxyPassword(const Value: string);
+begin
+  if FProxy.Password = Value then Exit;
+  FProxy.Password := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetTimeoutConnection: integer;
+begin
+  Result := FTimeout.Connection;
+end;
+
+procedure TCustomTranslate.SetTimeoutConnection(Value: integer);
+begin
+  if FTimeout.Connection = Value then Exit;
+  FTimeout.Connection := Value;
+  Changed;
+end;
+
+function TCustomTranslate.GetTimeoutRequest: integer;
+begin
+  Result := FTimeout.Request;
+end;
+
+procedure TCustomTranslate.SetTimeoutRequest(Value: integer);
+begin
+  if FTimeout.Request = Value then Exit;
+  FTimeout.Request := Value;
+  Changed;
+end;
+
+procedure TCustomTranslate.SyncGetParameterValue;
 begin
   FResultOk := True;
   FResultValue := string.Empty;
@@ -346,7 +688,7 @@ begin
     FOnGetParameter(FParamName, FResultValue, FResultOk);
 end;
 
-procedure TTranslate.Clear;
+procedure TCustomTranslate.Clear;
 begin
   FServiceName := string.Empty;
   FServiceIcon := string.Empty;
@@ -387,7 +729,7 @@ begin
   FServiceIcon := string.Empty;
 end;
 
-procedure TTranslate.AbortRequest;
+procedure TCustomTranslate.AbortRequest;
 var
   i: integer;
   HTTP: THTTPSend;
@@ -406,7 +748,7 @@ begin
   FHTTPList.Clear;
 end;
 
-procedure TTranslate.ExecuteParametersScript;
+procedure TCustomTranslate.ExecuteParametersScript;
 var
   Runner: TScriptRunner;
   i: integer;
@@ -433,7 +775,7 @@ begin
   end;
 end;
 
-procedure TTranslate.ExecuteResponseScript(var Response: string);
+procedure TCustomTranslate.ExecuteResponseScript(var Response: string);
 var
   Runner: TScriptRunner;
 begin
@@ -460,7 +802,7 @@ begin
   end;
 end;
 
-function TTranslate.GetParameters(Data: string): boolean;
+function TCustomTranslate.GetParameters(Data: string): boolean;
 var
   i: integer;
   ParamName: string;
@@ -584,7 +926,7 @@ begin
   ExecuteParametersScript;
 end;
 
-function TTranslate.SetParameters(Data: string; IncludeSet: boolean = True): string;
+function TCustomTranslate.SetParameters(Data: string; IncludeSet: boolean = True): string;
 var
   i: integer;
   ParamName: string;
@@ -628,7 +970,7 @@ begin
   end;
 end;
 
-procedure TTranslate.SetParametersList(Strings: TStrings);
+procedure TCustomTranslate.SetParametersList(Strings: TStrings);
 var
   i: integer;
 begin
@@ -638,7 +980,7 @@ begin
     Strings[i] := SetParameters(Strings[i]);
 end;
 
-function TTranslate.GetInit: string;
+function TCustomTranslate.GetInit: string;
 var
   responseHeaders: TStringList;
   responseBody: string;
@@ -677,7 +1019,7 @@ begin
   end;
 end;
 
-function TTranslate.Get(ReturnHeaders: boolean = False): string;
+function TCustomTranslate.Get(ReturnHeaders: boolean = False): string;
 var
   responseHeaders: TStringList;
   responseBody: string;
@@ -745,7 +1087,7 @@ begin
   end;
 end;
 
-function TTranslate.Post(ReturnHeaders: boolean = False): string;
+function TCustomTranslate.Post(ReturnHeaders: boolean = False): string;
 var
   responseHeaders: TStringList;
   responseBody: string;
@@ -820,7 +1162,7 @@ begin
   end;
 end;
 
-function TTranslate.ParseJsonByPointer(const JsonStr, JsonPointer: string): string;
+function TCustomTranslate.ParseJsonByPointer(const JsonStr, JsonPointer: string): string;
 var
   Data: TJSONData;
 
@@ -987,7 +1329,7 @@ begin
   end;
 end;
 
-function TTranslate.ParseResponse(content: string): string;
+function TCustomTranslate.ParseResponse(content: string): string;
 const
   // A unique marker that will not appear in user data.
   // Used to temporarily escape literal '#10' substrings in extracted data
@@ -1294,7 +1636,7 @@ begin
   end;
 end;
 
-function TTranslate.CleanTranslatedText(const OriginalText, TranslatedText: string): string;
+function TCustomTranslate.CleanTranslatedText(const OriginalText, TranslatedText: string): string;
 var
   i, Start: integer;
   EntityStr: string;
@@ -1380,7 +1722,7 @@ begin
   end;
 end;
 
-function TTranslate.Translate: string;
+function TCustomTranslate.Translate: string;
 var
   content: string;
   temp: string;
@@ -1420,11 +1762,83 @@ begin
   Temp.TryFormatJson(Result);
 end;
 
+function TCustomTranslate.TranslateSync(const AText: string): string;
+var
+  Th: TTranslateThread;
+  ThDone: boolean;
+begin
+  Result := string.Empty;
+
+  // Already cancelled before we started - notify finish so the host can restore UI
+  if FCancelled then
+  begin
+    if Assigned(FOnTranslateFinish) then FOnTranslateFinish(Self);
+    Exit;
+  end;
+
+  // Ensure any previous translation is fully stopped and cleaned up
+  if Assigned(FTranslateThread) then CancelTranslate;
+
+  try
+    FCancelled := False;
+    FTextToTranslate := AText;
+    FRawTranslate := string.Empty;
+    ThDone := False;
+
+    Th := TTranslateThread.Create(Self, @FRawTranslate, @ThDone, FLangDetect);
+    FTranslateThread := Th;
+    FActiveThreads.Add(Th);
+
+    if Assigned(FOnTranslateStart) then FOnTranslateStart(Self);
+
+    Th.OnTerminate := @ThreadTerminated;
+    Th.Start;
+    try
+      while Assigned(Th) and not ThDone do
+      begin
+        // Thread replaced or cancelled externally - abandon the local reference
+        if FCancelled or (FTranslateThread <> Th) then
+        begin
+          Th := nil;
+          Result := string.Empty;
+          Break;
+        end;
+        Application.ProcessMessages;
+        Sleep(1);
+      end;
+
+      // Result only if the thread was not cancelled and text is present
+      if not FCancelled and (FRawTranslate.Trim <> string.Empty) then
+      begin
+        Result := FRawTranslate;
+        if Assigned(FOnTranslateComplete) then FOnTranslateComplete(Self, Result);
+      end;
+    finally
+      // Real removal happens in ThreadTerminated via OnTerminate
+      Th := nil;
+    end;
+  finally
+    if Assigned(FOnTranslateFinish) then FOnTranslateFinish(Self);
+  end;
+end;
+
+function TCustomTranslate.IsTranslating: boolean;
+begin
+  Result := Assigned(FTranslateThread) and not FTranslateThread.Finished and not FTranslateThread.IsCancelled;
+end;
+
+procedure TCustomTranslate.CancelTranslate;
+begin
+  FCancelled := True;
+  if Assigned(FTranslateThread) then
+    FTranslateThread.Cancel;
+end;
+
 {%EndRegion}
 
 {%Region -fold TTranslate Ini Config }
 
-procedure TTranslate.SaveIniSettings(AFileName: string);
+procedure TCustomTranslate.SaveIniSettings(AFileName: string);
 var
   Ini: TMemIniFile;
   i: integer;
@@ -1611,7 +2025,7 @@ begin
   end;
 end;
 
-procedure TTranslate.LoadIniSettings(AFileName: string);
+procedure TCustomTranslate.LoadIniSettings(AFileName: string);
 var
   Ini: TIniFile;
   Method: string;
@@ -1794,7 +2208,7 @@ begin
   end;
 end;
 
-class function TTranslate.IsValidIni(const FileName: string): boolean;
+class function TCustomTranslate.IsValidIni(const FileName: string): boolean;
 var
   Ini: TIniFile;
   Method: string;
@@ -1817,7 +2231,7 @@ begin
   end;
 end;
 
-class procedure TTranslate.FindIniFiles(const Dir: string; List: TStrings);
+class procedure TCustomTranslate.FindIniFiles(const Dir: string; List: TStrings);
 var
   SR: TSearchRec;
   FilePath: string;
@@ -1857,7 +2271,7 @@ begin
   end;
 end;
 
-class procedure TTranslate.GetIniFiles(List: TStrings; AppName: string);
+class procedure TCustomTranslate.GetIniFiles(List: TStrings; AppName: string);
 var
   ExeDir: string;
   SettingsDir: string;
@@ -1874,7 +2288,7 @@ begin
     FindIniFiles(SettingsDir, List);
 end;
 
-class function TTranslate.GetConfigFullPath(const ConfigName: string; ConfigFiles: TStringList): string;
+class function TCustomTranslate.GetConfigFullPath(const ConfigName: string; ConfigFiles: TStringList): string;
 var
   i: integer;
   NameOnly: string;
@@ -1898,7 +2312,7 @@ begin
   // If not found, Result remains empty
 end;
 
-class function TTranslate.ConfigSortByOrderPathName(List: TStringList; Index1, Index2: integer): integer;
+class function TCustomTranslate.ConfigSortByOrderPathName(List: TStringList; Index1, Index2: integer): integer;
 var
   Data1, Data2: PConfigData;
   Ord1, Ord2: integer;
@@ -1926,7 +2340,7 @@ begin
   end;
 end;
 
-class procedure TTranslate.ClearSection(AIni: TIniFile; const ASection: string; AErase: boolean);
+class procedure TCustomTranslate.ClearSection(AIni: TIniFile; const ASection: string; AErase: boolean);
 var
   Keys: TStringList;
   i: integer;
@@ -1951,7 +2365,7 @@ begin
   end;
 end;
 
-class function TTranslate.GetIniDirectory(AppName: string; fileName: string = string.Empty): string;
+class function TCustomTranslate.GetIniDirectory(AppName: string; fileName: string = string.Empty): string;
 begin
   {$IFDEF WINDOWS}
   Result := ExtractFilePath(ParamStr(0)) + fileName;
@@ -1964,7 +2378,7 @@ end;
 
 {%Region -fold TTranslateThread }
 
-constructor TTranslateThread.Create(ATrans: TTranslate; AResult: PString; ADone: PBoolean; ALangDetect: boolean;
+constructor TTranslateThread.Create(ATrans: TCustomTranslate; AResult: PString; ADone: PBoolean; ALangDetect: boolean;
   AFreeOnTerminate: boolean = True);
 begin
   inherited Create(True);

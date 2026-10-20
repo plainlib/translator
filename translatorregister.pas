@@ -11,7 +11,7 @@ unit TranslatorRegister;
 interface
 
 uses
-  Controls, Classes, LResources;
+  Controls, Classes, LResources, Translate;
 
 procedure Register;
 
@@ -19,7 +19,7 @@ implementation
 
 procedure Register;
 begin
-  //RegisterComponents('Common Controls', [TTranslator]);
+  RegisterComponents('Common Controls', [TTranslate]);
 end;
 
 initialization
