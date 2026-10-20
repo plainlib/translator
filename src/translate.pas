@@ -174,6 +174,10 @@ type
     FCancelled: boolean;
     FRawTranslate: string;
 
+    // Built-in language detection profiles state
+    FProfilesLoaded: boolean;
+    FAutoLoadProfiles: boolean;
+
     // Configuration file for designer use
     FConfigFile: string;
 
@@ -183,6 +187,7 @@ type
     FOnTranslateFinish: TNotifyEvent;
     FOnChange: TNotifyEvent;
 
+    procedure SetAutoLoadProfiles(Value: boolean);
     procedure SyncGetParameterValue;
     procedure ThreadTerminated(Sender: TObject);
     procedure ThreadTerminatedAsync(Sender: TObject);
@@ -226,6 +231,16 @@ type
     procedure TranslateAsync(const AText: string);
     function IsTranslating: boolean;
     procedure CancelTranslate;
+
+    // Wrapper for TLangDetect.DetectLanguageSafe; empty AText and ACurrentLang fall back to TextToTranslate and LangSource
+    function DetectLanguage(const AText: string = string.Empty; ACurrentLang: string = string.Empty;
+      MinConfidence: double = 0.5; AAllowedLangs: TStringArray = nil; ASampleSize: integer = 1000): string;
+    // Maps deprecated or aliased language codes to canonical ones
+    function NormalizeLanguageCode(const ACode: string): string;
+    // Loads built-in detection profiles; safe to call repeatedly
+    procedure LoadDetectProfiles;
+    // Releases built-in detection profiles to free memory; safe to call repeatedly
+    procedure UnloadDetectProfiles;
 
     { Ini config }
     procedure SaveIniSettings(AFileName: string);
@@ -324,6 +339,9 @@ type
     // Allow this service to use the proxy configured below
     property AllowProxy;
 
+    // Load built-in detection profiles automatically; set False to release them
+    property AutoLoadProfiles: boolean read FAutoLoadProfiles write SetAutoLoadProfiles default False;
+
     // Proxy settings, expandable group in the Object Inspector
     property Proxy;
 
@@ -377,7 +395,7 @@ const
 
 implementation
 
-uses StringsHelper, StringHelper, Localize, OSUtils, Languages;
+uses StringsHelper, StringHelper, Localize, OSUtils, Languages, LangDetect;
 
   {%Region -fold TTranslateProxy }
 
@@ -543,6 +561,8 @@ begin
   FCancelled := False;
   FRawTranslate := string.Empty;
   FConfigFile := string.Empty;
+  FProfilesLoaded := False;
+  FAutoLoadProfiles := False;
   FProxy := TTranslateProxy.Create;
   FProxy.Mode := pmNone;
   FProxy.Type_ := ptHTTP;
@@ -1894,6 +1914,68 @@ begin
   FCancelled := True;
   if Assigned(FTranslateThread) then
     FTranslateThread.Cancel;
+end;
+
+function TCustomTranslate.DetectLanguage(const AText: string; ACurrentLang: string; MinConfidence: double;
+  AAllowedLangs: TStringArray; ASampleSize: integer): string;
+var
+  Allowed: TStringArray = nil;
+  Source, CurrentLang, Sample: string;
+begin
+  // Fall back to the component's own language codes when caller omits them
+  if Assigned(AAllowedLangs) then
+    Allowed := AAllowedLangs
+  else
+    Allowed := FLanguageCodes;
+
+  // Use the pending translation text when the caller passes nothing
+  if AText <> string.Empty then
+    Source := AText
+  else
+    Source := FTextToTranslate;
+
+  // Use the current source language when the caller passes nothing
+  if ACurrentLang <> string.Empty then
+    CurrentLang := ACurrentLang
+  else
+    CurrentLang := FLangSource;
+
+  // Extract a shorter sample to speed up detection on long texts
+  if ASampleSize > 0 then
+    Sample := Source.ExtractTextSample(ASampleSize)
+  else
+    Sample := Source;
+
+  Result := TLangDetect.DetectLanguageSafe(Sample, CurrentLang, MinConfidence, Allowed);
+end;
+
+function TCustomTranslate.NormalizeLanguageCode(const ACode: string): string;
+begin
+  Result := TLangDetect.NormalizeLanguageCode(ACode);
+end;
+
+procedure TCustomTranslate.LoadDetectProfiles;
+begin
+  if FProfilesLoaded then Exit;
+  TLangDetect.LoadProfiles;
+  FProfilesLoaded := True;
+end;
+
+procedure TCustomTranslate.UnloadDetectProfiles;
+begin
+  if not FProfilesLoaded then Exit;
+  TLangDetect.UnloadProfiles;
+  FProfilesLoaded := False;
+end;
+
+procedure TCustomTranslate.SetAutoLoadProfiles(Value: boolean);
+begin
+  if FAutoLoadProfiles = Value then Exit;
+  FAutoLoadProfiles := Value;
+  if Value then
+    LoadDetectProfiles
+  else
+    UnloadDetectProfiles;
 end;
 
 {%EndRegion}

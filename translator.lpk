@@ -104,10 +104,10 @@ SOFTWARE."/>
     </Files>
     <RequiredPkgs>
       <Item>
-        <PackageName Value="IDEIntf"/>
+        <PackageName Value="LCL"/>
       </Item>
       <Item>
-        <PackageName Value="LCL"/>
+        <PackageName Value="IDEIntf"/>
       </Item>
       <Item>
         <PackageName Value="pascalscript"/>
