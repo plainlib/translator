@@ -11,15 +11,49 @@ unit TranslatorRegister;
 interface
 
 uses
-  Controls, Classes, LResources, Translate;
+  Controls, Classes, LResources, PropEdits, Dialogs, Translate;
 
 procedure Register;
 
 implementation
 
+type
+  // Opens a file dialog when the user clicks the "..." button
+  TTranslateConfigFilePropertyEditor = class(TStringPropertyEditor)
+  public
+    function GetAttributes: TPropertyAttributes; override;
+    procedure Edit; override;
+  end;
+
+function TTranslateConfigFilePropertyEditor.GetAttributes: TPropertyAttributes;
+begin
+  Result := inherited GetAttributes + [paDialog];
+end;
+
+procedure TTranslateConfigFilePropertyEditor.Edit;
+var
+  Dlg: TOpenDialog;
+begin
+  Dlg := TOpenDialog.Create(nil);
+  try
+    Dlg.Title := 'Select Service Configuration File';
+    Dlg.Filter := 'INI files (*.ini)|*.ini|All files (*.*)|*.*';
+    Dlg.Options := Dlg.Options + [ofFileMustExist, ofPathMustExist];
+    if Dlg.Execute then
+      SetStrValue(Dlg.FileName);
+  finally
+    Dlg.Free;
+  end;
+end;
+
 procedure Register;
 begin
-  RegisterComponents('Common Controls', [TTranslate]);
+  RegisterComponents('Trayslate', [TTranslate]);
+  RegisterPropertyEditor(TypeInfo(string), TTranslate, 'ConfigFile', TTranslateConfigFilePropertyEditor);
+
+  // Needed so LFM streaming can find the nested persistent classes by name
+  RegisterClass(TTranslateProxy);
+  RegisterClass(TTranslateTimeout);
 end;
 
 initialization

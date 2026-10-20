@@ -185,9 +185,14 @@ type
 
     procedure SyncGetParameterValue;
     procedure ThreadTerminated(Sender: TObject);
+    procedure ThreadTerminatedAsync(Sender: TObject);
 
     // Config file handling
     procedure SetConfigFile(const Value: string);
+
+    // Nested persistent object setters (required for LFM streaming)
+    procedure SetProxy(Value: TTranslateProxy);
+    procedure SetTimeout(Value: TTranslateTimeout);
 
     // Language accessors (fire OnChange)
     function GetLangSource: string;
@@ -218,6 +223,7 @@ type
     function Translate: string;
     // Thread management
     function TranslateSync(const AText: string): string;
+    procedure TranslateAsync(const AText: string);
     function IsTranslating: boolean;
     procedure CancelTranslate;
 
@@ -266,8 +272,8 @@ type
     property AllowProxy: boolean read FAllowProxy write FAllowProxy;
 
     // Designer-friendly wrappers; use ToProxy/ToTimeout for the Network layer
-    property Proxy: TTranslateProxy read FProxy;
-    property Timeout: TTranslateTimeout read FTimeout;
+    property Proxy: TTranslateProxy read FProxy write SetProxy;
+    property Timeout: TTranslateTimeout read FTimeout write SetTimeout;
 
     // Languages from config, eg en=en
     property Languages: TStringList read FLanguages write FLanguages;
@@ -306,26 +312,37 @@ type
   { TTranslate }
   TTranslate = class(TCustomTranslate)
   published
-    // INI path - loads all service settings into the component
+    // Path to the INI file with the service configuration
     property ConfigFile;
 
-    // Language override for quick tests (empty means use the INI value)
+    // Source language code, overrides the INI value when not empty
     property LangSource;
+
+    // Target language code, overrides the INI value when not empty
     property LangTarget;
 
-    // Allow the request to use the proxy below
+    // Allow this service to use the proxy configured below
     property AllowProxy;
 
-    // Proxy and timeout are TPersistent, so the Object Inspector
-    // shows them as expandable nested groups
+    // Proxy settings, expandable group in the Object Inspector
     property Proxy;
+
+    // Connection and request timeouts, expandable group
     property Timeout;
 
-    // Lifecycle events
+    // Fires before the translation request starts
     property OnTranslateStart;
+
+    // Fires on success with the translated text as parameter
     property OnTranslateComplete;
+
+    // Fires always when the operation ends, including cancel and errors
     property OnTranslateFinish;
+
+    // Fires when the service needs a user-supplied parameter value
     property OnGetParameter;
+
+    // Fires when a designer-visible property changes
     property OnChange;
   end;
 
@@ -616,6 +633,40 @@ begin
   end;
 end;
 
+procedure TCustomTranslate.ThreadTerminatedAsync(Sender: TObject);
+var
+  Idx: integer;
+  Text: string;
+  WasCancelled: boolean;
+begin
+  // Snapshot before firing user events, so a new async call from a handler
+  // does not see a half-updated state
+  Text := FRawTranslate;
+  WasCancelled := FCancelled;
+
+  // Clear the active thread first so user handlers may start a new async call
+  if Sender = FTranslateThread then
+    FTranslateThread := nil;
+
+  if Assigned(FActiveThreads) then
+  begin
+    Idx := FActiveThreads.IndexOf(Sender);
+    if Idx >= 0 then
+      FActiveThreads.Delete(Idx);
+  end;
+
+  try
+    if not WasCancelled and (Text.Trim <> string.Empty) then
+    begin
+      if Assigned(FOnTranslateComplete) then
+        FOnTranslateComplete(Self, Text);
+    end;
+  finally
+    if Assigned(FOnTranslateFinish) then
+      FOnTranslateFinish(Self);
+  end;
+end;
+
 procedure TCustomTranslate.Changed;
 begin
   if Assigned(FOnChange) then
@@ -630,6 +681,16 @@ begin
   if (Value <> string.Empty) and FileExists(Value) then
     LoadIniSettings(Value);
   Changed;
+end;
+
+procedure TCustomTranslate.SetProxy(Value: TTranslateProxy);
+begin
+  FProxy.Assign(Value);
+end;
+
+procedure TCustomTranslate.SetTimeout(Value: TTranslateTimeout);
+begin
+  FTimeout.Assign(Value);
 end;
 
 function TCustomTranslate.GetLangSource: string;
@@ -1796,6 +1857,31 @@ begin
   finally
     if Assigned(FOnTranslateFinish) then FOnTranslateFinish(Self);
   end;
+end;
+
+procedure TCustomTranslate.TranslateAsync(const AText: string);
+begin
+  // Already cancelled - just notify finish and return
+  if FCancelled then
+  begin
+    if Assigned(FOnTranslateFinish) then FOnTranslateFinish(Self);
+    Exit;
+  end;
+
+  // Cancel any previous async translation before starting a new one
+  if Assigned(FTranslateThread) then CancelTranslate;
+
+  FCancelled := False;
+  FTextToTranslate := AText;
+  FRawTranslate := string.Empty;
+
+  FTranslateThread := TTranslateThread.Create(Self, @FRawTranslate, nil);
+  FActiveThreads.Add(FTranslateThread);
+
+  if Assigned(FOnTranslateStart) then FOnTranslateStart(Self);
+
+  FTranslateThread.OnTerminate := @ThreadTerminatedAsync;
+  FTranslateThread.Start;
 end;
 
 function TCustomTranslate.IsTranslating: boolean;

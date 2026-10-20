@@ -104,6 +104,9 @@ SOFTWARE."/>
     </Files>
     <RequiredPkgs>
       <Item>
+        <PackageName Value="IDEIntf"/>
+      </Item>
+      <Item>
         <PackageName Value="LCL"/>
       </Item>
       <Item>
