@@ -925,78 +925,86 @@ begin
   LangPrimary := LowerCase(FDetect.PrimaryLanguage);
   LangSecondary := LowerCase(FDetect.SecondaryLanguage);
 
-  // Skip special codes such as 'auto'
-  if TLanguages.IsSpecialCode(LangSrc) or TLanguages.IsSpecialCode(LangTar) then Exit;
+  NewSrcCode := string.Empty;
+  NewTarCode := string.Empty;
+  NeedSrcChange := False;
+  NeedTarChange := False;
 
   if not FDetect.SmartSwap then
   begin
-    // Simple swap: only when detected language matches the target
-    if FDetect.AutoSwap and (LangTar = LangDetect) then
+    // Ordinary swap
+    if ((LangSrc = LangDetect) or (LangTar = LangDetect)) and (not TLanguages.IsSpecialCode(LangSrc)) and
+      (not TLanguages.IsSpecialCode(LangTar)) then
     begin
-      Result.Action := ldaSwap;
-      Result.NewSource := FTargetLanguage;
-      Result.NewTarget := FSourceLanguage;
-    end;
-    Exit;
-  end;
-
-  // Smart swap: straight swap when the pair is a known primary/secondary match
-  if ((LangSrc = LangDetect) or (LangTar = LangDetect)) and ((not FDetect.SmartHard) or
-    (((LangSrc = LangPrimary) and (LangTar = LangSecondary)) or ((LangSrc = LangSecondary) and (LangTar = LangPrimary)))) then
-  begin
-    if FDetect.AutoSwap and (LangTar = LangDetect) then
-    begin
-      Result.Action := ldaSwap;
-      Result.NewSource := FTargetLanguage;
-      Result.NewTarget := FSourceLanguage;
-    end;
-    Exit;
-  end;
-
-  // Smart swap: adjust source and optionally target
-  NeedSrcChange := False;
-  NeedTarChange := False;
-  NewSrcCode := string.Empty;
-  NewTarCode := string.Empty;
-
-  if LangSrc <> LangDetect then
-  begin
-    if LangDetect = LangPrimary then
-    begin
-      if LangSrc <> LangPrimary then
+      if FDetect.AutoSwap and (LangTar = LangDetect) then
       begin
-        NewSrcCode := FindLanguageCode(LangPrimary);
-        NeedSrcChange := NewSrcCode <> string.Empty;
+        Result.Action := ldaSwap;
+        Result.NewSource := FTargetLanguage;
+        Result.NewTarget := FSourceLanguage;
       end;
-      if FDetect.SmartHard and (LangTar <> LangSecondary) then
+    end;
+  end
+  else
+  begin
+    // Smart swap
+    if ((LangSrc = LangDetect) or (LangTar = LangDetect)) and (not TLanguages.IsSpecialCode(LangSrc)) and
+      (not TLanguages.IsSpecialCode(LangTar)) and ((not FDetect.SmartHard) or
+      (((LangSrc = LangPrimary) and (LangTar = LangSecondary)) or ((LangSrc = LangSecondary) and (LangTar = LangPrimary)))) then
+    begin
+      if FDetect.AutoSwap and (LangTar = LangDetect) then
       begin
-        NewTarCode := FindLanguageCode(LangSecondary);
-        NeedTarChange := NewTarCode <> string.Empty;
+        Result.Action := ldaSwap;
+        Result.NewSource := FTargetLanguage;
+        Result.NewTarget := FSourceLanguage;
       end;
     end
     else
     begin
-      NewSrcCode := FindLanguageCode(LangDetect);
-      NeedSrcChange := NewSrcCode <> string.Empty;
-      if FDetect.SmartHard and (LangTar <> LangPrimary) then
+      if (LangSrc <> LangDetect) or TLanguages.IsSpecialCode(LangSrc) then
       begin
-        NewTarCode := FindLanguageCode(LangPrimary);
-        NeedTarChange := NewTarCode <> string.Empty;
+        if LangDetect = LangPrimary then
+        begin
+          if (LangSrc <> LangPrimary) and (not TLanguages.IsSpecialCode(LangSrc)) then
+          begin
+            NewSrcCode := FindLanguageCode(LangPrimary);
+            NeedSrcChange := NewSrcCode <> string.Empty;
+          end;
+          if (LangTar <> LangSecondary) and FDetect.SmartHard then
+          begin
+            NewTarCode := FindLanguageCode(LangSecondary);
+            NeedTarChange := NewTarCode <> string.Empty;
+          end;
+        end
+        else
+        begin
+          if (LangSrc <> LangDetect) and (not TLanguages.IsSpecialCode(LangSrc)) then
+          begin
+            NewSrcCode := FindLanguageCode(LangDetect);
+            NeedSrcChange := NewSrcCode <> string.Empty;
+          end;
+          if (LangTar <> LangPrimary) and FDetect.SmartHard then
+          begin
+            NewTarCode := FindLanguageCode(LangPrimary);
+            NeedTarChange := NewTarCode <> string.Empty;
+          end;
+        end;
       end;
     end;
   end;
 
-  Result.NewSource := NewSrcCode;
-  Result.NewTarget := NewTarCode;
+  // Fill change fields only when a swap was not already selected
+  if Result.Action = ldaNone then
+  begin
+    Result.NewSource := NewSrcCode;
+    Result.NewTarget := NewTarCode;
 
-  if NeedSrcChange and NeedTarChange then
-    Result.Action := ldaChangeBoth
-  else if NeedSrcChange then
-    Result.Action := ldaChangeSource
-  else if NeedTarChange then
-    Result.Action := ldaChangeTarget
-  else
-    Result.Action := ldaNone;
+    if NeedSrcChange and NeedTarChange then
+      Result.Action := ldaChangeBoth
+    else if NeedSrcChange then
+      Result.Action := ldaChangeSource
+    else if NeedTarChange then
+      Result.Action := ldaChangeTarget;
+  end;
 end;
 
 procedure TCustomTranslate.ApplyDetectResult(const AResult: TLanguageDetectResult);
