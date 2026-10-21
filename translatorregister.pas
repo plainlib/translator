@@ -48,7 +48,7 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents('Trayslate', [TTranslate]);
+  RegisterComponents('Common Controls', [TTranslate]);
   RegisterPropertyEditor(TypeInfo(string), TTranslate, 'ConfigFile', TTranslateConfigFilePropertyEditor);
   RegisterPropertyEditor(TypeInfo(string), TDetectSettings, 'ConfigFile', TTranslateConfigFilePropertyEditor);
 
