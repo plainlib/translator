@@ -53,6 +53,9 @@ SOFTWARE."/>
         <UnitName Value="Translate"/>
       </Item>
       <Item>
+        <Filename Value="src\configmanager.pas"/>
+      </Item>
+      <Item>
         <Filename Value="src\languages.pas"/>
         <UnitName Value="Languages"/>
       </Item>

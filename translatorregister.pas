@@ -11,7 +11,7 @@ unit TranslatorRegister;
 interface
 
 uses
-  Controls, Classes, LResources, PropEdits, Dialogs, Translate;
+  Controls, Classes, LResources, PropEdits, Dialogs, Translate, ConfigManager;
 
 procedure Register;
 
@@ -48,7 +48,7 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents('Common Controls', [TTranslate]);
+  RegisterComponents('Common Controls', [TTranslate, TConfigManager]);
   RegisterPropertyEditor(TypeInfo(string), TTranslate, 'ConfigFile', TTranslateConfigFilePropertyEditor);
   RegisterPropertyEditor(TypeInfo(string), TDetectSettings, 'ConfigFile', TTranslateConfigFilePropertyEditor);
 

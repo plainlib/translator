@@ -44,17 +44,6 @@ type
     vtUnit             // units of measure
     );
 
-  PConfigData = ^TConfigData;
-
-  TConfigData = record
-    Order: integer;
-    PathOnly: string;
-    Name: string;
-    Color: TColor;
-    Visible: boolean;
-    ImageIndex: integer;
-  end;
-
   { Action proposed by language detection analysis }
   TLanguageDetectAction = (ldaNone, ldaSwap, ldaChangeSource, ldaChangeTarget, ldaChangeBoth);
 
@@ -343,11 +332,7 @@ type
     { Ini config }
     procedure SaveIniSettings(AFileName: string);
     procedure LoadIniSettings(AFileName: string);
-    class function IsValidIni(const FileName: string): boolean; static;
-    class procedure FindIniFiles(const Dir: string; List: TStrings); static;
-    class procedure GetIniFiles(List: TStrings; AppName: string); static;
     class function GetConfigFullPath(const ConfigName: string; ConfigFiles: TStringList): string; static;
-    class function ConfigSortByOrderPathName(List: TStringList; Index1, Index2: integer): integer; static;
     class procedure ClearSection(AIni: TIniFile; const ASection: string; AErase: boolean); static;
     class function GetIniDirectory(AppName: string; fileName: string = string.Empty): string;
 
@@ -2837,86 +2822,6 @@ begin
   end;
 end;
 
-class function TCustomTranslate.IsValidIni(const FileName: string): boolean;
-var
-  Ini: TIniFile;
-  Method: string;
-begin
-  Result := False;
-
-  if not FileExists(FileName) then
-    Exit;
-
-  Ini := TIniFile.Create(FileName);
-  try
-    // Check required keys
-    Method := Ini.ReadString('Request', 'Method', string.Empty);
-
-    if ((Method = 'GET') or (Method = 'POST')) and Ini.ValueExists('Request', 'EncodeText') and
-      Ini.ValueExists('Service', 'Order') then
-      Result := True;
-  finally
-    Ini.Free;
-  end;
-end;
-
-class procedure TCustomTranslate.FindIniFiles(const Dir: string; List: TStrings);
-var
-  SR: TSearchRec;
-  FilePath: string;
-begin
-  if not DirectoryExists(Dir) then
-    Exit;
-
-  // Search for *.ini files in current directory
-  if FindFirst(IncludeTrailingPathDelimiter(Dir) + '*.ini', faAnyFile and not faDirectory, SR) = 0 then
-  begin
-    repeat
-      FilePath := IncludeTrailingPathDelimiter(Dir) + SR.Name;
-
-      if IsValidIni(FilePath) then
-        List.Add(FilePath);
-
-    until FindNext(SR) <> 0;
-
-    FindClose(SR);
-  end;
-
-  // Search subdirectories recursively
-  if FindFirst(IncludeTrailingPathDelimiter(Dir) + '*', faDirectory, SR) = 0 then
-  begin
-    repeat
-      if (SR.Name <> '.') and (SR.Name <> '..') then
-      begin
-        if (SR.Attr and faDirectory) <> 0 then
-        begin
-          FilePath := IncludeTrailingPathDelimiter(Dir) + SR.Name;
-          FindIniFiles(FilePath, List); // Recursive call
-        end;
-      end;
-    until FindNext(SR) <> 0;
-
-    FindClose(SR);
-  end;
-end;
-
-class procedure TCustomTranslate.GetIniFiles(List: TStrings; AppName: string);
-var
-  ExeDir: string;
-  SettingsDir: string;
-begin
-  List.Clear;
-
-  // Executable directory
-  ExeDir := ExtractFilePath(ParamStr(0));
-  FindIniFiles(ExeDir, List);
-
-  // Settings directory
-  SettingsDir := TOS.GetSettingsDirectory(AppName, '');
-  if CompareText(ExcludeTrailingPathDelimiter(ExeDir), ExcludeTrailingPathDelimiter(SettingsDir)) <> 0 then
-    FindIniFiles(SettingsDir, List);
-end;
-
 class function TCustomTranslate.GetConfigFullPath(const ConfigName: string; ConfigFiles: TStringList): string;
 var
   i: integer;
@@ -2939,34 +2844,6 @@ begin
     end;
   end;
   // If not found, Result remains empty
-end;
-
-class function TCustomTranslate.ConfigSortByOrderPathName(List: TStringList; Index1, Index2: integer): integer;
-var
-  Data1, Data2: PConfigData;
-  Ord1, Ord2: integer;
-begin
-  Data1 := PConfigData(List.Objects[Index1]);
-  Data2 := PConfigData(List.Objects[Index2]);
-
-  // Treat Order=0 as "largest" to push it to the bottom
-  if Data1^.Order = 0 then
-    Ord1 := MaxInt
-  else
-    Ord1 := Data1^.Order;
-
-  if Data2^.Order = 0 then
-    Ord2 := MaxInt
-  else
-    Ord2 := Data2^.Order;
-
-  Result := Ord1 - Ord2; // primary sort
-  if Result = 0 then
-  begin
-    Result := CompareText(Data1^.PathOnly, Data2^.PathOnly); // secondary sort
-    if Result = 0 then
-      Result := CompareText(Data1^.Name, Data2^.Name); // tertiary sort
-  end;
 end;
 
 class procedure TCustomTranslate.ClearSection(AIni: TIniFile; const ASection: string; AErase: boolean);
