@@ -25,6 +25,7 @@ uses
   fpjson,
   jsonparser,
   ScriptRunner,
+  ConfigManager,
   Network,
   {$PUSH}
   {$WARNINGS OFF}
@@ -255,6 +256,10 @@ type
     // Configuration file for designer use
     FConfigFile: string;
 
+    // Optional manager that auto-loads the config selected in its menu
+    FConfigManager: TConfigManager;
+    FPrevOnSelect: TConfigSelectEvent;
+
     // Translate lifecycle events
     FOnTranslateStart: TNotifyEvent;
     FOnTranslateComplete: TTranslateNotify;
@@ -267,6 +272,8 @@ type
 
     // Config file handling
     procedure SetConfigFile(const Value: string);
+    procedure SetConfigManager(Value: TConfigManager);
+    procedure HandleConfigSelected(Sender: TObject; AIndex: integer; const AConfigFile: string);
 
     // Nested persistent object setters (required for LFM streaming)
     procedure SetProxy(Value: TTranslateProxy);
@@ -294,6 +301,7 @@ type
   protected
     // Fires OnChange for designer notifications
     procedure Changed;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -410,6 +418,9 @@ type
     // Configuration file for designer use - loads INI when set
     property ConfigFile: string read FConfigFile write SetConfigFile;
 
+    // Optional manager; when linked, menu selection auto-loads the config
+    property ConfigManager: TConfigManager read FConfigManager write SetConfigManager;
+
     // Fired when a designer-visible property changes
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
@@ -419,6 +430,9 @@ type
   published
     // Path to the INI file with the service configuration
     property ConfigFile;
+
+    // Optional ConfigManager; menu selection auto-loads the config
+    property ConfigManager;
 
     // Source language code, overrides the INI value when not empty
     property SourceLanguage;
@@ -756,6 +770,55 @@ begin
   if (Value <> string.Empty) and FileExists(Value) then
     LoadIniSettings(Value);
   Changed;
+end;
+
+procedure TCustomTranslate.SetConfigManager(Value: TConfigManager);
+begin
+  if FConfigManager = Value then Exit;
+
+  // Detach from the previous manager and restore its event handler
+  if Assigned(FConfigManager) then
+  begin
+    FConfigManager.RemoveFreeNotification(Self);
+    FConfigManager.OnSelect := FPrevOnSelect;
+    FPrevOnSelect := nil;
+  end;
+
+  FConfigManager := Value;
+
+  // Attach to the new manager and chain its selection event
+  if Assigned(FConfigManager) then
+  begin
+    FConfigManager.FreeNotification(Self);
+    FPrevOnSelect := FConfigManager.OnSelect;
+    FConfigManager.OnSelect := @HandleConfigSelected;
+
+    // Load the currently selected config right away, if any
+    if FConfigManager.SelectedConfig <> string.Empty then
+      ConfigFile := FConfigManager.SelectedConfig;
+  end;
+end;
+
+procedure TCustomTranslate.HandleConfigSelected(Sender: TObject; AIndex: integer; const AConfigFile: string);
+begin
+  // Chain to whatever handler was in place before linking
+  if Assigned(FPrevOnSelect) then
+    FPrevOnSelect(Sender, AIndex, AConfigFile);
+
+  // Auto-load the selected config into this translator
+  if AConfigFile <> string.Empty then
+    ConfigFile := AConfigFile;
+end;
+
+procedure TCustomTranslate.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if (Operation = opRemove) and (AComponent = FConfigManager) then
+  begin
+    // FConfigManager is being destroyed; clear without touching OnSelect
+    FConfigManager := nil;
+    FPrevOnSelect := nil;
+  end;
 end;
 
 procedure TCustomTranslate.SetProxy(Value: TTranslateProxy);
@@ -1167,6 +1230,9 @@ var
   i: integer;
   Th: TTranslateThread;
 begin
+  // Detach from ConfigManager so it does not call into a dying instance
+  ConfigManager := nil;
+
   // Wait for all translation threads with the configured global timeout
   if Assigned(FActiveThreads) then
   begin

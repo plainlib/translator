@@ -16,6 +16,7 @@ uses
 type
   // Parsed config file data used for sorting
   PConfigData = ^TConfigData;
+
   TConfigData = record
     Order: integer;
     PathOnly: string;
@@ -26,12 +27,10 @@ type
   end;
 
   // Fires before a menu item is selected; set AAllow to False to cancel
-  TConfigBeforeSelectEvent = procedure(Sender: TObject; AIndex: integer;
-    const AConfigFile: string; var AAllow: boolean) of object;
+  TConfigBeforeSelectEvent = procedure(Sender: TObject; AIndex: integer; const AConfigFile: string; var AAllow: boolean) of object;
 
   // Fires after the selection is committed
-  TConfigSelectEvent = procedure(Sender: TObject; AIndex: integer;
-    const AConfigFile: string) of object;
+  TConfigSelectEvent = procedure(Sender: TObject; AIndex: integer; const AConfigFile: string) of object;
 
   // Simple notification event used for refresh lifecycle
   TConfigNotifyEvent = procedure(Sender: TObject) of object;
@@ -65,7 +64,8 @@ type
     procedure SetTargetMenu(Value: TMenuItem);
     procedure SetDirectories(Value: TStrings);
     procedure SetAppName(const Value: string);
-    procedure SetSelectedConfig(const Value: string);
+    procedure SetConfig(const Value: string);
+    procedure ApplySelection(AIndex: integer; const AConfigFile: string);
     procedure SetImageWidth(Value: integer);
     procedure SetImageHeight(Value: integer);
     procedure SetAutoRefresh(Value: boolean);
@@ -115,8 +115,10 @@ type
     class function IsValidIni(const FileName: string): boolean; static;
     class procedure FindIniFiles(const Dir: string; List: TStrings); static;
     class procedure GetIniFiles(List: TStrings; AppName: string); static;
-    class function ConfigSortByOrderPathName(List: TStringList;
-      Index1, Index2: integer): integer; static;
+    class function ConfigSortByOrderPathName(List: TStringList; Index1, Index2: integer): integer; static;
+
+    // Silent setter: only updates state and Checked, no OnSelect
+    procedure SetSelectedConfigSilent(const Value: string);
 
     property ConfigFiles: TStrings read GetConfigFiles;
     property ConfigTitles: TStrings read GetConfigTitles;
@@ -124,6 +126,8 @@ type
     property ConfigImages: TStrings read GetConfigImages;
     property Images: TImageList read FImages;
     property ConfigCount: integer read GetConfigCount;
+    // Currently active config path, same value as Config
+    property SelectedConfig: string read FSelectedConfig;
     property SelectedIndex: integer read GetSelectedIndex;
     property SelectedImageIndex: integer read GetSelectedImageIndex;
   published
@@ -133,8 +137,8 @@ type
     property Directories: TStrings read FDirectories write SetDirectories stored DirectoriesStored;
     // Application name used to resolve the default settings directory
     property AppName: string read FAppName write SetAppName;
-    // Full path of the currently active config, drives the Checked state
-    property SelectedConfig: string read FSelectedConfig write SetSelectedConfig;
+    // Active config path; assigning applies the selection and fires events
+    property Config: string read FSelectedConfig write SetConfig;
     // When True, a delayed scan runs right after LFM streaming is finished
     property AutoRefresh: boolean read FAutoRefresh write SetAutoRefresh default True;
     // Icon size used by the internal image list
@@ -156,7 +160,7 @@ implementation
 uses
   Base64Utils, OSUtils, OneShotTimer;
 
-{ TConfigManager }
+  { TConfigManager }
 
 constructor TConfigManager.Create(AOwner: TComponent);
 begin
@@ -230,7 +234,7 @@ begin
   FAppName := Value;
 end;
 
-procedure TConfigManager.SetSelectedConfig(const Value: string);
+procedure TConfigManager.SetSelectedConfigSilent(const Value: string);
 begin
   if FSelectedConfig = Value then Exit;
   FSelectedConfig := Value;
@@ -270,28 +274,53 @@ end;
 procedure TConfigManager.MenuItemClick(Sender: TObject);
 var
   Item: TMenuItem;
-  Idx: integer;
-  Allow: boolean;
-  ConfigFile: string;
 begin
   if FUpdateLock then Exit;
   if not (Sender is TMenuItem) then Exit;
 
   Item := TMenuItem(Sender);
-  Idx := Item.Tag;
-  if (Idx < 0) or (Idx >= FConfigFiles.Count) then Exit;
+  if (Item.Tag < 0) or (Item.Tag >= FConfigFiles.Count) then Exit;
 
-  ConfigFile := FConfigFiles[Idx];
+  ApplySelection(Item.Tag, FConfigFiles[Item.Tag]);
+end;
+
+procedure TConfigManager.ApplySelection(AIndex: integer; const AConfigFile: string);
+var
+  Allow: boolean;
+begin
   Allow := True;
   if Assigned(FOnBeforeSelect) then
-    FOnBeforeSelect(Self, Idx, ConfigFile, Allow);
+    FOnBeforeSelect(Self, AIndex, AConfigFile, Allow);
   if not Allow then Exit;
 
-  FSelectedConfig := ConfigFile;
+  FSelectedConfig := AConfigFile;
   UpdateCheckState;
 
   if Assigned(FOnSelect) then
-    FOnSelect(Self, Idx, ConfigFile);
+    FOnSelect(Self, AIndex, AConfigFile);
+end;
+
+procedure TConfigManager.SetConfig(const Value: string);
+var
+  Idx: integer;
+  Allow: boolean;
+begin
+  if FSelectedConfig = Value then Exit;
+
+  Idx := FConfigFiles.IndexOf(Value);
+
+  // Events fire only for a path the manager knows about; invalid paths
+  // still update the state so the host can read back the last value
+  Allow := True;
+  if (Idx >= 0) and Assigned(FOnBeforeSelect) then
+    FOnBeforeSelect(Self, Idx, Value, Allow);
+  if not Allow then Exit;
+
+  FSelectedConfig := Value;
+  UpdateCheckState;
+
+  if (Idx >= 0) and Assigned(FOnSelect) then
+    FOnSelect(Self, Idx, Value);
 end;
 
 procedure TConfigManager.UpdateCheckState;
@@ -426,8 +455,7 @@ begin
       if FAppName <> '' then
       begin
         AppDir := TOS.GetSettingsDirectory(FAppName, '');
-        if CompareText(ExcludeTrailingPathDelimiter(ExeDir),
-          ExcludeTrailingPathDelimiter(AppDir)) <> 0 then
+        if CompareText(ExcludeTrailingPathDelimiter(ExeDir), ExcludeTrailingPathDelimiter(AppDir)) <> 0 then
           FindIniFiles(AppDir, Files);
       end;
     end;
@@ -695,8 +723,7 @@ begin
   Ini := TIniFile.Create(FileName);
   try
     Method := Ini.ReadString('Request', 'Method', string.Empty);
-    if ((Method = 'GET') or (Method = 'POST')) and
-      Ini.ValueExists('Request', 'EncodeText') and
+    if ((Method = 'GET') or (Method = 'POST')) and Ini.ValueExists('Request', 'EncodeText') and
       Ini.ValueExists('Service', 'Order') then
       Result := True;
   finally
@@ -711,8 +738,7 @@ var
 begin
   if not DirectoryExists(Dir) then Exit;
 
-  if FindFirst(IncludeTrailingPathDelimiter(Dir) + '*.ini',
-    faAnyFile and not faDirectory, SR) = 0 then
+  if FindFirst(IncludeTrailingPathDelimiter(Dir) + '*.ini', faAnyFile and not faDirectory, SR) = 0 then
   begin
     repeat
       FilePath := IncludeTrailingPathDelimiter(Dir) + SR.Name;
@@ -751,14 +777,12 @@ begin
   if AppName <> string.Empty then
   begin
     SettingsDir := TOS.GetSettingsDirectory(AppName, '');
-    if CompareText(ExcludeTrailingPathDelimiter(ExeDir),
-      ExcludeTrailingPathDelimiter(SettingsDir)) <> 0 then
+    if CompareText(ExcludeTrailingPathDelimiter(ExeDir), ExcludeTrailingPathDelimiter(SettingsDir)) <> 0 then
       FindIniFiles(SettingsDir, List);
   end;
 end;
 
-class function TConfigManager.ConfigSortByOrderPathName(List: TStringList;
-  Index1, Index2: integer): integer;
+class function TConfigManager.ConfigSortByOrderPathName(List: TStringList; Index1, Index2: integer): integer;
 var
   Data1, Data2: PConfigData;
   Ord1, Ord2: integer;
