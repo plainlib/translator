@@ -1145,4 +1145,9 @@ begin
   end;
 end;
 
+initialization
+  // Required so LFM streaming can instantiate the class by name at runtime
+  RegisterClass(TConfigManager);
+  RegisterClass(TCustomConfigManager);
+
 end.

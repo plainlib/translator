@@ -51,14 +51,16 @@ begin
   RegisterComponents('Common Controls', [TTranslate, TConfigManager]);
   RegisterPropertyEditor(TypeInfo(string), TTranslate, 'ConfigFile', TTranslateConfigFilePropertyEditor);
   RegisterPropertyEditor(TypeInfo(string), TDetectSettings, 'ConfigFile', TTranslateConfigFilePropertyEditor);
-  RegisterPropertyEditor(TypeInfo(string), TCustomConfigManager, 'ConfigFile', TTranslateConfigFilePropertyEditor);
+  RegisterPropertyEditor(TypeInfo(string), TConfigManager, 'ConfigFile', TTranslateConfigFilePropertyEditor);
 
   // Needed so LFM streaming can find the nested persistent classes by name
+  RegisterClass(TConfigFormPosition);
   RegisterClass(TTranslateProxy);
   RegisterClass(TTranslateTimeout);
 end;
 
 initialization
+
   {$I translator.lrs}
 
 end.

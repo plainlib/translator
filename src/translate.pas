@@ -2979,4 +2979,9 @@ end;
 
 {%EndRegion}
 
+initialization
+  // Required so LFM streaming can instantiate the class by name at runtime
+  RegisterClass(TTranslate);
+  RegisterClass(TCustomTranslate);
+
 end.
