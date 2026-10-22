@@ -1,0 +1,350 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
+"Language-Team: \n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: PoBatch 1.0.0"
+
+#: tformconfigtrayslate.aclearicon.caption
+msgid "Clear Icon"
+msgstr "Tyhjennä kuvake"
+
+#: tformconfigtrayslate.asave.caption
+msgid "Save"
+msgstr "Tallenna"
+
+#: tformconfigtrayslate.asaveiconas.caption
+msgid "Save Icon As..."
+msgstr "Tallenna kuvake nimellä..."
+
+#: tformconfigtrayslate.btnclose.caption
+msgid "Close"
+msgstr "Sulje"
+
+#: tformconfigtrayslate.btninitparameterstest.hint
+msgid "Execute request and view the parameters"
+msgstr "Suorita pyyntö ja tarkastele parametreja"
+
+#: tformconfigtrayslate.btniniturltest.hint
+msgid "Execute request and view the result"
+msgstr "Suorita pyyntö ja tarkastele tulosta"
+
+#: tformconfigtrayslate.btnpostdatatest.hint
+msgid "Execute post request and view the result"
+msgstr "Suorita POST-pyyntö ja tarkastele tulosta"
+
+#: tformconfigtrayslate.btnresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnresponsehelp.hint"
+msgid "Help"
+msgstr "Ohje"
+
+#: tformconfigtrayslate.btnresponsetest.hint
+msgid "Converts the current response"
+msgstr "Muuntaa nykyisen vastauksen"
+
+#: tformconfigtrayslate.btnscripthelp.hint
+msgctxt "tformconfigtrayslate.btnscripthelp.hint"
+msgid "Help"
+msgstr "Ohje"
+
+#: tformconfigtrayslate.btnscriptresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsehelp.hint"
+msgid "Help"
+msgstr "Ohje"
+
+#: tformconfigtrayslate.btnscriptresponsetest.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsetest.hint"
+msgid "Execute script and view the result"
+msgstr "Suorita komentosarja ja näytä tulos"
+
+#: tformconfigtrayslate.btnscripttest.hint
+msgctxt "tformconfigtrayslate.btnscripttest.hint"
+msgid "Execute script and view the result"
+msgstr "Suorita komentosarja ja näytä tulos"
+
+#: tformconfigtrayslate.btnurltest.hint
+msgid "Execute get request and view the result"
+msgstr "Suorita GET-pyyntö ja tarkastele tulosta"
+
+#: tformconfigtrayslate.caption
+msgctxt "tformconfigtrayslate.caption"
+msgid "Config Editor"
+msgstr "Konfiguraatioeditori"
+
+#: tformconfigtrayslate.checkencodecustomparameters.caption
+msgid "Encode parameters"
+msgstr "Koodaa parametrit"
+
+#: tformconfigtrayslate.checkencodetext.caption
+msgid "Encode {text} parameter"
+msgstr "Koodaa {text}-parametri"
+
+#: tformconfigtrayslate.checkserviceautoswap.caption
+msgid "Allow auto-swap language pair"
+msgstr "Salli kieliparin automaattinen vaihto"
+
+#: tformconfigtrayslate.checkserviceonlybutton.caption
+msgid "Allow translation only by translation button"
+msgstr "Salli käännös vain käännöspainikkeella"
+
+#: tformconfigtrayslate.checkserviceproxy.caption
+msgid "Allow proxy"
+msgstr "Salli välityspalvelin"
+
+#: tformconfigtrayslate.checkservicerealtime.caption
+msgid "Allow translate as you type"
+msgstr "Salli käännös kirjoittaessasi"
+
+#: tformconfigtrayslate.checkservicevisible.caption
+msgid "Visible in menu"
+msgstr "Näkyy valikossa"
+
+#: tformconfigtrayslate.combomethod.text
+msgid "GET"
+msgstr "GET"
+
+#: tformconfigtrayslate.combovaluetype.text
+msgctxt "tformconfigtrayslate.combovaluetype.text"
+msgid "None"
+msgstr "Ei mitään"
+
+#: tformconfigtrayslate.groupboxcustomparameters.caption
+msgid "Custom Parameters"
+msgstr "Mukautetut parametrit"
+
+#: tformconfigtrayslate.groupboxservice.caption
+msgctxt "tformconfigtrayslate.groupboxservice.caption"
+msgid "Service"
+msgstr "Palvelu"
+
+#: tformconfigtrayslate.groupinitparameters.caption
+msgctxt "tformconfigtrayslate.groupinitparameters.caption"
+msgid "Initial Request"
+msgstr "Alkupyyntö"
+
+#: tformconfigtrayslate.grouplanguages.caption
+msgctxt "tformconfigtrayslate.grouplanguages.caption"
+msgid "Languages"
+msgstr "Kielet"
+
+#: tformconfigtrayslate.grouplanguagestarget.caption
+msgctxt "tformconfigtrayslate.grouplanguagestarget.caption"
+msgid "Target Languages"
+msgstr "Kohdekielet"
+
+#: tformconfigtrayslate.grouprequest.caption
+msgctxt "tformconfigtrayslate.grouprequest.caption"
+msgid "Request"
+msgstr "Pyyntö"
+
+#: tformconfigtrayslate.groupresponse.caption
+msgid "Json Pointer Processing the Response"
+msgstr "Vastauksen käsittely Json Pointer -toiminnolla"
+
+#: tformconfigtrayslate.groupscript.caption
+msgid "Script Retrieved Parameters"
+msgstr "Skriptin hakemat parametrit"
+
+#: tformconfigtrayslate.groupscriptresponse.caption
+msgid "Script Processing the Response"
+msgstr "Vastauksen käsittely komentosarjalla"
+
+#: tformconfigtrayslate.imagepreview.hint
+msgid "Click to select the config icon, Middle-Click clears the icon"
+msgstr "Napsauta valitaksesi asetusten kuvakkeen, Middle-Click tyhjentää kuvakkeen"
+
+#: tformconfigtrayslate.labelaccept.caption
+msgid "Accept"
+msgstr "Accept"
+
+#: tformconfigtrayslate.labelcolorrecent.caption
+msgid "Recent Color"
+msgstr "Viimeaikainen väri"
+
+#: tformconfigtrayslate.labelcontenttype.caption
+msgid "Content Type"
+msgstr "Content Type"
+
+#: tformconfigtrayslate.labelfilllanguages.caption
+msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
+msgid "Fill with default"
+msgstr "Täytä oletusarvoilla"
+
+#: tformconfigtrayslate.labelfilltargetlanguages.caption
+msgctxt "tformconfigtrayslate.labelfilltargetlanguages.caption"
+msgid "Fill with default"
+msgstr "Täytä oletusarvoilla"
+
+#: tformconfigtrayslate.labelheaders.caption
+msgid "Additional request headers in key=value format, key: value is also supported"
+msgstr "Lisäpyyntöotsikot muodossa key=value, myös key: value tuetaan"
+
+#: tformconfigtrayslate.labelinitheaders.caption
+msgid "Additional initial request headers in key=value format, key: value is also supported"
+msgstr "Lisäotsikot alkupyynnölle muodossa key=value, myös key: value tuetaan"
+
+#: tformconfigtrayslate.labelinitheaders2.caption
+msgctxt "tformconfigtrayslate.labelinitheaders2.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelinitlivetime.caption
+msgid "Live time"
+msgstr "Elinaika"
+
+#: tformconfigtrayslate.labelinitparameters.caption
+msgid "Parameters name=regexp are extracted from the response and used by name in requests"
+msgstr "Parametrit name=regexp poimitaan vastauksesta ja käytetään nimellä pyynnöissä"
+
+#: tformconfigtrayslate.labelinitparameters1.caption
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Aika sekunneissa parametrien päivittämiseen uudella pyynnöllä (0 = joka pyyntö)"
+
+#: tformconfigtrayslate.labelinitparameters2.caption
+msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
+msgid "Parameters"
+msgstr "Parametrit"
+
+#: tformconfigtrayslate.labelinitparameters4.caption
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Parametrit muodossa key=value, joita {key} käyttää pyynnöissä. Jos arvo puuttuu (key=), sitä pyydetään käyttäjältä."
+
+#: tformconfigtrayslate.labelinitparemeters.caption
+msgid "Initial GET request to obtain required parameters."
+msgstr "Alkuperäinen GET-pyyntö tarvittavien parametrien saamiseksi."
+
+#: tformconfigtrayslate.labeliniturl.caption
+msgctxt "tformconfigtrayslate.labeliniturl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labelinituseragent.caption
+msgctxt "tformconfigtrayslate.labelinituseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labellanguages.caption
+msgid "Supported languages e.g. en=en-US (en - internal, en-US - service). \"empty\" - do not send."
+msgstr "Tuetut kielet, esim. en=en-US (en - sisäinen, en-US - palvelu). \"empty\" - älä lähetä."
+
+#: tformconfigtrayslate.labellanguages1.caption
+msgid "Value type for populating names. None keeps originals; None and Unit are case-sensitive."
+msgstr "Arvotyyppi nimien täyttämiselle. None säilyttää alkuperäiset; None ja Unit ovat kirjainkoolla merkityksellisiä."
+
+#: tformconfigtrayslate.labellanguagestarget.caption
+msgid ""
+"Target languages e.g. en=en-US, en - internal, en-US - service code.\n"
+"If not specified, both source and target languages are taken from the languages section."
+msgstr ""
+"Kohdekielet, esim. en=en-US, en - sisäinen, en-US - palvelukoodi.\n"
+"Jos ei ole määritetty, sekä lähde- että kohdekielet otetaan kieliosiosta."
+
+#: tformconfigtrayslate.labelmaxlength.caption
+msgid "Max Length, bytes"
+msgstr "Enimmäispituus, tavuja"
+
+#: tformconfigtrayslate.labelmethod.caption
+msgid "Method"
+msgstr "Menetelmä"
+
+#: tformconfigtrayslate.labelparemeters.caption
+msgid "Use parameters: {text} – input text, {source} – source language, {target} – target language. Prefix the name with ! for lowercase or ^ for uppercase value. Also supported {timestamp}, {rand}. Use {parameter} from the parameters page."
+msgstr "Käytä parametreja: {text} – syöteteksti, {source} – lähdekieli, {target} – kohdekieli. Lisää etuliite ! pienille kirjaimille tai ^ suurille kirjaimille. Myös {timestamp}, {rand} tuetaan. Käytä {parameter}-parametria parametrisivulta."
+
+#: tformconfigtrayslate.labelpostdata.caption
+msgid "Post Data"
+msgstr "Post Data"
+
+#: tformconfigtrayslate.labelpostdata1.caption
+msgctxt "tformconfigtrayslate.labelpostdata1.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelservicedescription.caption
+msgid "Description"
+msgstr "Kuvaus"
+
+#: tformconfigtrayslate.labelservicename.caption
+msgid "Name"
+msgstr "Nimi"
+
+#: tformconfigtrayslate.labelserviceorder.caption
+msgid "Order"
+msgstr "Järjestys"
+
+#: tformconfigtrayslate.labelsort.caption
+msgctxt "tformconfigtrayslate.labelsort.caption"
+msgid "Sort"
+msgstr "Lajittele"
+
+#: tformconfigtrayslate.labeltargetsort.caption
+msgctxt "tformconfigtrayslate.labeltargetsort.caption"
+msgid "Sort"
+msgstr "Lajittele"
+
+#: tformconfigtrayslate.labelurl.caption
+msgctxt "tformconfigtrayslate.labelurl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labeluseragent.caption
+msgctxt "tformconfigtrayslate.labeluseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labelvaluetype.caption
+msgid "Value Type"
+msgstr "Arvotyyppi"
+
+#: tformconfigtrayslate.pageinitialrequest.caption
+msgctxt "tformconfigtrayslate.pageinitialrequest.caption"
+msgid "Initial Request"
+msgstr "Alkupyyntö"
+
+#: tformconfigtrayslate.pagelanguages.caption
+msgctxt "tformconfigtrayslate.pagelanguages.caption"
+msgid "Languages"
+msgstr "Kielet"
+
+#: tformconfigtrayslate.pagelanguagestarget.caption
+msgctxt "tformconfigtrayslate.pagelanguagestarget.caption"
+msgid "Target Languages"
+msgstr "Kohdekielet"
+
+#: tformconfigtrayslate.pageparameters.caption
+msgctxt "tformconfigtrayslate.pageparameters.caption"
+msgid "Parameters"
+msgstr "Parametrit"
+
+#: tformconfigtrayslate.pagerequest.caption
+msgctxt "tformconfigtrayslate.pagerequest.caption"
+msgid "Request"
+msgstr "Pyyntö"
+
+#: tformconfigtrayslate.pageresponse.caption
+msgid "Response"
+msgstr "Vastaus"
+
+#: tformconfigtrayslate.pageservice.caption
+msgctxt "tformconfigtrayslate.pageservice.caption"
+msgid "Service"
+msgstr "Palvelu"
+
+#: tformconfigtrayslate.reloadconfigs.hint
+msgid "Reload configurations from disk"
+msgstr "Lataa asetukset uudelleen levyltä"
+
+#: tformconfigtrayslate.sbcopyconfig.hint
+msgid "Copy configuration"
+msgstr "Kopioi konfiguraatio"
+
+#: tformconfigtrayslate.sbnewconfig.hint
+msgid "New configuration"
+msgstr "Uusi konfiguraatio"
+

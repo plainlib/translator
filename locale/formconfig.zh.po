@@ -1,0 +1,350 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
+"Language-Team: \n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: PoBatch 1.0.0"
+
+#: tformconfigtrayslate.aclearicon.caption
+msgid "Clear Icon"
+msgstr "清除图标"
+
+#: tformconfigtrayslate.asave.caption
+msgid "Save"
+msgstr "保存"
+
+#: tformconfigtrayslate.asaveiconas.caption
+msgid "Save Icon As..."
+msgstr "将图标另存为..."
+
+#: tformconfigtrayslate.btnclose.caption
+msgid "Close"
+msgstr "关闭"
+
+#: tformconfigtrayslate.btninitparameterstest.hint
+msgid "Execute request and view the parameters"
+msgstr "执行请求并查看参数"
+
+#: tformconfigtrayslate.btniniturltest.hint
+msgid "Execute request and view the result"
+msgstr "执行请求并查看结果"
+
+#: tformconfigtrayslate.btnpostdatatest.hint
+msgid "Execute post request and view the result"
+msgstr "执行 POST 请求并查看结果"
+
+#: tformconfigtrayslate.btnresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnresponsehelp.hint"
+msgid "Help"
+msgstr "帮助"
+
+#: tformconfigtrayslate.btnresponsetest.hint
+msgid "Converts the current response"
+msgstr "转换当前响应"
+
+#: tformconfigtrayslate.btnscripthelp.hint
+msgctxt "tformconfigtrayslate.btnscripthelp.hint"
+msgid "Help"
+msgstr "帮助"
+
+#: tformconfigtrayslate.btnscriptresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsehelp.hint"
+msgid "Help"
+msgstr "帮助"
+
+#: tformconfigtrayslate.btnscriptresponsetest.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsetest.hint"
+msgid "Execute script and view the result"
+msgstr "执行脚本并查看结果"
+
+#: tformconfigtrayslate.btnscripttest.hint
+msgctxt "tformconfigtrayslate.btnscripttest.hint"
+msgid "Execute script and view the result"
+msgstr "执行脚本并查看结果"
+
+#: tformconfigtrayslate.btnurltest.hint
+msgid "Execute get request and view the result"
+msgstr "执行 GET 请求并查看结果"
+
+#: tformconfigtrayslate.caption
+msgctxt "tformconfigtrayslate.caption"
+msgid "Config Editor"
+msgstr "配置编辑器"
+
+#: tformconfigtrayslate.checkencodecustomparameters.caption
+msgid "Encode parameters"
+msgstr "编码参数"
+
+#: tformconfigtrayslate.checkencodetext.caption
+msgid "Encode {text} parameter"
+msgstr "编码 {text} 参数"
+
+#: tformconfigtrayslate.checkserviceautoswap.caption
+msgid "Allow auto-swap language pair"
+msgstr "允许自动切换语言对"
+
+#: tformconfigtrayslate.checkserviceonlybutton.caption
+msgid "Allow translation only by translation button"
+msgstr "仅允许通过翻译按钮进行翻译"
+
+#: tformconfigtrayslate.checkserviceproxy.caption
+msgid "Allow proxy"
+msgstr "允许代理"
+
+#: tformconfigtrayslate.checkservicerealtime.caption
+msgid "Allow translate as you type"
+msgstr "允许在输入时进行翻译"
+
+#: tformconfigtrayslate.checkservicevisible.caption
+msgid "Visible in menu"
+msgstr "在菜单中显示"
+
+#: tformconfigtrayslate.combomethod.text
+msgid "GET"
+msgstr "GET"
+
+#: tformconfigtrayslate.combovaluetype.text
+msgctxt "tformconfigtrayslate.combovaluetype.text"
+msgid "None"
+msgstr "无"
+
+#: tformconfigtrayslate.groupboxcustomparameters.caption
+msgid "Custom Parameters"
+msgstr "自定义参数"
+
+#: tformconfigtrayslate.groupboxservice.caption
+msgctxt "tformconfigtrayslate.groupboxservice.caption"
+msgid "Service"
+msgstr "服务"
+
+#: tformconfigtrayslate.groupinitparameters.caption
+msgctxt "tformconfigtrayslate.groupinitparameters.caption"
+msgid "Initial Request"
+msgstr "初始请求"
+
+#: tformconfigtrayslate.grouplanguages.caption
+msgctxt "tformconfigtrayslate.grouplanguages.caption"
+msgid "Languages"
+msgstr "语言"
+
+#: tformconfigtrayslate.grouplanguagestarget.caption
+msgctxt "tformconfigtrayslate.grouplanguagestarget.caption"
+msgid "Target Languages"
+msgstr "目标语言"
+
+#: tformconfigtrayslate.grouprequest.caption
+msgctxt "tformconfigtrayslate.grouprequest.caption"
+msgid "Request"
+msgstr "请求"
+
+#: tformconfigtrayslate.groupresponse.caption
+msgid "Json Pointer Processing the Response"
+msgstr "使用 Json Pointer 处理响应"
+
+#: tformconfigtrayslate.groupscript.caption
+msgid "Script Retrieved Parameters"
+msgstr "脚本获取的参数"
+
+#: tformconfigtrayslate.groupscriptresponse.caption
+msgid "Script Processing the Response"
+msgstr "脚本处理响应"
+
+#: tformconfigtrayslate.imagepreview.hint
+msgid "Click to select the config icon, Middle-Click clears the icon"
+msgstr "点击以选择配置图标，Middle-Click 清除图标"
+
+#: tformconfigtrayslate.labelaccept.caption
+msgid "Accept"
+msgstr "Accept"
+
+#: tformconfigtrayslate.labelcolorrecent.caption
+msgid "Recent Color"
+msgstr "最近颜色"
+
+#: tformconfigtrayslate.labelcontenttype.caption
+msgid "Content Type"
+msgstr "Content Type"
+
+#: tformconfigtrayslate.labelfilllanguages.caption
+msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
+msgid "Fill with default"
+msgstr "用默认值填充"
+
+#: tformconfigtrayslate.labelfilltargetlanguages.caption
+msgctxt "tformconfigtrayslate.labelfilltargetlanguages.caption"
+msgid "Fill with default"
+msgstr "用默认值填充"
+
+#: tformconfigtrayslate.labelheaders.caption
+msgid "Additional request headers in key=value format, key: value is also supported"
+msgstr "额外的请求头，格式为 key=value，也支持 key: value"
+
+#: tformconfigtrayslate.labelinitheaders.caption
+msgid "Additional initial request headers in key=value format, key: value is also supported"
+msgstr "额外的初始请求头，格式为 key=value，也支持 key: value"
+
+#: tformconfigtrayslate.labelinitheaders2.caption
+msgctxt "tformconfigtrayslate.labelinitheaders2.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelinitlivetime.caption
+msgid "Live time"
+msgstr "存活时间"
+
+#: tformconfigtrayslate.labelinitparameters.caption
+msgid "Parameters name=regexp are extracted from the response and used by name in requests"
+msgstr "参数 name=regexp 从响应中提取，并在请求中按名称使用"
+
+#: tformconfigtrayslate.labelinitparameters1.caption
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "通过新请求刷新参数的时间（秒），0 = 每个请求都刷新"
+
+#: tformconfigtrayslate.labelinitparameters2.caption
+msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
+msgid "Parameters"
+msgstr "参数"
+
+#: tformconfigtrayslate.labelinitparameters4.caption
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "请求中由 {key} 使用的 key=value 形式参数。如果省略值（key=），将向用户请求。"
+
+#: tformconfigtrayslate.labelinitparemeters.caption
+msgid "Initial GET request to obtain required parameters."
+msgstr "用于获取所需参数的初始 GET 请求。"
+
+#: tformconfigtrayslate.labeliniturl.caption
+msgctxt "tformconfigtrayslate.labeliniturl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labelinituseragent.caption
+msgctxt "tformconfigtrayslate.labelinituseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labellanguages.caption
+msgid "Supported languages e.g. en=en-US (en - internal, en-US - service). \"empty\" - do not send."
+msgstr "支持的语言，例如 en=en-US（en - 内部，en-US - 服务）。\"empty\" - 不发送。"
+
+#: tformconfigtrayslate.labellanguages1.caption
+msgid "Value type for populating names. None keeps originals; None and Unit are case-sensitive."
+msgstr "填充名称的值类型。None 保留原始值；None 和 Unit 区分大小写。"
+
+#: tformconfigtrayslate.labellanguagestarget.caption
+msgid ""
+"Target languages e.g. en=en-US, en - internal, en-US - service code.\n"
+"If not specified, both source and target languages are taken from the languages section."
+msgstr ""
+"目标语言，例如 en=en-US，en - 内部，en-US - 服务代码。\n"
+"如果未指定，源语言和目标语言均从语言部分获取。"
+
+#: tformconfigtrayslate.labelmaxlength.caption
+msgid "Max Length, bytes"
+msgstr "最大长度，字节"
+
+#: tformconfigtrayslate.labelmethod.caption
+msgid "Method"
+msgstr "方法"
+
+#: tformconfigtrayslate.labelparemeters.caption
+msgid "Use parameters: {text} – input text, {source} – source language, {target} – target language. Prefix the name with ! for lowercase or ^ for uppercase value. Also supported {timestamp}, {rand}. Use {parameter} from the parameters page."
+msgstr "使用参数：{text} – 输入文本，{source} – 源语言，{target} – 目标语言。名称前加 ! 表示小写值，加 ^ 表示大写值。还支持 {timestamp}、{rand}。使用参数页中的 {parameter}。"
+
+#: tformconfigtrayslate.labelpostdata.caption
+msgid "Post Data"
+msgstr "Post Data"
+
+#: tformconfigtrayslate.labelpostdata1.caption
+msgctxt "tformconfigtrayslate.labelpostdata1.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelservicedescription.caption
+msgid "Description"
+msgstr "描述"
+
+#: tformconfigtrayslate.labelservicename.caption
+msgid "Name"
+msgstr "名称"
+
+#: tformconfigtrayslate.labelserviceorder.caption
+msgid "Order"
+msgstr "顺序"
+
+#: tformconfigtrayslate.labelsort.caption
+msgctxt "tformconfigtrayslate.labelsort.caption"
+msgid "Sort"
+msgstr "排序"
+
+#: tformconfigtrayslate.labeltargetsort.caption
+msgctxt "tformconfigtrayslate.labeltargetsort.caption"
+msgid "Sort"
+msgstr "排序"
+
+#: tformconfigtrayslate.labelurl.caption
+msgctxt "tformconfigtrayslate.labelurl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labeluseragent.caption
+msgctxt "tformconfigtrayslate.labeluseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labelvaluetype.caption
+msgid "Value Type"
+msgstr "值类型"
+
+#: tformconfigtrayslate.pageinitialrequest.caption
+msgctxt "tformconfigtrayslate.pageinitialrequest.caption"
+msgid "Initial Request"
+msgstr "初始请求"
+
+#: tformconfigtrayslate.pagelanguages.caption
+msgctxt "tformconfigtrayslate.pagelanguages.caption"
+msgid "Languages"
+msgstr "语言"
+
+#: tformconfigtrayslate.pagelanguagestarget.caption
+msgctxt "tformconfigtrayslate.pagelanguagestarget.caption"
+msgid "Target Languages"
+msgstr "目标语言"
+
+#: tformconfigtrayslate.pageparameters.caption
+msgctxt "tformconfigtrayslate.pageparameters.caption"
+msgid "Parameters"
+msgstr "参数"
+
+#: tformconfigtrayslate.pagerequest.caption
+msgctxt "tformconfigtrayslate.pagerequest.caption"
+msgid "Request"
+msgstr "请求"
+
+#: tformconfigtrayslate.pageresponse.caption
+msgid "Response"
+msgstr "响应"
+
+#: tformconfigtrayslate.pageservice.caption
+msgctxt "tformconfigtrayslate.pageservice.caption"
+msgid "Service"
+msgstr "服务"
+
+#: tformconfigtrayslate.reloadconfigs.hint
+msgid "Reload configurations from disk"
+msgstr "从磁盘重新加载配置"
+
+#: tformconfigtrayslate.sbcopyconfig.hint
+msgid "Copy configuration"
+msgstr "复制配置"
+
+#: tformconfigtrayslate.sbnewconfig.hint
+msgid "New configuration"
+msgstr "新建配置"
+

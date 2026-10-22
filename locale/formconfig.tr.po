@@ -1,0 +1,350 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
+"Language-Team: \n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: PoBatch 1.0.0"
+
+#: tformconfigtrayslate.aclearicon.caption
+msgid "Clear Icon"
+msgstr "Simgeyi temizle"
+
+#: tformconfigtrayslate.asave.caption
+msgid "Save"
+msgstr "Kaydet"
+
+#: tformconfigtrayslate.asaveiconas.caption
+msgid "Save Icon As..."
+msgstr "Simgeyi farklı kaydet..."
+
+#: tformconfigtrayslate.btnclose.caption
+msgid "Close"
+msgstr "Kapat"
+
+#: tformconfigtrayslate.btninitparameterstest.hint
+msgid "Execute request and view the parameters"
+msgstr "İsteği yürüt ve parametreleri görüntüle"
+
+#: tformconfigtrayslate.btniniturltest.hint
+msgid "Execute request and view the result"
+msgstr "İsteği yürüt ve sonucu görüntüle"
+
+#: tformconfigtrayslate.btnpostdatatest.hint
+msgid "Execute post request and view the result"
+msgstr "POST isteğini yürüt ve sonucu görüntüle"
+
+#: tformconfigtrayslate.btnresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnresponsehelp.hint"
+msgid "Help"
+msgstr "Yardım"
+
+#: tformconfigtrayslate.btnresponsetest.hint
+msgid "Converts the current response"
+msgstr "Geçerli yanıtı dönüştürür"
+
+#: tformconfigtrayslate.btnscripthelp.hint
+msgctxt "tformconfigtrayslate.btnscripthelp.hint"
+msgid "Help"
+msgstr "Yardım"
+
+#: tformconfigtrayslate.btnscriptresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsehelp.hint"
+msgid "Help"
+msgstr "Yardım"
+
+#: tformconfigtrayslate.btnscriptresponsetest.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsetest.hint"
+msgid "Execute script and view the result"
+msgstr "Betiği çalıştır ve sonucu görüntüle"
+
+#: tformconfigtrayslate.btnscripttest.hint
+msgctxt "tformconfigtrayslate.btnscripttest.hint"
+msgid "Execute script and view the result"
+msgstr "Betiği çalıştır ve sonucu görüntüle"
+
+#: tformconfigtrayslate.btnurltest.hint
+msgid "Execute get request and view the result"
+msgstr "GET isteğini yürüt ve sonucu görüntüle"
+
+#: tformconfigtrayslate.caption
+msgctxt "tformconfigtrayslate.caption"
+msgid "Config Editor"
+msgstr "Yapılandırma Düzenleyici"
+
+#: tformconfigtrayslate.checkencodecustomparameters.caption
+msgid "Encode parameters"
+msgstr "Kodlama parametreleri"
+
+#: tformconfigtrayslate.checkencodetext.caption
+msgid "Encode {text} parameter"
+msgstr "{text} parametresini kodla"
+
+#: tformconfigtrayslate.checkserviceautoswap.caption
+msgid "Allow auto-swap language pair"
+msgstr "Dil çiftinin otomatik değiştirilmesine izin ver"
+
+#: tformconfigtrayslate.checkserviceonlybutton.caption
+msgid "Allow translation only by translation button"
+msgstr "Sadece çeviri düğmesi ile çeviriye izin ver"
+
+#: tformconfigtrayslate.checkserviceproxy.caption
+msgid "Allow proxy"
+msgstr "Proxy’ye izin ver"
+
+#: tformconfigtrayslate.checkservicerealtime.caption
+msgid "Allow translate as you type"
+msgstr "Yazarken çeviriye izin ver"
+
+#: tformconfigtrayslate.checkservicevisible.caption
+msgid "Visible in menu"
+msgstr "Menüde görünür"
+
+#: tformconfigtrayslate.combomethod.text
+msgid "GET"
+msgstr "GET"
+
+#: tformconfigtrayslate.combovaluetype.text
+msgctxt "tformconfigtrayslate.combovaluetype.text"
+msgid "None"
+msgstr "Yok"
+
+#: tformconfigtrayslate.groupboxcustomparameters.caption
+msgid "Custom Parameters"
+msgstr "Özel parametreler"
+
+#: tformconfigtrayslate.groupboxservice.caption
+msgctxt "tformconfigtrayslate.groupboxservice.caption"
+msgid "Service"
+msgstr "Hizmet"
+
+#: tformconfigtrayslate.groupinitparameters.caption
+msgctxt "tformconfigtrayslate.groupinitparameters.caption"
+msgid "Initial Request"
+msgstr "Başlangıç İsteği"
+
+#: tformconfigtrayslate.grouplanguages.caption
+msgctxt "tformconfigtrayslate.grouplanguages.caption"
+msgid "Languages"
+msgstr "Diller"
+
+#: tformconfigtrayslate.grouplanguagestarget.caption
+msgctxt "tformconfigtrayslate.grouplanguagestarget.caption"
+msgid "Target Languages"
+msgstr "Hedef Diller"
+
+#: tformconfigtrayslate.grouprequest.caption
+msgctxt "tformconfigtrayslate.grouprequest.caption"
+msgid "Request"
+msgstr "İstek"
+
+#: tformconfigtrayslate.groupresponse.caption
+msgid "Json Pointer Processing the Response"
+msgstr "Yanıtın Json Pointer ile işlenmesi"
+
+#: tformconfigtrayslate.groupscript.caption
+msgid "Script Retrieved Parameters"
+msgstr "Betik Tarafından Alınan Parametreler"
+
+#: tformconfigtrayslate.groupscriptresponse.caption
+msgid "Script Processing the Response"
+msgstr "Yanıtın betik tarafından işlenmesi"
+
+#: tformconfigtrayslate.imagepreview.hint
+msgid "Click to select the config icon, Middle-Click clears the icon"
+msgstr "Yapılandırma simgesini seçmek için tıklayın, Middle-Click simgeyi temizler"
+
+#: tformconfigtrayslate.labelaccept.caption
+msgid "Accept"
+msgstr "Accept"
+
+#: tformconfigtrayslate.labelcolorrecent.caption
+msgid "Recent Color"
+msgstr "Son renk"
+
+#: tformconfigtrayslate.labelcontenttype.caption
+msgid "Content Type"
+msgstr "Content Type"
+
+#: tformconfigtrayslate.labelfilllanguages.caption
+msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
+msgid "Fill with default"
+msgstr "Varsayılanla doldur"
+
+#: tformconfigtrayslate.labelfilltargetlanguages.caption
+msgctxt "tformconfigtrayslate.labelfilltargetlanguages.caption"
+msgid "Fill with default"
+msgstr "Varsayılanla doldur"
+
+#: tformconfigtrayslate.labelheaders.caption
+msgid "Additional request headers in key=value format, key: value is also supported"
+msgstr "Ek istek başlıkları key=value biçiminde; key: value biçimi de desteklenir"
+
+#: tformconfigtrayslate.labelinitheaders.caption
+msgid "Additional initial request headers in key=value format, key: value is also supported"
+msgstr "Ek başlangıç istek başlıkları key=value biçiminde; key: value biçimi de desteklenir"
+
+#: tformconfigtrayslate.labelinitheaders2.caption
+msgctxt "tformconfigtrayslate.labelinitheaders2.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelinitlivetime.caption
+msgid "Live time"
+msgstr "Yaşam süresi"
+
+#: tformconfigtrayslate.labelinitparameters.caption
+msgid "Parameters name=regexp are extracted from the response and used by name in requests"
+msgstr "Name=regexp biçimindeki parametreler yanıttan çıkarılır ve isteklerde name olarak kullanılır"
+
+#: tformconfigtrayslate.labelinitparameters1.caption
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Parametreleri yeni bir istekle yenileme süresi (saniye) (0 = her istek)"
+
+#: tformconfigtrayslate.labelinitparameters2.caption
+msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
+msgid "Parameters"
+msgstr "Parametreler"
+
+#: tformconfigtrayslate.labelinitparameters4.caption
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "İsteklerde {key} tarafından kullanılan key=value biçimindeki parametreler. Değer atlanırsa (key=), kullanıcıdan istenir."
+
+#: tformconfigtrayslate.labelinitparemeters.caption
+msgid "Initial GET request to obtain required parameters."
+msgstr "Gerekli parametreleri almak için başlangıç GET isteği."
+
+#: tformconfigtrayslate.labeliniturl.caption
+msgctxt "tformconfigtrayslate.labeliniturl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labelinituseragent.caption
+msgctxt "tformconfigtrayslate.labelinituseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labellanguages.caption
+msgid "Supported languages e.g. en=en-US (en - internal, en-US - service). \"empty\" - do not send."
+msgstr "Desteklenen diller örn. en=en-US (en - dahili, en-US - hizmet). \"empty\" - gönderme."
+
+#: tformconfigtrayslate.labellanguages1.caption
+msgid "Value type for populating names. None keeps originals; None and Unit are case-sensitive."
+msgstr "İsimleri doldurmak için değer türü. None orijinalleri korur; None ve Unit büyük/küçük harf duyarlıdır."
+
+#: tformconfigtrayslate.labellanguagestarget.caption
+msgid ""
+"Target languages e.g. en=en-US, en - internal, en-US - service code.\n"
+"If not specified, both source and target languages are taken from the languages section."
+msgstr ""
+"Hedef diller örn. en=en-US, en - dahili, en-US - hizmet kodu.\n"
+"Belirtilmemişse hem kaynak hem hedef diller diller bölümünden alınır."
+
+#: tformconfigtrayslate.labelmaxlength.caption
+msgid "Max Length, bytes"
+msgstr "Maksimum uzunluk, bayt"
+
+#: tformconfigtrayslate.labelmethod.caption
+msgid "Method"
+msgstr "Yöntem"
+
+#: tformconfigtrayslate.labelparemeters.caption
+msgid "Use parameters: {text} – input text, {source} – source language, {target} – target language. Prefix the name with ! for lowercase or ^ for uppercase value. Also supported {timestamp}, {rand}. Use {parameter} from the parameters page."
+msgstr "Parametreleri kullanın: {text} – giriş metni, {source} – kaynak dil, {target} – hedef dil. Adına ! ekleyerek küçük harf, ^ ekleyerek büyük harf değeri elde edin. {timestamp}, {rand} da desteklenir. Parametreler sayfasından {parameter} kullanın."
+
+#: tformconfigtrayslate.labelpostdata.caption
+msgid "Post Data"
+msgstr "Post Data"
+
+#: tformconfigtrayslate.labelpostdata1.caption
+msgctxt "tformconfigtrayslate.labelpostdata1.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelservicedescription.caption
+msgid "Description"
+msgstr "Açıklama"
+
+#: tformconfigtrayslate.labelservicename.caption
+msgid "Name"
+msgstr "Ad"
+
+#: tformconfigtrayslate.labelserviceorder.caption
+msgid "Order"
+msgstr "Sıra"
+
+#: tformconfigtrayslate.labelsort.caption
+msgctxt "tformconfigtrayslate.labelsort.caption"
+msgid "Sort"
+msgstr "Sırala"
+
+#: tformconfigtrayslate.labeltargetsort.caption
+msgctxt "tformconfigtrayslate.labeltargetsort.caption"
+msgid "Sort"
+msgstr "Sırala"
+
+#: tformconfigtrayslate.labelurl.caption
+msgctxt "tformconfigtrayslate.labelurl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labeluseragent.caption
+msgctxt "tformconfigtrayslate.labeluseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labelvaluetype.caption
+msgid "Value Type"
+msgstr "Değer Türü"
+
+#: tformconfigtrayslate.pageinitialrequest.caption
+msgctxt "tformconfigtrayslate.pageinitialrequest.caption"
+msgid "Initial Request"
+msgstr "Başlangıç İsteği"
+
+#: tformconfigtrayslate.pagelanguages.caption
+msgctxt "tformconfigtrayslate.pagelanguages.caption"
+msgid "Languages"
+msgstr "Diller"
+
+#: tformconfigtrayslate.pagelanguagestarget.caption
+msgctxt "tformconfigtrayslate.pagelanguagestarget.caption"
+msgid "Target Languages"
+msgstr "Hedef Diller"
+
+#: tformconfigtrayslate.pageparameters.caption
+msgctxt "tformconfigtrayslate.pageparameters.caption"
+msgid "Parameters"
+msgstr "Parametreler"
+
+#: tformconfigtrayslate.pagerequest.caption
+msgctxt "tformconfigtrayslate.pagerequest.caption"
+msgid "Request"
+msgstr "İstek"
+
+#: tformconfigtrayslate.pageresponse.caption
+msgid "Response"
+msgstr "Yanıt"
+
+#: tformconfigtrayslate.pageservice.caption
+msgctxt "tformconfigtrayslate.pageservice.caption"
+msgid "Service"
+msgstr "Hizmet"
+
+#: tformconfigtrayslate.reloadconfigs.hint
+msgid "Reload configurations from disk"
+msgstr "Yapılandırmaları diskten yeniden yükle"
+
+#: tformconfigtrayslate.sbcopyconfig.hint
+msgid "Copy configuration"
+msgstr "Yapılandırmayı kopyala"
+
+#: tformconfigtrayslate.sbnewconfig.hint
+msgid "New configuration"
+msgstr "Yeni yapılandırma"
+

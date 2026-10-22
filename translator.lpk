@@ -54,6 +54,11 @@ SOFTWARE."/>
       </Item>
       <Item>
         <Filename Value="src\configmanager.pas"/>
+        <UnitName Value="ConfigManager"/>
+      </Item>
+      <Item>
+        <Filename Value="src\formconfig.pas"/>
+        <UnitName Value="FormConfig"/>
       </Item>
       <Item>
         <Filename Value="src\languages.pas"/>
@@ -105,6 +110,11 @@ SOFTWARE."/>
         <UnitName Value="TranslatorRegister"/>
       </Item>
     </Files>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="locale"/>
+      <EnableI18NForLFM Value="True"/>
+    </i18n>
     <RequiredPkgs>
       <Item>
         <PackageName Value="LCL"/>
@@ -116,7 +126,16 @@ SOFTWARE."/>
         <PackageName Value="pascalscript"/>
       </Item>
       <Item>
+        <PackageName Value="SynEditDsgn"/>
+      </Item>
+      <Item>
+        <PackageName Value="SynEdit"/>
+      </Item>
+      <Item>
         <PackageName Value="laz_synapse"/>
+      </Item>
+      <Item>
+        <PackageName Value="darkmode"/>
       </Item>
       <Item>
         <PackageName Value="helpers"/>

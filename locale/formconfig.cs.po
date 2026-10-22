@@ -1,0 +1,350 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
+"Language-Team: \n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: PoBatch 1.0.0"
+
+#: tformconfigtrayslate.aclearicon.caption
+msgid "Clear Icon"
+msgstr "Vymazat ikonu"
+
+#: tformconfigtrayslate.asave.caption
+msgid "Save"
+msgstr "Uložit"
+
+#: tformconfigtrayslate.asaveiconas.caption
+msgid "Save Icon As..."
+msgstr "Uložit ikonu jako..."
+
+#: tformconfigtrayslate.btnclose.caption
+msgid "Close"
+msgstr "Zavřít"
+
+#: tformconfigtrayslate.btninitparameterstest.hint
+msgid "Execute request and view the parameters"
+msgstr "Provede požadavek a zobrazí parametry"
+
+#: tformconfigtrayslate.btniniturltest.hint
+msgid "Execute request and view the result"
+msgstr "Provede požadavek a zobrazí výsledek"
+
+#: tformconfigtrayslate.btnpostdatatest.hint
+msgid "Execute post request and view the result"
+msgstr "Provede POST požadavek a zobrazí výsledek"
+
+#: tformconfigtrayslate.btnresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnresponsehelp.hint"
+msgid "Help"
+msgstr "Nápověda"
+
+#: tformconfigtrayslate.btnresponsetest.hint
+msgid "Converts the current response"
+msgstr "Převede aktuální odpověď"
+
+#: tformconfigtrayslate.btnscripthelp.hint
+msgctxt "tformconfigtrayslate.btnscripthelp.hint"
+msgid "Help"
+msgstr "Nápověda"
+
+#: tformconfigtrayslate.btnscriptresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsehelp.hint"
+msgid "Help"
+msgstr "Nápověda"
+
+#: tformconfigtrayslate.btnscriptresponsetest.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsetest.hint"
+msgid "Execute script and view the result"
+msgstr "Spustit skript a zobrazit výsledek"
+
+#: tformconfigtrayslate.btnscripttest.hint
+msgctxt "tformconfigtrayslate.btnscripttest.hint"
+msgid "Execute script and view the result"
+msgstr "Spustit skript a zobrazit výsledek"
+
+#: tformconfigtrayslate.btnurltest.hint
+msgid "Execute get request and view the result"
+msgstr "Provede GET požadavek a zobrazí výsledek"
+
+#: tformconfigtrayslate.caption
+msgctxt "tformconfigtrayslate.caption"
+msgid "Config Editor"
+msgstr "Editor konfigurace"
+
+#: tformconfigtrayslate.checkencodecustomparameters.caption
+msgid "Encode parameters"
+msgstr "Kódovat parametry"
+
+#: tformconfigtrayslate.checkencodetext.caption
+msgid "Encode {text} parameter"
+msgstr "Kódovat parametr {text}"
+
+#: tformconfigtrayslate.checkserviceautoswap.caption
+msgid "Allow auto-swap language pair"
+msgstr "Povolit automatickou výměnu jazykového páru"
+
+#: tformconfigtrayslate.checkserviceonlybutton.caption
+msgid "Allow translation only by translation button"
+msgstr "Povolit překlad pouze pomocí tlačítka překladu"
+
+#: tformconfigtrayslate.checkserviceproxy.caption
+msgid "Allow proxy"
+msgstr "Povolit proxy"
+
+#: tformconfigtrayslate.checkservicerealtime.caption
+msgid "Allow translate as you type"
+msgstr "Povolit překlad při psaní"
+
+#: tformconfigtrayslate.checkservicevisible.caption
+msgid "Visible in menu"
+msgstr "Viditelné v menu"
+
+#: tformconfigtrayslate.combomethod.text
+msgid "GET"
+msgstr "GET"
+
+#: tformconfigtrayslate.combovaluetype.text
+msgctxt "tformconfigtrayslate.combovaluetype.text"
+msgid "None"
+msgstr "Žádné"
+
+#: tformconfigtrayslate.groupboxcustomparameters.caption
+msgid "Custom Parameters"
+msgstr "Vlastní parametry"
+
+#: tformconfigtrayslate.groupboxservice.caption
+msgctxt "tformconfigtrayslate.groupboxservice.caption"
+msgid "Service"
+msgstr "Služba"
+
+#: tformconfigtrayslate.groupinitparameters.caption
+msgctxt "tformconfigtrayslate.groupinitparameters.caption"
+msgid "Initial Request"
+msgstr "Počáteční požadavek"
+
+#: tformconfigtrayslate.grouplanguages.caption
+msgctxt "tformconfigtrayslate.grouplanguages.caption"
+msgid "Languages"
+msgstr "Jazyky"
+
+#: tformconfigtrayslate.grouplanguagestarget.caption
+msgctxt "tformconfigtrayslate.grouplanguagestarget.caption"
+msgid "Target Languages"
+msgstr "Cílové jazyky"
+
+#: tformconfigtrayslate.grouprequest.caption
+msgctxt "tformconfigtrayslate.grouprequest.caption"
+msgid "Request"
+msgstr "Požadavek"
+
+#: tformconfigtrayslate.groupresponse.caption
+msgid "Json Pointer Processing the Response"
+msgstr "Zpracování odpovědi pomocí JSON Pointer"
+
+#: tformconfigtrayslate.groupscript.caption
+msgid "Script Retrieved Parameters"
+msgstr "Načtené parametry skriptu"
+
+#: tformconfigtrayslate.groupscriptresponse.caption
+msgid "Script Processing the Response"
+msgstr "Zpracování odpovědi pomocí skriptu"
+
+#: tformconfigtrayslate.imagepreview.hint
+msgid "Click to select the config icon, Middle-Click clears the icon"
+msgstr "Kliknutím vyberte ikonu konfigurace, Middle-Click vymaže ikonu"
+
+#: tformconfigtrayslate.labelaccept.caption
+msgid "Accept"
+msgstr "Accept"
+
+#: tformconfigtrayslate.labelcolorrecent.caption
+msgid "Recent Color"
+msgstr "Barva nedávných"
+
+#: tformconfigtrayslate.labelcontenttype.caption
+msgid "Content Type"
+msgstr "Content Type"
+
+#: tformconfigtrayslate.labelfilllanguages.caption
+msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
+msgid "Fill with default"
+msgstr "Vyplnit výchozími"
+
+#: tformconfigtrayslate.labelfilltargetlanguages.caption
+msgctxt "tformconfigtrayslate.labelfilltargetlanguages.caption"
+msgid "Fill with default"
+msgstr "Vyplnit výchozími"
+
+#: tformconfigtrayslate.labelheaders.caption
+msgid "Additional request headers in key=value format, key: value is also supported"
+msgstr "Další hlavičky požadavku ve formátu key=value, podporován je také key: value"
+
+#: tformconfigtrayslate.labelinitheaders.caption
+msgid "Additional initial request headers in key=value format, key: value is also supported"
+msgstr "Další hlavičky počátečního požadavku ve formátu key=value, podporován je také key: value"
+
+#: tformconfigtrayslate.labelinitheaders2.caption
+msgctxt "tformconfigtrayslate.labelinitheaders2.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelinitlivetime.caption
+msgid "Live time"
+msgstr "Doba života"
+
+#: tformconfigtrayslate.labelinitparameters.caption
+msgid "Parameters name=regexp are extracted from the response and used by name in requests"
+msgstr "Parametry name=regexp jsou extrahovány z odpovědi a používány podle názvu v požadavcích"
+
+#: tformconfigtrayslate.labelinitparameters1.caption
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Čas v sekundách pro obnovení parametrů novým požadavkem (0 = každý požadavek)"
+
+#: tformconfigtrayslate.labelinitparameters2.caption
+msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
+msgid "Parameters"
+msgstr "Parametry"
+
+#: tformconfigtrayslate.labelinitparameters4.caption
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Parametry ve formátu key=value používané proměnnou {key} v požadavcích. Pokud je hodnota vynechána (key=), bude vyžádána od uživatele."
+
+#: tformconfigtrayslate.labelinitparemeters.caption
+msgid "Initial GET request to obtain required parameters."
+msgstr "Počáteční GET požadavek pro získání potřebných parametrů."
+
+#: tformconfigtrayslate.labeliniturl.caption
+msgctxt "tformconfigtrayslate.labeliniturl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labelinituseragent.caption
+msgctxt "tformconfigtrayslate.labelinituseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labellanguages.caption
+msgid "Supported languages e.g. en=en-US (en - internal, en-US - service). \"empty\" - do not send."
+msgstr "Podporované jazyky např. en=en-US (en - interní, en-US - služba). \"empty\" - neposílat."
+
+#: tformconfigtrayslate.labellanguages1.caption
+msgid "Value type for populating names. None keeps originals; None and Unit are case-sensitive."
+msgstr "Typ hodnoty pro vyplnění názvů. None zachovává originály; None a Unit rozlišují velikost písmen."
+
+#: tformconfigtrayslate.labellanguagestarget.caption
+msgid ""
+"Target languages e.g. en=en-US, en - internal, en-US - service code.\n"
+"If not specified, both source and target languages are taken from the languages section."
+msgstr ""
+"Cílové jazyky např. en=en-US, en - interní, en-US - kód služby.\n"
+"Pokud není uvedeno, zdrojové i cílové jazyky se berou z části jazyky."
+
+#: tformconfigtrayslate.labelmaxlength.caption
+msgid "Max Length, bytes"
+msgstr "Maximální délka, bajty"
+
+#: tformconfigtrayslate.labelmethod.caption
+msgid "Method"
+msgstr "Metoda"
+
+#: tformconfigtrayslate.labelparemeters.caption
+msgid "Use parameters: {text} – input text, {source} – source language, {target} – target language. Prefix the name with ! for lowercase or ^ for uppercase value. Also supported {timestamp}, {rand}. Use {parameter} from the parameters page."
+msgstr "Použijte parametry: {text} – vstupní text, {source} – zdrojový jazyk, {target} – cílový jazyk. Předpona ! pro hodnotu malými písmeny nebo ^ pro velkými písmeny. Podporováno také {timestamp}, {rand}. Použijte {parameter} ze stránky parametrů."
+
+#: tformconfigtrayslate.labelpostdata.caption
+msgid "Post Data"
+msgstr "Post Data"
+
+#: tformconfigtrayslate.labelpostdata1.caption
+msgctxt "tformconfigtrayslate.labelpostdata1.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelservicedescription.caption
+msgid "Description"
+msgstr "Popis"
+
+#: tformconfigtrayslate.labelservicename.caption
+msgid "Name"
+msgstr "Název"
+
+#: tformconfigtrayslate.labelserviceorder.caption
+msgid "Order"
+msgstr "Pořadí"
+
+#: tformconfigtrayslate.labelsort.caption
+msgctxt "tformconfigtrayslate.labelsort.caption"
+msgid "Sort"
+msgstr "Seřadit"
+
+#: tformconfigtrayslate.labeltargetsort.caption
+msgctxt "tformconfigtrayslate.labeltargetsort.caption"
+msgid "Sort"
+msgstr "Seřadit"
+
+#: tformconfigtrayslate.labelurl.caption
+msgctxt "tformconfigtrayslate.labelurl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labeluseragent.caption
+msgctxt "tformconfigtrayslate.labeluseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labelvaluetype.caption
+msgid "Value Type"
+msgstr "Typ hodnoty"
+
+#: tformconfigtrayslate.pageinitialrequest.caption
+msgctxt "tformconfigtrayslate.pageinitialrequest.caption"
+msgid "Initial Request"
+msgstr "Počáteční požadavek"
+
+#: tformconfigtrayslate.pagelanguages.caption
+msgctxt "tformconfigtrayslate.pagelanguages.caption"
+msgid "Languages"
+msgstr "Jazyky"
+
+#: tformconfigtrayslate.pagelanguagestarget.caption
+msgctxt "tformconfigtrayslate.pagelanguagestarget.caption"
+msgid "Target Languages"
+msgstr "Cílové jazyky"
+
+#: tformconfigtrayslate.pageparameters.caption
+msgctxt "tformconfigtrayslate.pageparameters.caption"
+msgid "Parameters"
+msgstr "Parametry"
+
+#: tformconfigtrayslate.pagerequest.caption
+msgctxt "tformconfigtrayslate.pagerequest.caption"
+msgid "Request"
+msgstr "Požadavek"
+
+#: tformconfigtrayslate.pageresponse.caption
+msgid "Response"
+msgstr "Odpověď"
+
+#: tformconfigtrayslate.pageservice.caption
+msgctxt "tformconfigtrayslate.pageservice.caption"
+msgid "Service"
+msgstr "Služba"
+
+#: tformconfigtrayslate.reloadconfigs.hint
+msgid "Reload configurations from disk"
+msgstr "Načíst konfigurace z disku"
+
+#: tformconfigtrayslate.sbcopyconfig.hint
+msgid "Copy configuration"
+msgstr "Kopírovat konfiguraci"
+
+#: tformconfigtrayslate.sbnewconfig.hint
+msgid "New configuration"
+msgstr "Nová konfigurace"
+

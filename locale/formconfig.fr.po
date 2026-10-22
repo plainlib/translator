@@ -1,0 +1,350 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: PoBatch 1.0.0"
+
+#: tformconfigtrayslate.aclearicon.caption
+msgid "Clear Icon"
+msgstr "Effacer l’icône"
+
+#: tformconfigtrayslate.asave.caption
+msgid "Save"
+msgstr "Enregistrer"
+
+#: tformconfigtrayslate.asaveiconas.caption
+msgid "Save Icon As..."
+msgstr "Enregistrer l’icône sous..."
+
+#: tformconfigtrayslate.btnclose.caption
+msgid "Close"
+msgstr "Fermer"
+
+#: tformconfigtrayslate.btninitparameterstest.hint
+msgid "Execute request and view the parameters"
+msgstr "Exécuter la requête et afficher les paramètres"
+
+#: tformconfigtrayslate.btniniturltest.hint
+msgid "Execute request and view the result"
+msgstr "Exécuter la requête et afficher le résultat"
+
+#: tformconfigtrayslate.btnpostdatatest.hint
+msgid "Execute post request and view the result"
+msgstr "Exécuter la requête POST et afficher le résultat"
+
+#: tformconfigtrayslate.btnresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnresponsehelp.hint"
+msgid "Help"
+msgstr "Aide"
+
+#: tformconfigtrayslate.btnresponsetest.hint
+msgid "Converts the current response"
+msgstr "Convertit la réponse actuelle"
+
+#: tformconfigtrayslate.btnscripthelp.hint
+msgctxt "tformconfigtrayslate.btnscripthelp.hint"
+msgid "Help"
+msgstr "Aide"
+
+#: tformconfigtrayslate.btnscriptresponsehelp.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsehelp.hint"
+msgid "Help"
+msgstr "Aide"
+
+#: tformconfigtrayslate.btnscriptresponsetest.hint
+msgctxt "tformconfigtrayslate.btnscriptresponsetest.hint"
+msgid "Execute script and view the result"
+msgstr "Exécuter le script et afficher le résultat"
+
+#: tformconfigtrayslate.btnscripttest.hint
+msgctxt "tformconfigtrayslate.btnscripttest.hint"
+msgid "Execute script and view the result"
+msgstr "Exécuter le script et afficher le résultat"
+
+#: tformconfigtrayslate.btnurltest.hint
+msgid "Execute get request and view the result"
+msgstr "Exécuter la requête GET et afficher le résultat"
+
+#: tformconfigtrayslate.caption
+msgctxt "tformconfigtrayslate.caption"
+msgid "Config Editor"
+msgstr "Éditeur de configuration"
+
+#: tformconfigtrayslate.checkencodecustomparameters.caption
+msgid "Encode parameters"
+msgstr "Paramètres d'encodage"
+
+#: tformconfigtrayslate.checkencodetext.caption
+msgid "Encode {text} parameter"
+msgstr "Encoder le paramètre {text}"
+
+#: tformconfigtrayslate.checkserviceautoswap.caption
+msgid "Allow auto-swap language pair"
+msgstr "Autoriser l’échange automatique de la paire de langues"
+
+#: tformconfigtrayslate.checkserviceonlybutton.caption
+msgid "Allow translation only by translation button"
+msgstr "Autoriser la traduction uniquement via le bouton de traduction"
+
+#: tformconfigtrayslate.checkserviceproxy.caption
+msgid "Allow proxy"
+msgstr "Autoriser le proxy"
+
+#: tformconfigtrayslate.checkservicerealtime.caption
+msgid "Allow translate as you type"
+msgstr "Autoriser la traduction pendant la saisie"
+
+#: tformconfigtrayslate.checkservicevisible.caption
+msgid "Visible in menu"
+msgstr "Visible dans le menu"
+
+#: tformconfigtrayslate.combomethod.text
+msgid "GET"
+msgstr "GET"
+
+#: tformconfigtrayslate.combovaluetype.text
+msgctxt "tformconfigtrayslate.combovaluetype.text"
+msgid "None"
+msgstr "Aucun"
+
+#: tformconfigtrayslate.groupboxcustomparameters.caption
+msgid "Custom Parameters"
+msgstr "Paramètres personnalisés"
+
+#: tformconfigtrayslate.groupboxservice.caption
+msgctxt "tformconfigtrayslate.groupboxservice.caption"
+msgid "Service"
+msgstr "Service"
+
+#: tformconfigtrayslate.groupinitparameters.caption
+msgctxt "tformconfigtrayslate.groupinitparameters.caption"
+msgid "Initial Request"
+msgstr "Requête initiale"
+
+#: tformconfigtrayslate.grouplanguages.caption
+msgctxt "tformconfigtrayslate.grouplanguages.caption"
+msgid "Languages"
+msgstr "Langues"
+
+#: tformconfigtrayslate.grouplanguagestarget.caption
+msgctxt "tformconfigtrayslate.grouplanguagestarget.caption"
+msgid "Target Languages"
+msgstr "Langues cibles"
+
+#: tformconfigtrayslate.grouprequest.caption
+msgctxt "tformconfigtrayslate.grouprequest.caption"
+msgid "Request"
+msgstr "Requête"
+
+#: tformconfigtrayslate.groupresponse.caption
+msgid "Json Pointer Processing the Response"
+msgstr "Traitement de la réponse avec Json Pointer"
+
+#: tformconfigtrayslate.groupscript.caption
+msgid "Script Retrieved Parameters"
+msgstr "Paramètres récupérés par le script"
+
+#: tformconfigtrayslate.groupscriptresponse.caption
+msgid "Script Processing the Response"
+msgstr "Traitement de la réponse par le script"
+
+#: tformconfigtrayslate.imagepreview.hint
+msgid "Click to select the config icon, Middle-Click clears the icon"
+msgstr "Cliquez pour sélectionner l’icône de configuration, Middle-Click efface l’icône"
+
+#: tformconfigtrayslate.labelaccept.caption
+msgid "Accept"
+msgstr "Accept"
+
+#: tformconfigtrayslate.labelcolorrecent.caption
+msgid "Recent Color"
+msgstr "Couleur récente"
+
+#: tformconfigtrayslate.labelcontenttype.caption
+msgid "Content Type"
+msgstr "Content Type"
+
+#: tformconfigtrayslate.labelfilllanguages.caption
+msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
+msgid "Fill with default"
+msgstr "Remplir avec les valeurs par défaut"
+
+#: tformconfigtrayslate.labelfilltargetlanguages.caption
+msgctxt "tformconfigtrayslate.labelfilltargetlanguages.caption"
+msgid "Fill with default"
+msgstr "Remplir avec les valeurs par défaut"
+
+#: tformconfigtrayslate.labelheaders.caption
+msgid "Additional request headers in key=value format, key: value is also supported"
+msgstr "En-têtes de requête supplémentaires au format key=value, key: value est également pris en charge"
+
+#: tformconfigtrayslate.labelinitheaders.caption
+msgid "Additional initial request headers in key=value format, key: value is also supported"
+msgstr "En-têtes de requête initiale supplémentaires au format key=value, key: value est également pris en charge"
+
+#: tformconfigtrayslate.labelinitheaders2.caption
+msgctxt "tformconfigtrayslate.labelinitheaders2.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelinitlivetime.caption
+msgid "Live time"
+msgstr "Durée de vie"
+
+#: tformconfigtrayslate.labelinitparameters.caption
+msgid "Parameters name=regexp are extracted from the response and used by name in requests"
+msgstr "Les paramètres name=regexp sont extraits de la réponse et utilisés par leur nom dans les requêtes"
+
+#: tformconfigtrayslate.labelinitparameters1.caption
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Temps en secondes pour rafraîchir les paramètres avec une nouvelle requête (0 = chaque requête)"
+
+#: tformconfigtrayslate.labelinitparameters2.caption
+msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
+msgid "Parameters"
+msgstr "Paramètres"
+
+#: tformconfigtrayslate.labelinitparameters4.caption
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Paramètres au format key=value utilisés par {key} dans les requêtes. Si la valeur est omise (key=), elle sera demandée à l’utilisateur."
+
+#: tformconfigtrayslate.labelinitparemeters.caption
+msgid "Initial GET request to obtain required parameters."
+msgstr "Requête GET initiale pour obtenir les paramètres nécessaires."
+
+#: tformconfigtrayslate.labeliniturl.caption
+msgctxt "tformconfigtrayslate.labeliniturl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labelinituseragent.caption
+msgctxt "tformconfigtrayslate.labelinituseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labellanguages.caption
+msgid "Supported languages e.g. en=en-US (en - internal, en-US - service). \"empty\" - do not send."
+msgstr "Langues prises en charge, par exemple en=en-US (en - interne, en-US - service). \"empty\" - ne pas envoyer."
+
+#: tformconfigtrayslate.labellanguages1.caption
+msgid "Value type for populating names. None keeps originals; None and Unit are case-sensitive."
+msgstr "Type de valeur pour remplir les noms. None conserve les originaux ; None et Unit sont sensibles à la casse."
+
+#: tformconfigtrayslate.labellanguagestarget.caption
+msgid ""
+"Target languages e.g. en=en-US, en - internal, en-US - service code.\n"
+"If not specified, both source and target languages are taken from the languages section."
+msgstr ""
+"Langues cibles, par exemple en=en-US, en - interne, en-US - code service.\n"
+"Si non spécifié, les langues source et cible sont prises dans la section des langues."
+
+#: tformconfigtrayslate.labelmaxlength.caption
+msgid "Max Length, bytes"
+msgstr "Longueur maximale, octets"
+
+#: tformconfigtrayslate.labelmethod.caption
+msgid "Method"
+msgstr "Méthode"
+
+#: tformconfigtrayslate.labelparemeters.caption
+msgid "Use parameters: {text} – input text, {source} – source language, {target} – target language. Prefix the name with ! for lowercase or ^ for uppercase value. Also supported {timestamp}, {rand}. Use {parameter} from the parameters page."
+msgstr "Utilisez les paramètres : {text} – texte saisi, {source} – langue source, {target} – langue cible. Ajoutez le préfixe ! pour une valeur en minuscules ou ^ pour une valeur en majuscules. Également pris en charge {timestamp}, {rand}. Utilisez {parameter} depuis la page des paramètres."
+
+#: tformconfigtrayslate.labelpostdata.caption
+msgid "Post Data"
+msgstr "Post Data"
+
+#: tformconfigtrayslate.labelpostdata1.caption
+msgctxt "tformconfigtrayslate.labelpostdata1.caption"
+msgid "Headers"
+msgstr "Headers"
+
+#: tformconfigtrayslate.labelservicedescription.caption
+msgid "Description"
+msgstr "Description"
+
+#: tformconfigtrayslate.labelservicename.caption
+msgid "Name"
+msgstr "Nom"
+
+#: tformconfigtrayslate.labelserviceorder.caption
+msgid "Order"
+msgstr "Ordre"
+
+#: tformconfigtrayslate.labelsort.caption
+msgctxt "tformconfigtrayslate.labelsort.caption"
+msgid "Sort"
+msgstr "Trier"
+
+#: tformconfigtrayslate.labeltargetsort.caption
+msgctxt "tformconfigtrayslate.labeltargetsort.caption"
+msgid "Sort"
+msgstr "Trier"
+
+#: tformconfigtrayslate.labelurl.caption
+msgctxt "tformconfigtrayslate.labelurl.caption"
+msgid "URL"
+msgstr "URL"
+
+#: tformconfigtrayslate.labeluseragent.caption
+msgctxt "tformconfigtrayslate.labeluseragent.caption"
+msgid "User Agent"
+msgstr "User Agent"
+
+#: tformconfigtrayslate.labelvaluetype.caption
+msgid "Value Type"
+msgstr "Type de valeur"
+
+#: tformconfigtrayslate.pageinitialrequest.caption
+msgctxt "tformconfigtrayslate.pageinitialrequest.caption"
+msgid "Initial Request"
+msgstr "Requête initiale"
+
+#: tformconfigtrayslate.pagelanguages.caption
+msgctxt "tformconfigtrayslate.pagelanguages.caption"
+msgid "Languages"
+msgstr "Langues"
+
+#: tformconfigtrayslate.pagelanguagestarget.caption
+msgctxt "tformconfigtrayslate.pagelanguagestarget.caption"
+msgid "Target Languages"
+msgstr "Langues cibles"
+
+#: tformconfigtrayslate.pageparameters.caption
+msgctxt "tformconfigtrayslate.pageparameters.caption"
+msgid "Parameters"
+msgstr "Paramètres"
+
+#: tformconfigtrayslate.pagerequest.caption
+msgctxt "tformconfigtrayslate.pagerequest.caption"
+msgid "Request"
+msgstr "Requête"
+
+#: tformconfigtrayslate.pageresponse.caption
+msgid "Response"
+msgstr "Réponse"
+
+#: tformconfigtrayslate.pageservice.caption
+msgctxt "tformconfigtrayslate.pageservice.caption"
+msgid "Service"
+msgstr "Service"
+
+#: tformconfigtrayslate.reloadconfigs.hint
+msgid "Reload configurations from disk"
+msgstr "Recharger les configurations depuis le disque"
+
+#: tformconfigtrayslate.sbcopyconfig.hint
+msgid "Copy configuration"
+msgstr "Copier la configuration"
+
+#: tformconfigtrayslate.sbnewconfig.hint
+msgid "New configuration"
+msgstr "Nouvelle configuration"
+

@@ -11,7 +11,7 @@ unit ConfigManager;
 interface
 
 uses
-  Classes, SysUtils, Menus, Graphics, Controls, ImgList, IniFiles, ExtCtrls;
+  Forms, Classes, SysUtils, Menus, Graphics, Controls, ImgList, IniFiles, ExtCtrls;
 
 type
   // Parsed config file data used for sorting
@@ -34,6 +34,12 @@ type
 
   // Simple notification event used for refresh lifecycle
   TConfigNotifyEvent = procedure(Sender: TObject) of object;
+
+  // Fires after the editor loads or saves a config file
+  TConfigReloadEvent = procedure(Sender: TObject; const AConfigFile: string) of object;
+
+  // Host provides a string value on demand
+  TConfigGetStringEvent = procedure(Sender: TObject; var AValue: string) of object;
 
   // Manages a set of translator INI config files.
   // Scans Directories (or the exe directory plus AppName settings directory
@@ -61,7 +67,25 @@ type
     FOnSelect: TConfigSelectEvent;
     FOnBeforeRefresh: TConfigNotifyEvent;
     FOnAfterRefresh: TConfigNotifyEvent;
+    FConfigForm: TForm;
+    FTranslate: TComponent;
+    FHostForm: TForm;
+    FCustomPoFile: string;
+    FConfigFormLeft: integer;
+    FConfigFormTop: integer;
+    FConfigFormWidth: integer;
+    FConfigFormHeight: integer;
+    FConfigFormSep1: integer;
+    FConfigFormSep2: integer;
+    FOnConfigReload: TConfigReloadEvent;
+    FOnConfigsUpdated: TConfigNotifyEvent;
+    FOnRefreshSettings: TConfigNotifyEvent;
+    FOnConfigEditorShow: TConfigNotifyEvent;
+    FOnConfigEditorHide: TConfigNotifyEvent;
+    FOnGetSourceText: TConfigGetStringEvent;
     procedure SetTargetMenu(Value: TMenuItem);
+    procedure SetTranslate(Value: TComponent);
+    procedure SetHostForm(Value: TForm);
     procedure SetDirectories(Value: TStrings);
     procedure SetAppName(const Value: string);
     procedure SetConfig(const Value: string);
@@ -111,6 +135,33 @@ type
     // Copy the icon of the selected config into an external TIcon
     function GetSelectedIcon(AIcon: TIcon): boolean;
 
+    // Show the config editor form; create it on first call
+    procedure ShowConfigEditor;
+    // True when the config editor form currently exists in memory
+    function ConfigEditorActive: boolean;
+    // True when the config editor form is visible
+    function ConfigEditorVisible: boolean;
+    // Ask the editor about unsaved changes; returns True if safe to continue
+    function TestConfigChanges: boolean;
+    // Refresh the editor's combo of configs and field values
+    procedure UpdateConfigEditor;
+    // Repaint the editor after theme or visual changes
+    procedure InvalidateConfigEditor;
+    // Re-apply resource strings on the editor after language change
+    procedure RelocalizeConfigEditor;
+    // Close the editor if it is open
+    procedure CloseConfigEditor;
+    // Notify the host that a config was loaded or saved by the editor
+    procedure NotifyConfigReload;
+    // Notify the host that the set or contents of configs changed
+    procedure NotifyConfigsUpdated;
+    // Notify the host that the settings form config list needs refresh
+    procedure NotifyRefreshSettings;
+    // Ask the host for the source text used by response tests
+    function GetSourceText: string;
+    // Directory for new config files; settings dir when AppName is set, exe dir otherwise
+    function GetConfigDirectory: string;
+
     // Discovery helpers, previously part of TCustomTranslate
     class function IsValidIni(const FileName: string): boolean; static;
     class procedure FindIniFiles(const Dir: string; List: TStrings); static;
@@ -153,12 +204,38 @@ type
     property OnBeforeRefresh: TConfigNotifyEvent read FOnBeforeRefresh write FOnBeforeRefresh;
     // Fires after Refresh finished and the menu has been rebuilt
     property OnAfterRefresh: TConfigNotifyEvent read FOnAfterRefresh write FOnAfterRefresh;
+
+    // Translator component that the config editor edits
+    property Translate: TComponent read FTranslate write SetTranslate;
+    // Host form used for TopMost and Enabled toggling while editing
+    property HostForm: TForm read FHostForm write SetHostForm;
+    // Custom PO file path used to localize the config editor
+    property CustomPoFile: string read FCustomPoFile write FCustomPoFile;
+    // Saved editor window position and size, zero means center or default
+    property ConfigFormLeft: integer read FConfigFormLeft write FConfigFormLeft default 0;
+    property ConfigFormTop: integer read FConfigFormTop write FConfigFormTop default 0;
+    property ConfigFormWidth: integer read FConfigFormWidth write FConfigFormWidth default 0;
+    property ConfigFormHeight: integer read FConfigFormHeight write FConfigFormHeight default 0;
+    property ConfigFormSep1: integer read FConfigFormSep1 write FConfigFormSep1 default 0;
+    property ConfigFormSep2: integer read FConfigFormSep2 write FConfigFormSep2 default 0;
+    // Fires when the editor has loaded or saved a config
+    property OnConfigReload: TConfigReloadEvent read FOnConfigReload write FOnConfigReload;
+    // Fires when the set or contents of configs changed; refresh derived UI
+    property OnConfigsUpdated: TConfigNotifyEvent read FOnConfigsUpdated write FOnConfigsUpdated;
+    // Fires when the settings form config list needs refresh
+    property OnRefreshSettings: TConfigNotifyEvent read FOnRefreshSettings write FOnRefreshSettings;
+    // Fires right before the editor form is shown
+    property OnConfigEditorShow: TConfigNotifyEvent read FOnConfigEditorShow write FOnConfigEditorShow;
+    // Fires when the editor form is freed
+    property OnConfigEditorHide: TConfigNotifyEvent read FOnConfigEditorHide write FOnConfigEditorHide;
+    // Fires when the editor needs the source text for response tests
+    property OnGetSourceText: TConfigGetStringEvent read FOnGetSourceText write FOnGetSourceText;
   end;
 
 implementation
 
 uses
-  Base64Utils, OSUtils, OneShotTimer;
+  Base64Utils, OSUtils, OneShotTimer, Translate, FormConfig;
 
   { TConfigManager }
 
@@ -194,6 +271,145 @@ begin
   FreeAndNil(FConfigFiles);
   FreeAndNil(FDirectories);
   inherited Destroy;
+end;
+
+procedure TConfigManager.SetTranslate(Value: TComponent);
+begin
+  FTranslate := Value;
+end;
+
+procedure TConfigManager.SetHostForm(Value: TForm);
+begin
+  FHostForm := Value;
+end;
+
+procedure TConfigManager.ShowConfigEditor;
+var
+  Form: TformConfigTrayslate = nil;
+begin
+  if not Assigned(FTranslate) then Exit;
+  if not (FTranslate is TTranslate) then Exit;
+
+  // Bring an already created form to front
+  if Assigned(FConfigForm) then
+  begin
+    if FConfigForm.Visible then FConfigForm.BringToFront
+    else
+      FConfigForm.Show;
+    Exit;
+  end;
+
+  Form := TformConfigTrayslate.Create(Self, Self, TTranslate(FTranslate));
+  Form.FreeNotification(Self);
+  FConfigForm := Form;
+
+  Form.Position := poDesigned;
+
+  if ConfigFormLeft > 0 then
+    Form.Left := ConfigFormLeft
+  else
+    Form.Position := poDesktopCenter;
+
+  if ConfigFormTop > 0 then
+    Form.Top := ConfigFormTop
+  else
+    Form.Position := poDesktopCenter;
+
+  if ConfigFormWidth > 0 then
+    Form.Width := ConfigFormWidth;
+  if ConfigFormHeight > 0 then
+    Form.Height := ConfigFormHeight;
+  if ConfigFormSep1 > 0 then
+    Form.GroupBoxCustomParameters.Height := ConfigFormSep1;
+  if ConfigFormSep2 > 0 then
+    Form.GroupResponse.Height := ConfigFormSep2;
+
+  if Assigned(FOnConfigEditorShow) then
+    FOnConfigEditorShow(Self);
+
+  Form.Show;
+  Form.BringToFront;
+end;
+
+function TConfigManager.ConfigEditorActive: boolean;
+begin
+  Result := Assigned(FConfigForm);
+end;
+
+function TConfigManager.ConfigEditorVisible: boolean;
+begin
+  Result := Assigned(FConfigForm) and FConfigForm.Visible;
+end;
+
+function TConfigManager.TestConfigChanges: boolean;
+begin
+  Result := True;
+  if Assigned(FConfigForm) and FConfigForm.HandleAllocated and FConfigForm.Showing then
+    Result := TformConfigTrayslate(FConfigForm).TestChanges;
+end;
+
+procedure TConfigManager.UpdateConfigEditor;
+begin
+  if not Assigned(FConfigForm) then Exit;
+  if not FConfigForm.HandleAllocated then Exit;
+  if not FConfigForm.Showing then Exit;
+
+  TformConfigTrayslate(FConfigForm).UpdateConfigList;
+  TformConfigTrayslate(FConfigForm).UpdateConfig;
+end;
+
+procedure TConfigManager.InvalidateConfigEditor;
+begin
+  if not Assigned(FConfigForm) then Exit;
+  if not FConfigForm.HandleAllocated then Exit;
+  if Screen.ActiveForm <> FConfigForm then Exit;
+
+  FConfigForm.Invalidate;
+end;
+
+procedure TConfigManager.RelocalizeConfigEditor;
+begin
+  if Assigned(FConfigForm) and FConfigForm.HandleAllocated then
+    TformConfigTrayslate(FConfigForm).Relocalize;
+end;
+
+procedure TConfigManager.CloseConfigEditor;
+begin
+  if Assigned(FConfigForm) then
+    FConfigForm.Close;
+end;
+
+procedure TConfigManager.NotifyConfigReload;
+begin
+  if Assigned(FOnConfigReload) then
+    FOnConfigReload(Self, FSelectedConfig);
+end;
+
+procedure TConfigManager.NotifyConfigsUpdated;
+begin
+  if Assigned(FOnConfigsUpdated) then
+    FOnConfigsUpdated(Self);
+end;
+
+procedure TConfigManager.NotifyRefreshSettings;
+begin
+  if Assigned(FOnRefreshSettings) then
+    FOnRefreshSettings(Self);
+end;
+
+function TConfigManager.GetSourceText: string;
+begin
+  Result := string.Empty;
+  if Assigned(FOnGetSourceText) then
+    FOnGetSourceText(Self, Result);
+end;
+
+function TConfigManager.GetConfigDirectory: string;
+begin
+  if FAppName <> string.Empty then
+    Result := TOS.GetSettingsDirectory(FAppName, '')
+  else
+    Result := ExtractFilePath(ParamStr(0));
 end;
 
 procedure TConfigManager.Loaded;
@@ -708,8 +924,19 @@ end;
 procedure TConfigManager.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
-  if (Operation = opRemove) and (AComponent = FTargetMenu) then
-    FTargetMenu := nil;
+  if Operation = opRemove then
+  begin
+    if AComponent = FTargetMenu then
+      FTargetMenu := nil
+    else if AComponent = FConfigForm then
+    begin
+      FConfigForm := nil;
+      // Skip callback during final destruction
+      if not (csDestroying in ComponentState) then
+        if Assigned(FOnConfigEditorHide) then
+          FOnConfigEditorHide(Self);
+    end;
+  end;
 end;
 
 class function TConfigManager.IsValidIni(const FileName: string): boolean;
