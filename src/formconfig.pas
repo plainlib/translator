@@ -339,24 +339,9 @@ end;
 procedure TformConfigTrayslate.FormCreate(Sender: TObject);
 var
   i: integer;
-  PoText: string;
 begin
-  // Load package PO once: custom file wins, otherwise the embedded resource
-  PoText := string.Empty;
-  if Assigned(FManager) then
-  begin
-    if FManager.CustomPoFile <> string.Empty then
-      PoText := TLocalize.LoadCustomPoFile(FManager.CustomPoFile)
-    else
-      PoText := TLocalize.LoadPackagePoResource('formconfig', Language);
-  end;
-
-  // Translate unit resourcestrings first, then the form properties
-  if PoText <> '' then
-  begin
-    TLocalize.TranslateUnitsFromPoText(['FormConfig'], PoText);
-    TLocalize.ApplicationTranslate('formconfig', Language, Self, PoText, False);
-  end;
+  // Translate the form and unit resourcestrings from package or custom PO
+  TLocalize.TranslateForm('formconfig', Self, ['FormConfig']);
 
   Pages.PageIndex := 0;
   BtnClose.Cancel := True;
@@ -1150,26 +1135,10 @@ begin
 end;
 
 procedure TformConfigTrayslate.Relocalize;
-var
-  PoText: string;
 begin
-  // Same lookup as FormCreate so the form reacts to language changes
-  PoText := string.Empty;
-  if Assigned(FManager) then
-  begin
-    if FManager.CustomPoFile <> string.Empty then
-      PoText := TLocalize.LoadCustomPoFile(FManager.CustomPoFile)
-    else
-      PoText := TLocalize.LoadPackagePoResource('formconfig', Language);
-  end;
+  // Re-apply translation from package or custom PO, then refill dynamic lists
+  TLocalize.TranslateForm('formconfig', Self, ['FormConfig']);
 
-  if PoText <> '' then
-  begin
-    TLocalize.TranslateUnitsFromPoText(['FormConfig'], PoText);
-    TLocalize.ApplicationTranslate('formconfig', Language, Self, PoText, False);
-  end;
-
-  // Resourcestrings may have changed too, refill combo from current values
   ComboValueType.Items.Clear;
   ComboValueType.Items.Add(rvaluetype1);
   ComboValueType.Items.Add(rvaluetype2);

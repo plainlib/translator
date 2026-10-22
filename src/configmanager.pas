@@ -70,7 +70,6 @@ type
     FConfigForm: TForm;
     FTranslate: TComponent;
     FHostForm: TForm;
-    FCustomPoFile: string;
     FConfigFormLeft: integer;
     FConfigFormTop: integer;
     FConfigFormWidth: integer;
@@ -209,8 +208,6 @@ type
     property Translate: TComponent read FTranslate write SetTranslate;
     // Host form used for TopMost and Enabled toggling while editing
     property HostForm: TForm read FHostForm write SetHostForm;
-    // Custom PO file path used to localize the config editor
-    property CustomPoFile: string read FCustomPoFile write FCustomPoFile;
     // Saved editor window position and size, zero means center or default
     property ConfigFormLeft: integer read FConfigFormLeft write FConfigFormLeft default 0;
     property ConfigFormTop: integer read FConfigFormTop write FConfigFormTop default 0;
