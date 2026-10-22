@@ -204,7 +204,7 @@ type
     procedure SbCopyConfigClick(Sender: TObject);
     {%EndRegion}
   private
-    FManager: TConfigManager;
+    FManager: TCustomConfigManager;
     FTranslate: TTranslate;
     FLastConfig: integer;
     FInUpdateConfig: boolean;
@@ -214,7 +214,7 @@ type
     procedure UpdateIconPreview;
   public
     // Constructor used by ConfigManager; do not call with a nil manager
-    constructor Create(AOwner: TComponent; AManager: TConfigManager; ATranslate: TTranslate); reintroduce; overload;
+    constructor Create(AOwner: TComponent; AManager: TCustomConfigManager; ATranslate: TTranslate); reintroduce; overload;
 
     function TestChanges(AButtons: TMsgDlgButtons = [mbYes, mbNo, mbCancel]): boolean;
     procedure CreateConfig(ACopy: boolean = False);
@@ -331,7 +331,7 @@ uses Languages, Network, StringHelper, Base64Utils, Localize, DarkUtils, Control
 
   { TformConfigTrayslate }
 
-constructor TformConfigTrayslate.Create(AOwner: TComponent; AManager: TConfigManager; ATranslate: TTranslate);
+constructor TformConfigTrayslate.Create(AOwner: TComponent; AManager: TCustomConfigManager; ATranslate: TTranslate);
 begin
   FManager := AManager;
   FTranslate := ATranslate;
@@ -422,17 +422,17 @@ begin
   SplitterResponse.Top := GroupResponse.Height;
 
   if not Assigned(FManager) then Exit;
-  FManager.ConfigFormWidth := Width;
-  FManager.ConfigFormHeight := Height;
-  FManager.ConfigFormSep1 := GroupBoxCustomParameters.Height;
-  FManager.ConfigFormSep2 := GroupResponse.Height;
+  FManager.FormPosition.Width := Width;
+  FManager.FormPosition.Height := Height;
+  FManager.FormPosition.Sep1 := GroupBoxCustomParameters.Height;
+  FManager.FormPosition.Sep2 := GroupResponse.Height;
 end;
 
 procedure TformConfigTrayslate.FormChangeBounds(Sender: TObject);
 begin
   if not Assigned(FManager) then Exit;
-  FManager.ConfigFormLeft := Left;
-  FManager.ConfigFormTop := Top;
+  FManager.FormPosition.Left := Left;
+  FManager.FormPosition.Top := Top;
 end;
 
 procedure TformConfigTrayslate.aSaveExecute(Sender: TObject);
@@ -704,17 +704,8 @@ begin
 end;
 
 procedure TformConfigTrayslate.ComboConfigChange(Sender: TObject);
-var
-  LastEnabled: boolean = True;
-  HostVisible: boolean = False;
 begin
   if not Assigned(FManager) then Exit;
-  HostVisible := Assigned(FManager.HostForm) and FManager.HostForm.Visible;
-  if HostVisible then
-  begin
-    LastEnabled := FManager.HostForm.Enabled;
-    FManager.HostForm.Enabled := False;
-  end;
 
   FInUpdateConfig := True;
   try
@@ -724,14 +715,17 @@ begin
         ComboConfig.ItemIndex := FLastConfig;
       exit;
     end;
-    FManager.SetSelectedConfigSilent(ComboConfig.Text);
-    FManager.NotifyConfigReload;
-    UpdateConfig;
+    FManager.NotifyBusy(True);
+    try
+      FManager.SetSelectedConfigSilent(ComboConfig.Text);
+      FManager.NotifyConfigReload;
+      UpdateConfig;
+    finally
+      FManager.NotifyBusy(False);
+    end;
     FLastConfig := ComboConfig.ItemIndex;
   finally
     FInUpdateConfig := False;
-    if HostVisible then
-      FManager.HostForm.Enabled := LastEnabled;
     if Visible and CanFocus then SetFocus;
   end;
 end;
@@ -799,13 +793,13 @@ end;
 procedure TformConfigTrayslate.SplitterCustomParametersMoved(Sender: TObject);
 begin
   if Assigned(FManager) then
-    FManager.ConfigFormSep1 := GroupBoxCustomParameters.Height;
+    FManager.FormPosition.Sep1 := GroupBoxCustomParameters.Height;
 end;
 
 procedure TformConfigTrayslate.SplitterResponseMoved(Sender: TObject);
 begin
   if Assigned(FManager) then
-    FManager.ConfigFormSep2 := GroupResponse.Height;
+    FManager.FormPosition.Sep2 := GroupResponse.Height;
 end;
 
 procedure TformConfigTrayslate.SbCopyConfigClick(Sender: TObject);
@@ -980,7 +974,7 @@ begin
   ComboConfig.Items.Assign(FManager.ConfigFiles);
   if UpdateItemIndex then
   begin
-    idx := ComboConfig.Items.IndexOf(FManager.Config);
+    idx := ComboConfig.Items.IndexOf(FManager.ConfigFile);
     if idx >= 0 then
       ComboConfig.ItemIndex := idx
     else
@@ -1050,21 +1044,13 @@ end;
 procedure TformConfigTrayslate.SaveConfig;
 var
   TempHeaders: TStringList;
-  LastEnabled: boolean = True;
-  HostVisible: boolean = False;
 begin
   if not Assigned(FManager) or not Assigned(FTranslate) then Exit;
-  HostVisible := Assigned(FManager.HostForm) and FManager.HostForm.Visible;
-  if HostVisible then
-  begin
-    LastEnabled := FManager.HostForm.Enabled;
-    FManager.HostForm.Enabled := False;
-  end;
 
-  if (FManager.Config = string.Empty) then
+  if (FManager.ConfigFile = string.Empty) then
     CreateConfig;
 
-  if (FManager.Config = string.Empty) then
+  if (FManager.ConfigFile = string.Empty) then
     exit;
 
   Screen.Cursor := crHourGlass;
@@ -1121,17 +1107,20 @@ begin
       InitParameters.Text := MemoInitParameters.Text;
       InitLiveTime := SpinInitLiveTime.Value;
     end;
-    FTranslate.SaveIniSettings(FManager.Config);
-    aSave.Enabled := False;
-    FManager.Refresh;
-    FManager.NotifyConfigReload;
-    FManager.NotifyConfigsUpdated;
+    FManager.NotifyBusy(True);
+    try
+      FTranslate.SaveIniSettings(FManager.ConfigFile);
+      aSave.Enabled := False;
+      FManager.Refresh;
+      FManager.NotifyConfigReload;
+      FManager.NotifyConfigsUpdated;
+    finally
+      FManager.NotifyBusy(False);
+    end;
     UpdateConfigList(False);
   finally
     Screen.Cursor := crDefault;
     Caption := rcaption;
-    if HostVisible then
-      FManager.HostForm.Enabled := LastEnabled;
     if Visible and CanFocus then SetFocus;
   end;
 end;

@@ -41,18 +41,42 @@ type
   // Host provides a string value on demand
   TConfigGetStringEvent = procedure(Sender: TObject; var AValue: string) of object;
 
-  // Manages a set of translator INI config files.
-  // Scans Directories (or the exe directory plus AppName settings directory
-  // when Directories is empty), builds cache lists, owns the icon image list
-  // and fills an assigned TargetMenu with one item per config.
-  TConfigManager = class(TComponent)
+  // Host signals that the editor is busy with a config load or save
+  TConfigBusyEvent = procedure(Sender: TObject; ABusy: boolean) of object;
+
+  { Nested config editor window position and size }
+  TConfigFormPosition = class(TPersistent)
+  private
+    FLeft: integer;
+    FTop: integer;
+    FWidth: integer;
+    FHeight: integer;
+    FSep1: integer;
+    FSep2: integer;
+  public
+    procedure Assign(Source: TPersistent); override;
+  published
+    // Left edge of the editor window; zero means center
+    property Left: integer read FLeft write FLeft default 0;
+    // Top edge of the editor window; zero means center
+    property Top: integer read FTop write FTop default 0;
+    // Editor window width; zero means form default
+    property Width: integer read FWidth write FWidth default 0;
+    // Editor window height; zero means form default
+    property Height: integer read FHeight write FHeight default 0;
+    // Custom parameters group height; zero means form default
+    property Sep1: integer read FSep1 write FSep1 default 0;
+    // Response group height; zero means form default
+    property Sep2: integer read FSep2 write FSep2 default 0;
+  end;
+
+  // Base class with logic and API; use TConfigManager in applications
+  TCustomConfigManager = class(TComponent)
   private
     FTargetMenu: TMenuItem;
     FDirectories: TStrings;
     FAppName: string;
     FImages: TImageList;
-    FImageWidth: integer;
-    FImageHeight: integer;
     FConfigFiles: TStringList;
     FConfigTitles: TStringList;
     FConfigColors: TStringList;
@@ -63,6 +87,7 @@ type
     FLoaded: boolean;
     FAutoRefresh: boolean;
     FAutoConfigEditor: boolean;
+    FAutoApplyTranslate: boolean;
     FRefreshTimer: TTimer;
     FOnBeforeSelect: TConfigBeforeSelectEvent;
     FOnSelect: TConfigSelectEvent;
@@ -70,14 +95,8 @@ type
     FOnAfterRefresh: TConfigNotifyEvent;
     FConfigForm: TForm;
     FTranslate: TTranslate;
-    FHostForm: TForm;
-    FAutoApplyTranslate: boolean;
-    FConfigFormLeft: integer;
-    FConfigFormTop: integer;
-    FConfigFormWidth: integer;
-    FConfigFormHeight: integer;
-    FConfigFormSep1: integer;
-    FConfigFormSep2: integer;
+    FOnBusy: TConfigBusyEvent;
+    FFormPosition: TConfigFormPosition;
     FOnConfigReload: TConfigReloadEvent;
     FOnConfigsUpdated: TConfigNotifyEvent;
     FOnRefreshSettings: TConfigNotifyEvent;
@@ -86,16 +105,14 @@ type
     FOnGetSourceText: TConfigGetStringEvent;
     procedure SetTargetMenu(Value: TMenuItem);
     procedure SetTranslate(Value: TTranslate);
-    procedure SetHostForm(Value: TForm);
-    procedure SetAutoApplyTranslate(Value: boolean);
+    procedure SetFormPosition(Value: TConfigFormPosition);
     procedure SetDirectories(Value: TStrings);
     procedure SetAppName(const Value: string);
     procedure SetConfig(const Value: string);
     procedure ApplySelection(AIndex: integer; const AConfigFile: string);
-    procedure SetImageWidth(Value: integer);
-    procedure SetImageHeight(Value: integer);
     procedure SetAutoRefresh(Value: boolean);
     procedure SetAutoConfigEditor(Value: boolean);
+    procedure SetAutoApplyTranslate(Value: boolean);
     procedure MenuItemClick(Sender: TObject);
     procedure DeferredRefresh;
     function DirectoriesStored: boolean;
@@ -160,6 +177,8 @@ type
     procedure NotifyConfigsUpdated;
     // Notify the host that the settings form config list needs refresh
     procedure NotifyRefreshSettings;
+    // Notify the host that the editor is busy with a config load or save
+    procedure NotifyBusy(ABusy: boolean);
     // Ask the host for the source text used by response tests
     function GetSourceText: string;
     // Directory for new config files; settings dir when AppName is set, exe dir otherwise
@@ -174,67 +193,98 @@ type
     // Silent setter: only updates state and Checked, no OnSelect
     procedure SetSelectedConfigSilent(const Value: string);
 
+    // Writable properties, declared in full; redeclared in TConfigManager
+    property TargetMenu: TMenuItem read FTargetMenu write SetTargetMenu;
+    property Directories: TStrings read FDirectories write SetDirectories stored DirectoriesStored;
+    property AppName: string read FAppName write SetAppName;
+    property ConfigFile: string read FSelectedConfig write SetConfig;
+    property AutoRefresh: boolean read FAutoRefresh write SetAutoRefresh default True;
+    property AutoConfigEditor: boolean read FAutoConfigEditor write SetAutoConfigEditor default False;
+    property Translate: TTranslate read FTranslate write SetTranslate;
+    property AutoApplyTranslate: boolean read FAutoApplyTranslate write SetAutoApplyTranslate default False;
+    // Fires with ABusy=True before a config load or save, and False after
+    property OnBusy: TConfigBusyEvent read FOnBusy write FOnBusy;
+    property FormPosition: TConfigFormPosition read FFormPosition write SetFormPosition;
+
+    // Events exposed through TConfigManager published section
+    property OnBeforeSelect: TConfigBeforeSelectEvent read FOnBeforeSelect write FOnBeforeSelect;
+    property OnSelect: TConfigSelectEvent read FOnSelect write FOnSelect;
+    property OnBeforeRefresh: TConfigNotifyEvent read FOnBeforeRefresh write FOnBeforeRefresh;
+    property OnAfterRefresh: TConfigNotifyEvent read FOnAfterRefresh write FOnAfterRefresh;
+    property OnConfigReload: TConfigReloadEvent read FOnConfigReload write FOnConfigReload;
+    property OnConfigsUpdated: TConfigNotifyEvent read FOnConfigsUpdated write FOnConfigsUpdated;
+    property OnRefreshSettings: TConfigNotifyEvent read FOnRefreshSettings write FOnRefreshSettings;
+    property OnConfigEditorShow: TConfigNotifyEvent read FOnConfigEditorShow write FOnConfigEditorShow;
+    property OnConfigEditorHide: TConfigNotifyEvent read FOnConfigEditorHide write FOnConfigEditorHide;
+    property OnGetSourceText: TConfigGetStringEvent read FOnGetSourceText write FOnGetSourceText;
+
+    // Read-only discovery results
+    // List of discovered config file paths
     property ConfigFiles: TStrings read GetConfigFiles;
+    // Config title parsed from each INI, keyed by path
     property ConfigTitles: TStrings read GetConfigTitles;
+    // Config color parsed from each INI, keyed by path
     property ConfigColors: TStrings read GetConfigColors;
+    // Config icon index parsed from each INI, keyed by path
     property ConfigImages: TStrings read GetConfigImages;
+    // Internal image list that holds config icons
     property Images: TImageList read FImages;
+    // Number of discovered config files
     property ConfigCount: integer read GetConfigCount;
-    // Currently active config path, same value as Config
+    // Currently active config path, same value as ConfigFile
     property SelectedConfig: string read FSelectedConfig;
+    // Index of the active config in ConfigFiles
     property SelectedIndex: integer read GetSelectedIndex;
+    // Icon index of the active config in Images
     property SelectedImageIndex: integer read GetSelectedImageIndex;
+  end;
+
+  // Manages a set of translator INI config files.
+  // Scans Directories (or the exe directory plus AppName settings directory
+  // when Directories is empty), builds cache lists, owns the icon image list
+  // and fills an assigned TargetMenu with one item per config.
+  TConfigManager = class(TCustomConfigManager)
   published
     // Menu that receives one item per discovered config
-    property TargetMenu: TMenuItem read FTargetMenu write SetTargetMenu;
+    property TargetMenu;
     // Extra search roots; empty means exe directory plus AppName settings
-    property Directories: TStrings read FDirectories write SetDirectories stored DirectoriesStored;
+    property Directories;
     // Application name used to resolve the default settings directory
-    property AppName: string read FAppName write SetAppName;
+    property AppName;
     // Active config path; assigning applies the selection and fires events
-    property Config: string read FSelectedConfig write SetConfig;
+    property ConfigFile;
     // When True, a delayed scan runs right after LFM streaming is finished
-    property AutoRefresh: boolean read FAutoRefresh write SetAutoRefresh default True;
+    property AutoRefresh;
     // When True, the config menu gets a Config Editor entry below all configs
-    property AutoConfigEditor: boolean read FAutoConfigEditor write SetAutoConfigEditor default False;
-    // Icon size used by the internal image list
-    property ImageWidth: integer read FImageWidth write SetImageWidth default 16;
-    // Icon size used by the internal image list
-    property ImageHeight: integer read FImageHeight write SetImageHeight default 16;
-    // Fires before selection; set AAllow to False to cancel the switch
-    property OnBeforeSelect: TConfigBeforeSelectEvent read FOnBeforeSelect write FOnBeforeSelect;
-    // Fires after the selection has been committed
-    property OnSelect: TConfigSelectEvent read FOnSelect write FOnSelect;
-    // Fires before Refresh starts scanning directories
-    property OnBeforeRefresh: TConfigNotifyEvent read FOnBeforeRefresh write FOnBeforeRefresh;
-    // Fires after Refresh finished and the menu has been rebuilt
-    property OnAfterRefresh: TConfigNotifyEvent read FOnAfterRefresh write FOnAfterRefresh;
-
+    property AutoConfigEditor;
     // Translator component that the config editor edits
-    property Translate: TTranslate read FTranslate write SetTranslate;
-    // Host form used for TopMost and Enabled toggling while editing
-    property HostForm: TForm read FHostForm write SetHostForm;
+    property Translate;
     // When True, selecting a config also loads it into Translate
-    property AutoApplyTranslate: boolean read FAutoApplyTranslate write SetAutoApplyTranslate default False;
-    // Saved editor window position and size, zero means center or default
-    property ConfigFormLeft: integer read FConfigFormLeft write FConfigFormLeft default 0;
-    property ConfigFormTop: integer read FConfigFormTop write FConfigFormTop default 0;
-    property ConfigFormWidth: integer read FConfigFormWidth write FConfigFormWidth default 0;
-    property ConfigFormHeight: integer read FConfigFormHeight write FConfigFormHeight default 0;
-    property ConfigFormSep1: integer read FConfigFormSep1 write FConfigFormSep1 default 0;
-    property ConfigFormSep2: integer read FConfigFormSep2 write FConfigFormSep2 default 0;
+    property AutoApplyTranslate;
+    // Fires with ABusy=True before a config load or save, and False after
+    property OnBusy;
+    // Editor form state, expandable group in the Object Inspector
+    property FormPosition;
+    // Fires before selection; set AAllow to False to cancel the switch
+    property OnBeforeSelect;
+    // Fires after the selection has been committed
+    property OnSelect;
+    // Fires before Refresh starts scanning directories
+    property OnBeforeRefresh;
+    // Fires after Refresh finished and the menu has been rebuilt
+    property OnAfterRefresh;
     // Fires when the editor has loaded or saved a config
-    property OnConfigReload: TConfigReloadEvent read FOnConfigReload write FOnConfigReload;
+    property OnConfigReload;
     // Fires when the set or contents of configs changed; refresh derived UI
-    property OnConfigsUpdated: TConfigNotifyEvent read FOnConfigsUpdated write FOnConfigsUpdated;
+    property OnConfigsUpdated;
     // Fires when the settings form config list needs refresh
-    property OnRefreshSettings: TConfigNotifyEvent read FOnRefreshSettings write FOnRefreshSettings;
+    property OnRefreshSettings;
     // Fires right before the editor form is shown
-    property OnConfigEditorShow: TConfigNotifyEvent read FOnConfigEditorShow write FOnConfigEditorShow;
+    property OnConfigEditorShow;
     // Fires when the editor form is freed
-    property OnConfigEditorHide: TConfigNotifyEvent read FOnConfigEditorHide write FOnConfigEditorHide;
+    property OnConfigEditorHide;
     // Fires when the editor needs the source text for response tests
-    property OnGetSourceText: TConfigGetStringEvent read FOnGetSourceText write FOnGetSourceText;
+    property OnGetSourceText;
   end;
 
 implementation
@@ -242,9 +292,29 @@ implementation
 uses
   Base64Utils, OSUtils, OneShotTimer, FormConfig;
 
-  { TConfigManager }
+const
+  ICON_SIZE = 16;
 
-constructor TConfigManager.Create(AOwner: TComponent);
+  { TConfigFormPosition  }
+
+procedure TConfigFormPosition.Assign(Source: TPersistent);
+begin
+  if Source is TConfigFormPosition then
+  begin
+    FLeft := TConfigFormPosition(Source).FLeft;
+    FTop := TConfigFormPosition(Source).FTop;
+    FWidth := TConfigFormPosition(Source).FWidth;
+    FHeight := TConfigFormPosition(Source).FHeight;
+    FSep1 := TConfigFormPosition(Source).FSep1;
+    FSep2 := TConfigFormPosition(Source).FSep2;
+  end
+  else
+    inherited Assign(Source);
+end;
+
+{ TCustomConfigManager }
+
+constructor TCustomConfigManager.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FDirectories := TStringList.Create;
@@ -253,11 +323,10 @@ begin
   FConfigColors := TStringList.Create;
   FConfigImages := TStringList.Create;
   FConfigVisible := TStringList.Create;
-  FImageWidth := 16;
-  FImageHeight := 16;
+  FFormPosition := TConfigFormPosition.Create;
   FImages := TImageList.Create(Self);
-  FImages.Width := FImageWidth;
-  FImages.Height := FImageHeight;
+  FImages.Width := ICON_SIZE;
+  FImages.Height := ICON_SIZE;
   FSelectedConfig := string.Empty;
   FUpdateLock := False;
   FLoaded := False;
@@ -267,10 +336,11 @@ begin
   FRefreshTimer := nil;
 end;
 
-destructor TConfigManager.Destroy;
+destructor TCustomConfigManager.Destroy;
 begin
   // Cancel a pending deferred refresh before tearing down
   ClearTimeout(FRefreshTimer);
+  FreeAndNil(FFormPosition);
   FreeAndNil(FConfigVisible);
   FreeAndNil(FConfigImages);
   FreeAndNil(FConfigColors);
@@ -280,22 +350,22 @@ begin
   inherited Destroy;
 end;
 
-procedure TConfigManager.SetTranslate(Value: TTranslate);
+procedure TCustomConfigManager.SetTranslate(Value: TTranslate);
 begin
   FTranslate := Value;
 end;
 
-procedure TConfigManager.SetHostForm(Value: TForm);
-begin
-  FHostForm := Value;
-end;
-
-procedure TConfigManager.SetAutoApplyTranslate(Value: boolean);
+procedure TCustomConfigManager.SetAutoApplyTranslate(Value: boolean);
 begin
   FAutoApplyTranslate := Value;
 end;
 
-procedure TConfigManager.ShowConfigEditor;
+procedure TCustomConfigManager.SetFormPosition(Value: TConfigFormPosition);
+begin
+  FFormPosition.Assign(Value);
+end;
+
+procedure TCustomConfigManager.ShowConfigEditor;
 var
   Form: TformConfigTrayslate = nil;
 begin
@@ -316,24 +386,24 @@ begin
 
   Form.Position := poDesigned;
 
-  if ConfigFormLeft > 0 then
-    Form.Left := ConfigFormLeft
+  if FFormPosition.Left > 0 then
+    Form.Left := FFormPosition.Left
   else
     Form.Position := poDesktopCenter;
 
-  if ConfigFormTop > 0 then
-    Form.Top := ConfigFormTop
+  if FFormPosition.Top > 0 then
+    Form.Top := FFormPosition.Top
   else
     Form.Position := poDesktopCenter;
 
-  if ConfigFormWidth > 0 then
-    Form.Width := ConfigFormWidth;
-  if ConfigFormHeight > 0 then
-    Form.Height := ConfigFormHeight;
-  if ConfigFormSep1 > 0 then
-    Form.GroupBoxCustomParameters.Height := ConfigFormSep1;
-  if ConfigFormSep2 > 0 then
-    Form.GroupResponse.Height := ConfigFormSep2;
+  if FFormPosition.Width > 0 then
+    Form.Width := FFormPosition.Width;
+  if FFormPosition.Height > 0 then
+    Form.Height := FFormPosition.Height;
+  if FFormPosition.Sep1 > 0 then
+    Form.GroupBoxCustomParameters.Height := FFormPosition.Sep1;
+  if FFormPosition.Sep2 > 0 then
+    Form.GroupResponse.Height := FFormPosition.Sep2;
 
   if Assigned(FOnConfigEditorShow) then
     FOnConfigEditorShow(Self);
@@ -342,24 +412,24 @@ begin
   Form.BringToFront;
 end;
 
-function TConfigManager.ConfigEditorActive: boolean;
+function TCustomConfigManager.ConfigEditorActive: boolean;
 begin
   Result := Assigned(FConfigForm);
 end;
 
-function TConfigManager.ConfigEditorVisible: boolean;
+function TCustomConfigManager.ConfigEditorVisible: boolean;
 begin
   Result := Assigned(FConfigForm) and FConfigForm.Visible;
 end;
 
-function TConfigManager.TestConfigChanges: boolean;
+function TCustomConfigManager.TestConfigChanges: boolean;
 begin
   Result := True;
   if Assigned(FConfigForm) and FConfigForm.HandleAllocated and FConfigForm.Showing then
     Result := TformConfigTrayslate(FConfigForm).TestChanges;
 end;
 
-procedure TConfigManager.UpdateConfigEditor;
+procedure TCustomConfigManager.UpdateConfigEditor;
 begin
   if not Assigned(FConfigForm) then Exit;
   if not FConfigForm.HandleAllocated then Exit;
@@ -369,7 +439,7 @@ begin
   TformConfigTrayslate(FConfigForm).UpdateConfig;
 end;
 
-procedure TConfigManager.InvalidateConfigEditor;
+procedure TCustomConfigManager.InvalidateConfigEditor;
 begin
   if not Assigned(FConfigForm) then Exit;
   if not FConfigForm.HandleAllocated then Exit;
@@ -378,44 +448,50 @@ begin
   FConfigForm.Invalidate;
 end;
 
-procedure TConfigManager.RelocalizeConfigEditor;
+procedure TCustomConfigManager.RelocalizeConfigEditor;
 begin
   if Assigned(FConfigForm) and FConfigForm.HandleAllocated then
     TformConfigTrayslate(FConfigForm).Relocalize;
 end;
 
-procedure TConfigManager.CloseConfigEditor;
+procedure TCustomConfigManager.CloseConfigEditor;
 begin
   if Assigned(FConfigForm) then
     FConfigForm.Close;
 end;
 
-procedure TConfigManager.NotifyConfigReload;
+procedure TCustomConfigManager.NotifyConfigReload;
 begin
   if Assigned(FOnConfigReload) then
     FOnConfigReload(Self, FSelectedConfig);
 end;
 
-procedure TConfigManager.NotifyConfigsUpdated;
+procedure TCustomConfigManager.NotifyConfigsUpdated;
 begin
   if Assigned(FOnConfigsUpdated) then
     FOnConfigsUpdated(Self);
 end;
 
-procedure TConfigManager.NotifyRefreshSettings;
+procedure TCustomConfigManager.NotifyRefreshSettings;
 begin
   if Assigned(FOnRefreshSettings) then
     FOnRefreshSettings(Self);
 end;
 
-function TConfigManager.GetSourceText: string;
+procedure TCustomConfigManager.NotifyBusy(ABusy: boolean);
+begin
+  if Assigned(FOnBusy) then
+    FOnBusy(Self, ABusy);
+end;
+
+function TCustomConfigManager.GetSourceText: string;
 begin
   Result := string.Empty;
   if Assigned(FOnGetSourceText) then
     FOnGetSourceText(Self, Result);
 end;
 
-function TConfigManager.GetConfigDirectory: string;
+function TCustomConfigManager.GetConfigDirectory: string;
 begin
   if FAppName <> string.Empty then
     Result := TOS.GetSettingsDirectory(FAppName, '')
@@ -423,7 +499,7 @@ begin
     Result := ExtractFilePath(ParamStr(0));
 end;
 
-procedure TConfigManager.Loaded;
+procedure TCustomConfigManager.Loaded;
 begin
   inherited Loaded;
   FLoaded := True;
@@ -432,7 +508,7 @@ begin
     SetTimeout(FRefreshTimer, 10, @DeferredRefresh);
 end;
 
-procedure TConfigManager.DeferredRefresh;
+procedure TCustomConfigManager.DeferredRefresh;
 begin
   if not FLoaded then Exit;
   if csDesigning in ComponentState then Exit;
@@ -440,7 +516,7 @@ begin
   Refresh;
 end;
 
-procedure TConfigManager.SetTargetMenu(Value: TMenuItem);
+procedure TCustomConfigManager.SetTargetMenu(Value: TMenuItem);
 begin
   if FTargetMenu = Value then Exit;
   if Assigned(FTargetMenu) then
@@ -450,41 +526,25 @@ begin
     FTargetMenu.FreeNotification(Self);
 end;
 
-procedure TConfigManager.SetDirectories(Value: TStrings);
+procedure TCustomConfigManager.SetDirectories(Value: TStrings);
 begin
   FDirectories.Assign(Value);
 end;
 
-procedure TConfigManager.SetAppName(const Value: string);
+procedure TCustomConfigManager.SetAppName(const Value: string);
 begin
   if FAppName = Value then Exit;
   FAppName := Value;
 end;
 
-procedure TConfigManager.SetSelectedConfigSilent(const Value: string);
+procedure TCustomConfigManager.SetSelectedConfigSilent(const Value: string);
 begin
   if FSelectedConfig = Value then Exit;
   FSelectedConfig := Value;
   UpdateCheckState;
 end;
 
-procedure TConfigManager.SetImageWidth(Value: integer);
-begin
-  if FImageWidth = Value then Exit;
-  FImageWidth := Value;
-  if Assigned(FImages) then
-    FImages.Width := Value;
-end;
-
-procedure TConfigManager.SetImageHeight(Value: integer);
-begin
-  if FImageHeight = Value then Exit;
-  FImageHeight := Value;
-  if Assigned(FImages) then
-    FImages.Height := Value;
-end;
-
-procedure TConfigManager.SetAutoRefresh(Value: boolean);
+procedure TCustomConfigManager.SetAutoRefresh(Value: boolean);
 begin
   if FAutoRefresh = Value then Exit;
   FAutoRefresh := Value;
@@ -493,12 +553,12 @@ begin
     ClearTimeout(FRefreshTimer);
 end;
 
-function TConfigManager.DirectoriesStored: boolean;
+function TCustomConfigManager.DirectoriesStored: boolean;
 begin
   Result := FDirectories.Count > 0;
 end;
 
-procedure TConfigManager.SetAutoConfigEditor(Value: boolean);
+procedure TCustomConfigManager.SetAutoConfigEditor(Value: boolean);
 begin
   if FAutoConfigEditor = Value then Exit;
   FAutoConfigEditor := Value;
@@ -506,7 +566,7 @@ begin
   RebuildMenu;
 end;
 
-procedure TConfigManager.MenuItemClick(Sender: TObject);
+procedure TCustomConfigManager.MenuItemClick(Sender: TObject);
 var
   Item: TMenuItem;
 begin
@@ -515,7 +575,7 @@ begin
 
   Item := TMenuItem(Sender);
 
-  // Editor entry opens the editor form; config entries switch the config
+  // Editor entry opens the editor form; ConfigFile entries switch the ConfigFile
   if Item.Tag = -1 then
   begin
     ShowConfigEditor;
@@ -527,7 +587,7 @@ begin
   ApplySelection(Item.Tag, FConfigFiles[Item.Tag]);
 end;
 
-procedure TConfigManager.ApplySelection(AIndex: integer; const AConfigFile: string);
+procedure TCustomConfigManager.ApplySelection(AIndex: integer; const AConfigFile: string);
 var
   Allow: boolean;
 begin
@@ -539,7 +599,7 @@ begin
   FSelectedConfig := AConfigFile;
   UpdateCheckState;
 
-  // Optional shortcut: load the chosen config into the translator
+  // Optional shortcut: load the chosen ConfigFile into the translator
   if FAutoApplyTranslate and Assigned(FTranslate) then
     FTranslate.ConfigFile := AConfigFile;
 
@@ -547,7 +607,7 @@ begin
     FOnSelect(Self, AIndex, AConfigFile);
 end;
 
-procedure TConfigManager.SetConfig(const Value: string);
+procedure TCustomConfigManager.SetConfig(const Value: string);
 var
   Idx: integer;
   Allow: boolean;
@@ -566,7 +626,7 @@ begin
   FSelectedConfig := Value;
   UpdateCheckState;
 
-  // Optional shortcut: load the chosen config into the translator
+  // Optional shortcut: load the chosen ConfigFile into the translator
   if FAutoApplyTranslate and Assigned(FTranslate) then
     FTranslate.ConfigFile := Value;
 
@@ -574,7 +634,7 @@ begin
     FOnSelect(Self, Idx, Value);
 end;
 
-procedure TConfigManager.UpdateCheckState;
+procedure TCustomConfigManager.UpdateCheckState;
 var
   i: integer;
   Idx: integer;
@@ -607,7 +667,7 @@ begin
   end;
 end;
 
-procedure TConfigManager.AttachImages;
+procedure TCustomConfigManager.AttachImages;
 var
   Root: TMenuItem;
 begin
@@ -622,7 +682,7 @@ begin
     TMenu(Root.Owner).Images := FImages;
 end;
 
-procedure TConfigManager.RebuildMenu;
+procedure TCustomConfigManager.RebuildMenu;
 var
   i: integer;
   Item: TMenuItem;
@@ -678,7 +738,7 @@ begin
       FTargetMenu.Add(Item);
     end;
 
-    // Editor entry goes last, separated from the config list
+    // Editor entry goes last, separated from the ConfigFile list
     if FAutoConfigEditor then
     begin
       if FConfigFiles.Count > 0 then
@@ -700,7 +760,7 @@ begin
   end;
 end;
 
-procedure TConfigManager.LoadConfigs;
+procedure TCustomConfigManager.LoadConfigs;
 var
   Files: TStringList = nil;
   SortedList: TStringList = nil;
@@ -792,7 +852,7 @@ begin
   end;
 end;
 
-procedure TConfigManager.Refresh;
+procedure TCustomConfigManager.Refresh;
 begin
   // Cancel a pending deferred refresh to avoid a duplicate scan
   ClearTimeout(FRefreshTimer);
@@ -816,7 +876,7 @@ begin
   end;
 end;
 
-procedure TConfigManager.Clear;
+procedure TCustomConfigManager.Clear;
 begin
   ClearTimeout(FRefreshTimer);
 
@@ -832,7 +892,7 @@ begin
   RebuildMenu;
 end;
 
-function TConfigManager.AddConfigFile(const AFileName: string): integer;
+function TCustomConfigManager.AddConfigFile(const AFileName: string): integer;
 var
   Idx: integer = -1;
 begin
@@ -849,7 +909,7 @@ begin
   Result := FConfigFiles.IndexOf(AFileName);
 end;
 
-function TConfigManager.RemoveConfigFile(const AFileName: string): boolean;
+function TCustomConfigManager.RemoveConfigFile(const AFileName: string): boolean;
 var
   Idx: integer = -1;
 begin
@@ -867,12 +927,12 @@ begin
   Result := True;
 end;
 
-function TConfigManager.IndexOfConfig(const AFileName: string): integer;
+function TCustomConfigManager.IndexOfConfig(const AFileName: string): integer;
 begin
   Result := FConfigFiles.IndexOf(AFileName);
 end;
 
-function TConfigManager.ResolveConfigPath(const AConfigName: string): string;
+function TCustomConfigManager.ResolveConfigPath(const AConfigName: string): string;
 var
   i: integer = 0;
   NameOnly: string = '';
@@ -887,7 +947,7 @@ begin
   end;
 end;
 
-function TConfigManager.GetConfigIcon(AIndex: integer; AIcon: TIcon): boolean;
+function TCustomConfigManager.GetConfigIcon(AIndex: integer; AIcon: TIcon): boolean;
 var
   ImageIdx: integer = -1;
 begin
@@ -902,75 +962,75 @@ begin
   Result := True;
 end;
 
-function TConfigManager.GetSelectedIcon(AIcon: TIcon): boolean;
+function TCustomConfigManager.GetSelectedIcon(AIcon: TIcon): boolean;
 begin
   Result := GetConfigIcon(SelectedIndex, AIcon);
 end;
 
-function TConfigManager.GetConfigCount: integer;
+function TCustomConfigManager.GetConfigCount: integer;
 begin
   Result := FConfigFiles.Count;
 end;
 
-function TConfigManager.GetSelectedIndex: integer;
+function TCustomConfigManager.GetSelectedIndex: integer;
 begin
   Result := FConfigFiles.IndexOf(FSelectedConfig);
 end;
 
-function TConfigManager.GetSelectedImageIndex: integer;
+function TCustomConfigManager.GetSelectedImageIndex: integer;
 begin
   Result := GetConfigImageIndex(SelectedIndex);
 end;
 
-function TConfigManager.GetConfigTitle(AIndex: integer): string;
+function TCustomConfigManager.GetConfigTitle(AIndex: integer): string;
 begin
   Result := string.Empty;
   if (AIndex >= 0) and (AIndex < FConfigTitles.Count) then
     Result := FConfigTitles.ValueFromIndex[AIndex];
 end;
 
-function TConfigManager.GetConfigColor(AIndex: integer): TColor;
+function TCustomConfigManager.GetConfigColor(AIndex: integer): TColor;
 begin
   Result := clBlue;
   if (AIndex >= 0) and (AIndex < FConfigColors.Count) then
     Result := StrToIntDef(FConfigColors.ValueFromIndex[AIndex], clBlue);
 end;
 
-function TConfigManager.GetConfigImageIndex(AIndex: integer): integer;
+function TCustomConfigManager.GetConfigImageIndex(AIndex: integer): integer;
 begin
   Result := -1;
   if (AIndex >= 0) and (AIndex < FConfigImages.Count) then
     Result := StrToIntDef(FConfigImages.ValueFromIndex[AIndex], -1);
 end;
 
-function TConfigManager.GetConfigVisible(AIndex: integer): boolean;
+function TCustomConfigManager.GetConfigVisible(AIndex: integer): boolean;
 begin
   Result := True;
   if (AIndex >= 0) and (AIndex < FConfigVisible.Count) then
     Result := FConfigVisible.ValueFromIndex[AIndex] = '1';
 end;
 
-function TConfigManager.GetConfigFiles: TStrings;
+function TCustomConfigManager.GetConfigFiles: TStrings;
 begin
   Result := FConfigFiles;
 end;
 
-function TConfigManager.GetConfigTitles: TStrings;
+function TCustomConfigManager.GetConfigTitles: TStrings;
 begin
   Result := FConfigTitles;
 end;
 
-function TConfigManager.GetConfigColors: TStrings;
+function TCustomConfigManager.GetConfigColors: TStrings;
 begin
   Result := FConfigColors;
 end;
 
-function TConfigManager.GetConfigImages: TStrings;
+function TCustomConfigManager.GetConfigImages: TStrings;
 begin
   Result := FConfigImages;
 end;
 
-procedure TConfigManager.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TCustomConfigManager.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
   if Operation = opRemove then
@@ -988,7 +1048,7 @@ begin
   end;
 end;
 
-class function TConfigManager.IsValidIni(const FileName: string): boolean;
+class function TCustomConfigManager.IsValidIni(const FileName: string): boolean;
 var
   Ini: TIniFile = nil;
   Method: string = '';
@@ -1007,7 +1067,7 @@ begin
   end;
 end;
 
-class procedure TConfigManager.FindIniFiles(const Dir: string; List: TStrings);
+class procedure TCustomConfigManager.FindIniFiles(const Dir: string; List: TStrings);
 var
   SR: TSearchRec;
   FilePath: string = '';
@@ -1040,7 +1100,7 @@ begin
   end;
 end;
 
-class procedure TConfigManager.GetIniFiles(List: TStrings; AppName: string);
+class procedure TCustomConfigManager.GetIniFiles(List: TStrings; AppName: string);
 var
   ExeDir: string = '';
   SettingsDir: string = '';
@@ -1058,7 +1118,7 @@ begin
   end;
 end;
 
-class function TConfigManager.ConfigSortByOrderPathName(List: TStringList; Index1, Index2: integer): integer;
+class function TCustomConfigManager.ConfigSortByOrderPathName(List: TStringList; Index1, Index2: integer): integer;
 var
   Data1, Data2: PConfigData;
   Ord1, Ord2: integer;
