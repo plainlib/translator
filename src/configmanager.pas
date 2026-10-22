@@ -11,7 +11,7 @@ unit ConfigManager;
 interface
 
 uses
-  Forms, Classes, SysUtils, Menus, Graphics, Controls, ImgList, IniFiles, ExtCtrls;
+  Forms, Classes, SysUtils, Menus, Graphics, Controls, ImgList, IniFiles, ExtCtrls, Translate;
 
 type
   // Parsed config file data used for sorting
@@ -62,14 +62,16 @@ type
     FUpdateLock: boolean;
     FLoaded: boolean;
     FAutoRefresh: boolean;
+    FAutoConfigEditor: boolean;
     FRefreshTimer: TTimer;
     FOnBeforeSelect: TConfigBeforeSelectEvent;
     FOnSelect: TConfigSelectEvent;
     FOnBeforeRefresh: TConfigNotifyEvent;
     FOnAfterRefresh: TConfigNotifyEvent;
     FConfigForm: TForm;
-    FTranslate: TComponent;
+    FTranslate: TTranslate;
     FHostForm: TForm;
+    FAutoApplyTranslate: boolean;
     FConfigFormLeft: integer;
     FConfigFormTop: integer;
     FConfigFormWidth: integer;
@@ -83,8 +85,9 @@ type
     FOnConfigEditorHide: TConfigNotifyEvent;
     FOnGetSourceText: TConfigGetStringEvent;
     procedure SetTargetMenu(Value: TMenuItem);
-    procedure SetTranslate(Value: TComponent);
+    procedure SetTranslate(Value: TTranslate);
     procedure SetHostForm(Value: TForm);
+    procedure SetAutoApplyTranslate(Value: boolean);
     procedure SetDirectories(Value: TStrings);
     procedure SetAppName(const Value: string);
     procedure SetConfig(const Value: string);
@@ -92,6 +95,7 @@ type
     procedure SetImageWidth(Value: integer);
     procedure SetImageHeight(Value: integer);
     procedure SetAutoRefresh(Value: boolean);
+    procedure SetAutoConfigEditor(Value: boolean);
     procedure MenuItemClick(Sender: TObject);
     procedure DeferredRefresh;
     function DirectoriesStored: boolean;
@@ -191,6 +195,8 @@ type
     property Config: string read FSelectedConfig write SetConfig;
     // When True, a delayed scan runs right after LFM streaming is finished
     property AutoRefresh: boolean read FAutoRefresh write SetAutoRefresh default True;
+    // When True, the config menu gets a Config Editor entry below all configs
+    property AutoConfigEditor: boolean read FAutoConfigEditor write SetAutoConfigEditor default False;
     // Icon size used by the internal image list
     property ImageWidth: integer read FImageWidth write SetImageWidth default 16;
     // Icon size used by the internal image list
@@ -205,9 +211,11 @@ type
     property OnAfterRefresh: TConfigNotifyEvent read FOnAfterRefresh write FOnAfterRefresh;
 
     // Translator component that the config editor edits
-    property Translate: TComponent read FTranslate write SetTranslate;
+    property Translate: TTranslate read FTranslate write SetTranslate;
     // Host form used for TopMost and Enabled toggling while editing
     property HostForm: TForm read FHostForm write SetHostForm;
+    // When True, selecting a config also loads it into Translate
+    property AutoApplyTranslate: boolean read FAutoApplyTranslate write SetAutoApplyTranslate default False;
     // Saved editor window position and size, zero means center or default
     property ConfigFormLeft: integer read FConfigFormLeft write FConfigFormLeft default 0;
     property ConfigFormTop: integer read FConfigFormTop write FConfigFormTop default 0;
@@ -232,7 +240,7 @@ type
 implementation
 
 uses
-  Base64Utils, OSUtils, OneShotTimer, Translate, FormConfig;
+  Base64Utils, OSUtils, OneShotTimer, FormConfig;
 
   { TConfigManager }
 
@@ -254,6 +262,8 @@ begin
   FUpdateLock := False;
   FLoaded := False;
   FAutoRefresh := True;
+  FAutoConfigEditor := False;
+  FAutoApplyTranslate := False;
   FRefreshTimer := nil;
 end;
 
@@ -270,7 +280,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TConfigManager.SetTranslate(Value: TComponent);
+procedure TConfigManager.SetTranslate(Value: TTranslate);
 begin
   FTranslate := Value;
 end;
@@ -280,12 +290,16 @@ begin
   FHostForm := Value;
 end;
 
+procedure TConfigManager.SetAutoApplyTranslate(Value: boolean);
+begin
+  FAutoApplyTranslate := Value;
+end;
+
 procedure TConfigManager.ShowConfigEditor;
 var
   Form: TformConfigTrayslate = nil;
 begin
   if not Assigned(FTranslate) then Exit;
-  if not (FTranslate is TTranslate) then Exit;
 
   // Bring an already created form to front
   if Assigned(FConfigForm) then
@@ -296,7 +310,7 @@ begin
     Exit;
   end;
 
-  Form := TformConfigTrayslate.Create(Self, Self, TTranslate(FTranslate));
+  Form := TformConfigTrayslate.Create(Self, Self, FTranslate);
   Form.FreeNotification(Self);
   FConfigForm := Form;
 
@@ -484,6 +498,14 @@ begin
   Result := FDirectories.Count > 0;
 end;
 
+procedure TConfigManager.SetAutoConfigEditor(Value: boolean);
+begin
+  if FAutoConfigEditor = Value then Exit;
+  FAutoConfigEditor := Value;
+  // Rebuild so the entry appears or disappears immediately
+  RebuildMenu;
+end;
+
 procedure TConfigManager.MenuItemClick(Sender: TObject);
 var
   Item: TMenuItem;
@@ -492,6 +514,14 @@ begin
   if not (Sender is TMenuItem) then Exit;
 
   Item := TMenuItem(Sender);
+
+  // Editor entry opens the editor form; config entries switch the config
+  if Item.Tag = -1 then
+  begin
+    ShowConfigEditor;
+    Exit;
+  end;
+
   if (Item.Tag < 0) or (Item.Tag >= FConfigFiles.Count) then Exit;
 
   ApplySelection(Item.Tag, FConfigFiles[Item.Tag]);
@@ -508,6 +538,10 @@ begin
 
   FSelectedConfig := AConfigFile;
   UpdateCheckState;
+
+  // Optional shortcut: load the chosen config into the translator
+  if FAutoApplyTranslate and Assigned(FTranslate) then
+    FTranslate.ConfigFile := AConfigFile;
 
   if Assigned(FOnSelect) then
     FOnSelect(Self, AIndex, AConfigFile);
@@ -532,6 +566,10 @@ begin
   FSelectedConfig := Value;
   UpdateCheckState;
 
+  // Optional shortcut: load the chosen config into the translator
+  if FAutoApplyTranslate and Assigned(FTranslate) then
+    FTranslate.ConfigFile := Value;
+
   if (Idx >= 0) and Assigned(FOnSelect) then
     FOnSelect(Self, Idx, Value);
 end;
@@ -550,6 +588,8 @@ begin
     Idx := FConfigFiles.IndexOf(FSelectedConfig);
     for i := 0 to FTargetMenu.Count - 1 do
     begin
+      // Skip separator (Tag = -2) and editor entry (Tag = -1)
+      if FTargetMenu.Items[i].Tag < 0 then Continue;
       FTargetMenu.Items[i].Checked := (i = Idx);
       if FTargetMenu.Items[i].Checked then
         FTargetMenu.Items[i].ImageIndex := -1
@@ -586,6 +626,7 @@ procedure TConfigManager.RebuildMenu;
 var
   i: integer;
   Item: TMenuItem;
+  Separator: TMenuItem;
   FileName: string;
   Title: string;
   ImageIdx: integer;
@@ -599,7 +640,8 @@ begin
   FUpdateLock := True;
   try
     FTargetMenu.Clear;
-    FTargetMenu.Visible := FConfigFiles.Count > 0;
+    // The menu stays visible when the editor entry is enabled even without configs
+    FTargetMenu.Visible := FAutoConfigEditor or (FConfigFiles.Count > 0);
 
     Idx := FConfigFiles.IndexOf(FSelectedConfig);
 
@@ -633,6 +675,24 @@ begin
 
       Item.OnClick := @MenuItemClick;
 
+      FTargetMenu.Add(Item);
+    end;
+
+    // Editor entry goes last, separated from the config list
+    if FAutoConfigEditor then
+    begin
+      if FConfigFiles.Count > 0 then
+      begin
+        Separator := TMenuItem.Create(FTargetMenu);
+        Separator.Caption := '-';
+        Separator.Tag := -2;
+        FTargetMenu.Add(Separator);
+      end;
+
+      Item := TMenuItem.Create(FTargetMenu);
+      Item.Caption := rconfigeditor;
+      Item.Tag := -1;
+      Item.OnClick := @MenuItemClick;
       FTargetMenu.Add(Item);
     end;
   finally
@@ -768,16 +828,8 @@ begin
   FImages.Clear;
   FSelectedConfig := string.Empty;
 
-  if Assigned(FTargetMenu) then
-  begin
-    FUpdateLock := True;
-    try
-      FTargetMenu.Clear;
-      FTargetMenu.Visible := False;
-    finally
-      FUpdateLock := False;
-    end;
-  end;
+  // Rebuild handles both the empty case and the optional editor entry
+  RebuildMenu;
 end;
 
 function TConfigManager.AddConfigFile(const AFileName: string): integer;

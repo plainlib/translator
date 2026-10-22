@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: PoBatch 1.0.0"
+"X-Generator: PoBatch 1.0.0\n"
 
 #: formconfig.rcaption
 msgctxt "formconfig.rcaption"
@@ -21,6 +21,10 @@ msgstr "Trình chỉnh sửa cấu hình"
 #: formconfig.rclearlanguages
 msgid "The list is already filled. Do you want to clear it?"
 msgstr "Danh sách đã được lấp đầy. Bạn có muốn xóa nó không?"
+
+#: formconfig.rconfigeditor
+msgid "Config Editor..."
+msgstr "Trình chỉnh sửa cấu hình..."
 
 #: formconfig.rdeleteconfig
 msgid "Are you sure you want to delete config"

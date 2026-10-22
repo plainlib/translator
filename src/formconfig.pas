@@ -46,6 +46,7 @@ type
   TformConfigTrayslate = class(TForm)
     AClearIcon: TAction;
     ASaveIconAs: TAction;
+    ImageButtons: TImageList;
     LabelFillTargetLanguages: TLabel;
     LabelSort: TLabel;
     LabelTargetSort: TLabel;
@@ -228,6 +229,7 @@ type
   {%Region -fold Resource strings}
 
 resourcestring
+  rconfigeditor = 'Config Editor...';
   rnamequestion = 'Enter new config file name:';
   rneedsave = 'The configuration was modified. Save changes?';
   rclearlanguages = 'The list is already filled. Do you want to clear it?';
@@ -348,7 +350,7 @@ begin
   LabelFillLanguages.Font.Color := TDarkUtils.ThemeColor(clBlue, clSkyBlue);
   ColorServiceColorRecent.AddCustomColors;
 
-  ReloadConfigs.ImageIndex := TDarkUtils.ThemeValue(24, 25);
+  ReloadConfigs.ImageIndex := TDarkUtils.ThemeValue(2, 3);
 
   ComboValueType.Items.Clear;
   ComboValueType.Items.Add(rvaluetype1);

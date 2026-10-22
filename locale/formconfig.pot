@@ -10,6 +10,10 @@ msgstr ""
 msgid "The list is already filled. Do you want to clear it?"
 msgstr ""
 
+#: formconfig.rconfigeditor
+msgid "Config Editor..."
+msgstr ""
+
 #: formconfig.rdeleteconfig
 msgid "Are you sure you want to delete config"
 msgstr ""

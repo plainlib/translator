@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: PoBatch 1.0.0\n"
-"X-Poedit-SourceCharset: UTF-8"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: formconfig.rcaption
 msgctxt "formconfig.rcaption"
@@ -22,6 +22,10 @@ msgid "The list is already filled. Do you want to clear it?"
 msgstr ""
 "L'elenco è già pieno.\n"
 "Vuoi cancellarlo?"
+
+#: formconfig.rconfigeditor
+msgid "Config Editor..."
+msgstr "Editor configurazione..."
 
 #: formconfig.rdeleteconfig
 msgid "Are you sure you want to delete config"
