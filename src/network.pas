@@ -40,7 +40,11 @@ uses
   {$NOTES OFF}
   httpsend,
   blcksock,
+  {$IFDEF WIN32}
   ssl_openssl11;
+  {$ELSE}
+  ssl_openssl3;
+  {$ENDIF}
   {$POP}
 
 type
