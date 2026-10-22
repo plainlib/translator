@@ -35,8 +35,8 @@ type
   // Simple notification event used for refresh lifecycle
   TConfigNotifyEvent = procedure(Sender: TObject) of object;
 
-  // Fires after the editor loads or saves a config file
-  TConfigReloadEvent = procedure(Sender: TObject; const AConfigFile: string) of object;
+  // Fires after the editor loads or saves a config file; set AHandled when the host applied it
+  TConfigReloadEvent = procedure(Sender: TObject; const AConfigFile: string; var AHandled: boolean) of object;
 
   // Host provides a string value on demand
   TConfigGetStringEvent = procedure(Sender: TObject; var AValue: string) of object;
@@ -172,7 +172,7 @@ type
     // Close the editor if it is open
     procedure CloseConfigEditor;
     // Notify the host that a config was loaded or saved by the editor
-    procedure NotifyConfigReload;
+    procedure NotifyConfigReload(var AHandled: boolean);
     // Notify the host that the set or contents of configs changed
     procedure NotifyConfigsUpdated;
     // Notify the host that the settings form config list needs refresh
@@ -460,10 +460,11 @@ begin
     FConfigForm.Close;
 end;
 
-procedure TCustomConfigManager.NotifyConfigReload;
+procedure TCustomConfigManager.NotifyConfigReload(var AHandled: boolean);
 begin
+  AHandled := False;
   if Assigned(FOnConfigReload) then
-    FOnConfigReload(Self, FSelectedConfig);
+    FOnConfigReload(Self, FSelectedConfig, AHandled);
 end;
 
 procedure TCustomConfigManager.NotifyConfigsUpdated;

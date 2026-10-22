@@ -212,6 +212,7 @@ type
     FHint: TOneShotTooltip;
 
     procedure UpdateIconPreview;
+    procedure LoadSelectedConfig;
   public
     // Constructor used by ConfigManager; do not call with a nil manager
     constructor Create(AOwner: TComponent; AManager: TCustomConfigManager; ATranslate: TTranslate); reintroduce; overload;
@@ -718,7 +719,7 @@ begin
     FManager.NotifyBusy(True);
     try
       FManager.SetSelectedConfigSilent(ComboConfig.Text);
-      FManager.NotifyConfigReload;
+      LoadSelectedConfig;
       UpdateConfig;
     finally
       FManager.NotifyBusy(False);
@@ -824,6 +825,19 @@ begin
     ImagePreview.Picture.Clear;
 end;
 
+procedure TformConfigTrayslate.LoadSelectedConfig;
+var
+  Handled: boolean;
+begin
+  if not Assigned(FManager) then Exit;
+
+  // Host may reload the translator via OnConfigReload; otherwise do it here
+  Handled := False;
+  FManager.NotifyConfigReload(Handled);
+  if not Handled and Assigned(FTranslate) then
+    FTranslate.ConfigFile := FManager.ConfigFile;
+end;
+
 function TformConfigTrayslate.TestChanges(AButtons: TMsgDlgButtons = [mbYes, mbNo, mbCancel]): boolean;
 var
   res: TModalResult;
@@ -916,7 +930,7 @@ begin
   // Rescan directories so the newly created INI shows up in the manager
   FManager.Refresh;
   FManager.SetSelectedConfigSilent(DestFile);
-  FManager.NotifyConfigReload;
+  LoadSelectedConfig;
   UpdateConfigList;
   UpdateConfig;
 end;
@@ -1112,7 +1126,7 @@ begin
       FTranslate.SaveIniSettings(FManager.ConfigFile);
       aSave.Enabled := False;
       FManager.Refresh;
-      FManager.NotifyConfigReload;
+      LoadSelectedConfig;
       FManager.NotifyConfigsUpdated;
     finally
       FManager.NotifyBusy(False);
