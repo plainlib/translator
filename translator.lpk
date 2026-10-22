@@ -111,8 +111,6 @@ SOFTWARE."/>
       </Item>
     </Files>
     <i18n>
-      <EnableI18N Value="True"/>
-      <OutDir Value="locale"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
     <RequiredPkgs>
