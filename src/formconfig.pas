@@ -30,6 +30,7 @@ uses
   ColorBox,
   LCLType,
   LCLIntf,
+  LResources,
   SynEdit,
   SynEditTypes,
   SynHighlighterPas,
@@ -340,12 +341,21 @@ var
   i: integer;
   PoText: string;
 begin
+  // Load package PO once: custom file wins, otherwise the embedded resource
   PoText := string.Empty;
-  if Assigned(FManager) and (FManager.AppName <> string.Empty) then
+  if Assigned(FManager) then
   begin
     if FManager.CustomPoFile <> string.Empty then
-      PoText := TLocalize.LoadCustomPoFile(FManager.CustomPoFile);
-    TLocalize.ApplicationTranslate(FManager.AppName, language, self, PoText);
+      PoText := TLocalize.LoadCustomPoFile(FManager.CustomPoFile)
+    else
+      PoText := TLocalize.LoadPackagePoResource('formconfig', Language);
+  end;
+
+  // Translate unit resourcestrings first, then the form properties
+  if PoText <> '' then
+  begin
+    TLocalize.TranslateUnitsFromPoText(['FormConfig'], PoText);
+    TLocalize.ApplicationTranslate('formconfig', Language, Self, PoText, False);
   end;
 
   Pages.PageIndex := 0;
@@ -1143,14 +1153,23 @@ procedure TformConfigTrayslate.Relocalize;
 var
   PoText: string;
 begin
+  // Same lookup as FormCreate so the form reacts to language changes
   PoText := string.Empty;
-  if Assigned(FManager) and (FManager.AppName <> string.Empty) then
+  if Assigned(FManager) then
   begin
     if FManager.CustomPoFile <> string.Empty then
-      PoText := TLocalize.LoadCustomPoFile(FManager.CustomPoFile);
-    TLocalize.ApplicationTranslate(FManager.AppName, language, Self, PoText);
+      PoText := TLocalize.LoadCustomPoFile(FManager.CustomPoFile)
+    else
+      PoText := TLocalize.LoadPackagePoResource('formconfig', Language);
   end;
 
+  if PoText <> '' then
+  begin
+    TLocalize.TranslateUnitsFromPoText(['FormConfig'], PoText);
+    TLocalize.ApplicationTranslate('formconfig', Language, Self, PoText, False);
+  end;
+
+  // Resourcestrings may have changed too, refill combo from current values
   ComboValueType.Items.Clear;
   ComboValueType.Items.Add(rvaluetype1);
   ComboValueType.Items.Add(rvaluetype2);
@@ -1163,5 +1182,9 @@ begin
   LabelSort.Left := LabelFillLanguages.BoundsRect.Right + 10;
   LabelTargetSort.Left := LabelFillTargetLanguages.BoundsRect.Right + 10;
 end;
+
+initialization
+
+  {$I translator.lrs}
 
 end.
