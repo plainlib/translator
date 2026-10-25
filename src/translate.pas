@@ -1470,6 +1470,13 @@ begin
 end;
 
 function TCustomTranslate.SetParameters(Data: string; IncludeSet: boolean = True): string;
+const
+  // Unique markers for the text placeholders. User text is inserted at
+  // these markers in a single pass so its own content is never treated
+  // as a template and never expanded a second time
+  MARKER_TEXT = #1'TXT_PLAIN'#1;
+  MARKER_TEXT_LOWER = #1'TXT_LOWER'#1;
+  MARKER_TEXT_UPPER = #1'TXT_UPPER'#1;
 var
   i: integer;
   ParamName: string;
@@ -1494,9 +1501,14 @@ begin
   if not Assigned(FParameterValues) then
     Exit;
 
+  // Expand every parameter except text. Recursion here is fine because
+  // these values are templates themselves (e.g. a custom parameter that
+  // references {source}); the text value is not a template
   for i := 0 to FParameterValues.Count - 1 do
   begin
     ParamName := FParameterValues.Names[i];
+    if SameText(ParamName, 'text') then Continue;
+
     ParamValue := FParameterValues.ValueFromIndex[i].RemoveTrailingLineBreak;
 
     if IncludeSet and (Pos('{', ParamValue) > 0) and (Pos('}', ParamValue) > 0) then
@@ -1510,6 +1522,21 @@ begin
 
     // UPPERCASE {^param}
     Result := StringReplace(Result, '{^' + ParamName + '}', Encode(ParamName, UTF8UpperCase(ParamValue)), [rfReplaceAll]);
+  end;
+
+  // Text goes last: replace its placeholders in the template with markers
+  // first, then insert the encoded text at the markers. The single-pass
+  // StringReplace below copies the text literally and never rescans it
+  if FParameterValues.IndexOfName('text') >= 0 then
+  begin
+    Result := StringReplace(Result, '{!text}', MARKER_TEXT_LOWER, [rfReplaceAll]);
+    Result := StringReplace(Result, '{^text}', MARKER_TEXT_UPPER, [rfReplaceAll]);
+    Result := StringReplace(Result, '{text}', MARKER_TEXT, [rfReplaceAll]);
+
+    ParamValue := FParameterValues.Values['text'].RemoveTrailingLineBreak;
+    Result := StringReplace(Result, MARKER_TEXT, Encode('text', ParamValue), [rfReplaceAll]);
+    Result := StringReplace(Result, MARKER_TEXT_LOWER, Encode('text', UTF8LowerCase(ParamValue)), [rfReplaceAll]);
+    Result := StringReplace(Result, MARKER_TEXT_UPPER, Encode('text', UTF8UpperCase(ParamValue)), [rfReplaceAll]);
   end;
 end;
 
