@@ -231,6 +231,8 @@ type
     FResultValue: string;
     FResultOk: boolean;
     FUserParameters: TStringList;
+    // True only when the list was created by the component itself
+    FUserParametersOwned: boolean;
     FOnGetParameter: TGetParameterEvent;
 
     // Thread management
@@ -267,6 +269,9 @@ type
 
     // Config file handling
     procedure SetConfigFile(const Value: string);
+
+    // Adopts a host list by reference, keeping ownership on the host side
+    procedure SetUserParameters(Value: TStringList);
 
     // Nested persistent object setters (required for LFM streaming)
     procedure SetProxy(Value: TTranslateProxy);
@@ -395,7 +400,7 @@ type
     property InitParameters: TStringList read FInitParameters write FInitParameters;
     property InitLiveTime: integer read FInitLiveTime write FInitLiveTime;
 
-    property UserParameters: TStringList read FUserParameters write FUserParameters;
+    property UserParameters: TStringList read FUserParameters write SetUserParameters;
     property OnGetParameter: TGetParameterEvent read FOnGetParameter write FOnGetParameter;
 
     // Thread state
@@ -757,6 +762,16 @@ begin
   if (Value <> string.Empty) and FileExists(Value) then
     LoadIniSettings(Value);
   Changed;
+end;
+
+procedure TCustomTranslate.SetUserParameters(Value: TStringList);
+begin
+  if FUserParameters = Value then Exit;
+  // Release our default list, but never a list owned by the host
+  if FUserParametersOwned then
+    FreeAndNil(FUserParameters);
+  FUserParameters := Value;
+  FUserParametersOwned := False;
 end;
 
 procedure TCustomTranslate.Notification(AComponent: TComponent; Operation: TOperation);
@@ -1125,6 +1140,10 @@ begin
   FParameterEncode := TStringList.Create;
   FParameterEncode.TrailingLineBreak := False;
   FParameterEncode.SkipLastLineBreak := True;
+  FUserParameters := TStringList.Create;
+  FUserParameters.TrailingLineBreak := False;
+  FUserParameters.SkipLastLineBreak := True;
+  FUserParametersOwned := True;
   FInitLiveTime := 60;
   FAllowProxy := True;
 
@@ -1224,6 +1243,11 @@ begin
   FInitParameters.Free;
   FParameterValues.Free;
   FParameterEncode.Free;
+  // Free the list only when we created it, the host owns the one it assigns
+  if FUserParametersOwned then
+    FreeAndNil(FUserParameters)
+  else
+    FUserParameters := nil;
   FreeAndNil(FProxy);
   FreeAndNil(FTimeout);
   FreeAndNil(FDetectEngine);
