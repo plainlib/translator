@@ -98,13 +98,13 @@ type
     LabelAccept: TLabel;
     LabelInitHeaders: TLabel;
     LabelInitParameters: TLabel;
-    LabelInitParameters1: TLabel;
-    LabelInitParameters4: TLabel;
+    LabelInitLiveTime: TLabel;
+    LabelCustomParameters: TLabel;
     LabelInitParemeters: TLabel;
     LabelLanguages1: TLabel;
     LabelLanguagesTarget: TLabel;
     LabelFillLanguages: TLabel;
-    LabelInitLiveTime: TLabel;
+    LabelInitLiveTime2: TLabel;
     LabelMethod: TLabel;
     LabelLanguages: TLabel;
     LabelServiceDescription: TLabel;
@@ -330,6 +330,10 @@ uses Languages, Network, StringHelper, Base64Utils, Localize, DarkUtils, Control
 
   {$R *.lfm}
 
+const
+  clInfo = TColor($C0F5FF);
+  clInfoDark = TColor($496269);
+
   { TformConfigTrayslate }
 
 constructor TformConfigTrayslate.Create(AOwner: TComponent; AManager: TCustomConfigManager; ATranslate: TTranslate);
@@ -348,8 +352,19 @@ begin
 
   Pages.PageIndex := 0;
   BtnClose.Cancel := True;
-  LabelFillLanguages.Font.Color := TDarkUtils.ThemeColor(clBlue, clSkyBlue);
   ColorServiceColorRecent.AddCustomColors;
+
+  LabelFillLanguages.Font.Color := TDarkUtils.ThemeColor(clBlue, clSkyBlue);
+  LabelHeaders.Color := TDarkUtils.ThemeColor(clInfo, clInfoDark);
+  LabelParemeters.Color := LabelHeaders.Color;
+  LabelInitParemeters.Color := LabelHeaders.Color;
+  LabelInitHeaders.Color := LabelHeaders.Color;
+  LabelInitParameters.Color := LabelHeaders.Color;
+  LabelInitLiveTime.Color := LabelHeaders.Color;
+  LabelCustomParameters.Color := LabelHeaders.Color;
+  LabelLanguages1.Color := LabelHeaders.Color;
+  LabelLanguages.Color := LabelHeaders.Color;
+  LabelLanguagesTarget.Color := LabelHeaders.Color;
 
   ReloadConfigs.ImageIndex := TDarkUtils.ThemeValue(2, 3);
 
@@ -573,7 +588,8 @@ procedure TformConfigTrayslate.BtnScriptHelpClick(Sender: TObject);
 begin
   if not Assigned(FHint) then
     FHint := TOneShotTooltip.Create(Self);
-  FHint.ShowHintText(rscripthint, BtnScriptHelp.ClientOrigin.X, BtnScriptHelp.ClientOrigin.Y + BtnScriptHelp.Height, 500, 300);
+  FHint.ShowHintText(rscripthint, BtnScriptHelp.ClientOrigin.X, BtnScriptHelp.ClientOrigin.Y + BtnScriptHelp.Height,
+    500, 300, 0, TDarkUtils.ThemeColor(clInfo, clInfoDark));
 end;
 
 procedure TformConfigTrayslate.BtnScriptResponseHelpClick(Sender: TObject);
@@ -581,14 +597,15 @@ begin
   if not Assigned(FHint) then
     FHint := TOneShotTooltip.Create(Self);
   FHint.ShowHintText(rscriptresponsehint, BtnScriptResponseHelp.ClientOrigin.X,
-    BtnScriptResponseHelp.ClientOrigin.Y + BtnScriptResponseHelp.Height, 500);
+    BtnScriptResponseHelp.ClientOrigin.Y + BtnScriptResponseHelp.Height, 500, 0, 0, TDarkUtils.ThemeColor(clInfo, clInfoDark));
 end;
 
 procedure TformConfigTrayslate.BtnResponseHelpClick(Sender: TObject);
 begin
   if not Assigned(FHint) then
     FHint := TOneShotTooltip.Create(Self);
-  FHint.ShowHintText(rresponsehint, BtnResponseHelp.ClientOrigin.X, BtnResponseHelp.ClientOrigin.Y + BtnResponseHelp.Height, 500);
+  FHint.ShowHintText(rresponsehint, BtnResponseHelp.ClientOrigin.X, BtnResponseHelp.ClientOrigin.Y +
+    BtnResponseHelp.Height, 500, 0, 0, TDarkUtils.ThemeColor(clInfo, clInfoDark));
 end;
 
 procedure TformConfigTrayslate.ReloadConfigsExecute(Sender: TObject);

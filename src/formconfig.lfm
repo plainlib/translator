@@ -91,11 +91,11 @@ object formConfigTrayslate: TformConfigTrayslate
     Height = 559
     Top = 41
     Width = 590
-    ActivePage = PageRequest
+    ActivePage = PageService
     Align = alClient
     BorderSpacing.Bottom = 35
     BorderSpacing.Around = 5
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 1
     object PageService: TTabSheet
       Caption = 'Service'
@@ -435,15 +435,6 @@ object formConfigTrayslate: TformConfigTrayslate
             OnChange = ValueChange
             OnKeyDown = MemoKeyDown
           end
-          object EditAccept: TEdit
-            Left = 120
-            Height = 23
-            Top = 384
-            Width = 406
-            Anchors = [akTop, akLeft, akRight]
-            TabOrder = 6
-            OnChange = ValueChange
-          end
           object LabelAccept: TLabel
             Left = 8
             Height = 32
@@ -453,6 +444,15 @@ object formConfigTrayslate: TformConfigTrayslate
             AutoSize = False
             Caption = 'Accept'
             WordWrap = True
+          end
+          object EditAccept: TEdit
+            Left = 120
+            Height = 23
+            Top = 384
+            Width = 406
+            Anchors = [akTop, akLeft, akRight]
+            TabOrder = 6
+            OnChange = ValueChange
           end
           object CheckEncodeText: TCheckBox
             Left = 123
@@ -761,7 +761,7 @@ object formConfigTrayslate: TformConfigTrayslate
             TabOrder = 4
             OnChange = ValueChange
           end
-          object LabelInitLiveTime: TLabel
+          object LabelInitLiveTime2: TLabel
             Left = 0
             Height = 32
             Top = 432
@@ -771,7 +771,7 @@ object formConfigTrayslate: TformConfigTrayslate
             Caption = 'Live time'
             WordWrap = True
           end
-          object LabelInitParameters1: TLabel
+          object LabelInitLiveTime: TLabel
             Left = 8
             Height = 15
             Top = 408
@@ -922,7 +922,7 @@ object formConfigTrayslate: TformConfigTrayslate
           OnChange = ValueChange
           OnKeyDown = MemoKeyDown
         end
-        object LabelInitParameters4: TLabel
+        object LabelCustomParameters: TLabel
           Left = 5
           Height = 30
           Top = 5
