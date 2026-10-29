@@ -44,6 +44,16 @@ type
   // Host signals that the editor is busy with a config load or save
   TConfigBusyEvent = procedure(Sender: TObject; ABusy: boolean) of object;
 
+  // TStringList that notifies about any content change
+  TProxiedConfigsList = class(TStringList)
+  private
+    FOnChange: TNotifyEvent;
+  protected
+    procedure Changed; override;
+  public
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
   { Nested config editor window position and size }
   TConfigFormPosition = class(TPersistent)
   private
@@ -82,6 +92,7 @@ type
     FConfigColors: TStringList;
     FConfigImages: TStringList;
     FConfigVisible: TStringList;
+    FProxiedConfigs: TProxiedConfigsList;
     FSelectedConfig: string;
     FUpdateLock: boolean;
     FLoaded: boolean;
@@ -115,6 +126,7 @@ type
     procedure SetAutoApplyTranslate(Value: boolean);
     procedure MenuItemClick(Sender: TObject);
     procedure DeferredRefresh;
+    procedure ProxiedConfigsChanged(Sender: TObject);
     function DirectoriesStored: boolean;
     function GetConfigFiles: TStrings;
     function GetConfigTitles: TStrings;
@@ -193,6 +205,9 @@ type
     // Silent setter: only updates state and Checked, no OnSelect
     procedure SetSelectedConfigSilent(const Value: string);
 
+    // Recomputes the Translate proxy gate from ProxiedConfigs and current state
+    procedure ApplyProxyGate;
+
     // Writable properties, declared in full; redeclared in TConfigManager
     property TargetMenu: TMenuItem read FTargetMenu write SetTargetMenu;
     property Directories: TStrings read FDirectories write SetDirectories stored DirectoriesStored;
@@ -237,6 +252,8 @@ type
     property SelectedIndex: integer read GetSelectedIndex;
     // Icon index of the active config in Images
     property SelectedImageIndex: integer read GetSelectedImageIndex;
+    // Paths of config files allowed to use the network proxy
+    property ProxiedConfigs: TProxiedConfigsList read FProxiedConfigs;
   end;
 
   // Manages a set of translator INI config files.
@@ -265,6 +282,8 @@ type
     property OnBusy;
     // Editor form state, expandable group in the Object Inspector
     property FormPosition;
+    // Paths of config files allowed to use the network proxy
+    property ProxiedConfigs;
     // Fires before selection; set AAllow to False to cancel the switch
     property OnBeforeSelect;
     // Fires after the selection has been committed
@@ -290,12 +309,20 @@ type
 implementation
 
 uses
-  Base64Utils, OSUtils, OneShotTimer, FormConfig;
+  Base64Utils, StringsHelper, OSUtils, OneShotTimer, FormConfig;
 
 const
   ICON_SIZE = 16;
 
-  { TConfigFormPosition  }
+  { TProxiedConfigsList }
+
+procedure TProxiedConfigsList.Changed;
+begin
+  inherited Changed;
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+{ TConfigFormPosition  }
 
 procedure TConfigFormPosition.Assign(Source: TPersistent);
 begin
@@ -323,6 +350,8 @@ begin
   FConfigColors := TStringList.Create;
   FConfigImages := TStringList.Create;
   FConfigVisible := TStringList.Create;
+  FProxiedConfigs := TProxiedConfigsList.Create;
+  FProxiedConfigs.OnChange := @ProxiedConfigsChanged;
   FFormPosition := TConfigFormPosition.Create;
   FImages := TImageList.Create(Self);
   FImages.Width := ICON_SIZE;
@@ -341,6 +370,7 @@ begin
   // Cancel a pending deferred refresh before tearing down
   ClearTimeout(FRefreshTimer);
   FreeAndNil(FFormPosition);
+  FreeAndNil(FProxiedConfigs);
   FreeAndNil(FConfigVisible);
   FreeAndNil(FConfigImages);
   FreeAndNil(FConfigColors);
@@ -545,6 +575,33 @@ begin
   UpdateCheckState;
 end;
 
+procedure TCustomConfigManager.ProxiedConfigsChanged(Sender: TObject);
+begin
+  ApplyProxyGate;
+end;
+
+procedure TCustomConfigManager.ApplyProxyGate;
+var
+  DetectProxyAllowed: boolean = True;
+begin
+  if not Assigned(FTranslate) then Exit;
+
+  // Translate proxy gate
+  if FProxiedConfigs.Count > 0 then
+    FTranslate.AllowProxy := FProxiedConfigs.Contains(FSelectedConfig) and FTranslate.ServiceProxy
+  else
+    FTranslate.AllowProxy := FTranslate.ServiceProxy;
+
+  // Detect proxy gate intent
+  if FProxiedConfigs.Count > 0 then
+    DetectProxyAllowed := FProxiedConfigs.Contains(FTranslate.Detect.ConfigFile);
+  FTranslate.Detect.AllowProxy := DetectProxyAllowed;
+
+  // Existing detect engine picks up the new gate immediately
+  if Assigned(FTranslate.DetectEngine) then
+    FTranslate.DetectEngine.AllowProxy := DetectProxyAllowed and FTranslate.DetectEngine.ServiceProxy;
+end;
+
 procedure TCustomConfigManager.SetAutoRefresh(Value: boolean);
 begin
   if FAutoRefresh = Value then Exit;
@@ -606,6 +663,8 @@ begin
 
   if Assigned(FOnSelect) then
     FOnSelect(Self, AIndex, AConfigFile);
+
+  ApplyProxyGate;
 end;
 
 procedure TCustomConfigManager.SetConfig(const Value: string);
@@ -633,6 +692,8 @@ begin
 
   if (Idx >= 0) and Assigned(FOnSelect) then
     FOnSelect(Self, Idx, Value);
+
+  ApplyProxyGate;
 end;
 
 procedure TCustomConfigManager.UpdateCheckState;
