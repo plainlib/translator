@@ -234,16 +234,40 @@ end;
 class function TLanguages.GetLanguageCodePairList(AValueType: TLangType; ASorted: boolean = False): TStringList;
 var
   Langs: TValueArray;
-  i: integer;
+  i, j: integer;
+  Specials, Others: TStringList;
 begin
   Result := TStringList.Create;
   Result.TrailingLineBreak := False;
   try
     Langs := GetValues(AValueType);
-    for i := 0 to High(Langs) do
-      Result.Add(Langs[i].Code + '=' + Langs[i].Code);
     if ASorted then
-      Result.Sort;
+    begin
+      Specials := TStringList.Create;
+      Others := TStringList.Create;
+      try
+        // Special codes go first in their declared order
+        for j := Low(SpecialCodes) to High(SpecialCodes) do
+          for i := 0 to High(Langs) do
+            if Langs[i].Code = SpecialCodes[j] then
+              Specials.Add(Langs[i].Code + '=' + Langs[i].Code);
+        // Regular values follow, sorted alphabetically
+        for i := 0 to High(Langs) do
+          if not IsSpecialCode(Langs[i].Code) then
+            Others.Add(Langs[i].Code + '=' + Langs[i].Code);
+        Others.Sort;
+        Result.Assign(Specials);
+        Result.AddStrings(Others);
+      finally
+        Specials.Free;
+        Others.Free;
+      end;
+    end
+    else
+    begin
+      for i := 0 to High(Langs) do
+        Result.Add(Langs[i].Code + '=' + Langs[i].Code);
+    end;
   except
     Result.Free;
     raise;
@@ -306,6 +330,13 @@ begin
           else
             DisplayString := Key;
 
+          if not ASorted then
+          begin
+            // Preserve source order so positional lookup against ACodeMap stays valid
+            Result.Add(DisplayString);
+            Continue;
+          end;
+
           IsSpecial := False;
           for j := Low(SpecialCodes) to High(SpecialCodes) do
             if SameText(Key, SpecialCodes[j]) then
@@ -324,10 +355,9 @@ begin
         begin
           SpecialsList.Sort;
           OthersList.Sort;
+          Result.Assign(SpecialsList);
+          Result.AddStrings(OthersList);
         end;
-
-        Result.Assign(SpecialsList);
-        Result.AddStrings(OthersList);
       finally
         SpecialsList.Free;
         OthersList.Free;
