@@ -584,16 +584,14 @@ begin
   if EditorHasChanges then
   begin
     case EditorForm.AskFileChanged of
-      mrYes:
-      begin
-        // Keep my changes - skip reload, advance the stamp to stop asking
-        AcceptSelectedConfigChange;
-        Exit;
-      end;
       mrNo:
         ; // Reload from disk - proceed with the reload below
       else
-        Exit; // Cancel - leave the stamp unchanged so we ask again later
+      begin
+        // Keep my changes or Cancel - skip reload, advance the stamp to stop asking
+        AcceptSelectedConfigChange;
+        Exit;
+      end;
     end;
   end;
 
