@@ -15,6 +15,15 @@ object formConfigTrayslate: TformConfigTrayslate
   OnDestroy = FormDestroy
   OnResize = FormResize
   OnShow = FormShow
+  object BtnOpenFile: TButton
+    Left = 5
+    Height = 25
+    Top = 607
+    Width = 75
+    Action = AEditFile
+    Anchors = [akLeft, akBottom]
+    TabOrder = 4
+  end
   object PanelTop: TPanel
     Left = 0
     Height = 36
@@ -2588,6 +2597,10 @@ object formConfigTrayslate: TformConfigTrayslate
     object ASaveIconAs: TAction
       Caption = 'Save Icon As...'
       OnExecute = ASaveIconAsExecute
+    end
+    object AEditFile: TAction
+      Caption = 'Edit File...'
+      OnExecute = AEditFileExecute
     end
   end
   object ColorDialog: TColorDialog

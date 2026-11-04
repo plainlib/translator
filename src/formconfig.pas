@@ -45,7 +45,9 @@ type
 
   TformConfigTrayslate = class(TForm)
     AClearIcon: TAction;
+    AEditFile: TAction;
     ASaveIconAs: TAction;
+    BtnOpenFile: TButton;
     ImageButtons: TImageList;
     LabelFillTargetLanguages: TLabel;
     LabelSort: TLabel;
@@ -166,6 +168,7 @@ type
     SynScriptParameters: TSynEdit;
     SynScriptResponse: TSynEdit;
     procedure AClearIconExecute(Sender: TObject);
+    procedure AEditFileExecute(Sender: TObject);
     procedure ASaveIconAsExecute(Sender: TObject);
     procedure GroupLanguagesResize(Sender: TObject);
     procedure GroupLanguagesTargetResize(Sender: TObject);
@@ -218,6 +221,10 @@ type
     constructor Create(AOwner: TComponent; AManager: TCustomConfigManager; ATranslate: TTranslate); reintroduce; overload;
 
     function TestChanges(AButtons: TMsgDlgButtons = [mbYes, mbNo, mbCancel]): boolean;
+    function HasUnsavedChanges: boolean;
+    // Prompts when the config file changed on disk while the editor has unsaved edits.
+    // mrYes = keep current edits, mrNo = reload from disk, mrCancel = do nothing
+    function AskFileChanged: TModalResult;
     procedure CreateConfig(ACopy: boolean = False);
     procedure DeleteConfig;
     procedure UpdateConfigList(UpdateItemIndex: boolean = True);
@@ -237,6 +244,12 @@ resourcestring
   rcaption = 'Config Editor';
   rdeleteconfigcaption = 'Delete config';
   rdeleteconfig = 'Are you sure you want to delete config';
+  rfilechangedtitle = 'File changed on disk';
+  rfilechangedmsg = 'The file "%s" has been modified by another application since it was opened.';
+  rfilechangedmsgactivate = 'You have unsaved changes. Keep them or reload from disk?';
+  rfilechangedkeepchanges = 'Keep my changes';
+  rfilechangedreloaddisk = 'Reload from disk';
+  rfilechangedcancel = 'Cancel';
   rvaluetype1 = 'None';
   rvaluetype2 = 'Language';
   rvaluetype3 = 'Currency All';
@@ -326,7 +339,7 @@ resourcestring
 
 implementation
 
-uses Languages, Network, StringHelper, Base64Utils, Localize, DarkUtils, ControlsHelper;
+uses Languages, Network, StringHelper, Base64Utils, Localize, DarkUtils, ControlsHelper, OSUtils;
 
   {$R *.lfm}
 
@@ -635,6 +648,11 @@ begin
   ValueChange(Self);
 end;
 
+procedure TformConfigTrayslate.AEditFileExecute(Sender: TObject);
+begin
+  TOS.OpenFile(ComboConfig.Text);
+end;
+
 procedure TformConfigTrayslate.ASaveIconAsExecute(Sender: TObject);
 var
   Bmp: TBitmap;
@@ -877,6 +895,23 @@ begin
     else
       Result := False; // safety fallback
   end;
+end;
+
+function TformConfigTrayslate.HasUnsavedChanges: boolean;
+begin
+  // aSave is enabled only when the editor has unsaved edits
+  Result := Assigned(aSave) and aSave.Enabled;
+end;
+
+function TformConfigTrayslate.AskFileChanged: TModalResult;
+var
+  Msg: string;
+begin
+  Msg := Format(rfilechangedmsg, [ExtractFileName(ComboConfig.Text)]) + #13#10#13#10 + rfilechangedmsgactivate;
+
+  // QuestionDlg accepts only pairs of ModalResult and Caption
+  Result := QuestionDlg(rfilechangedtitle, Msg, mtConfirmation, [mrYes, rfilechangedkeepchanges, mrNo,
+    rfilechangedreloaddisk, mrCancel, rfilechangedcancel], 0);
 end;
 
 procedure TformConfigTrayslate.CreateConfig(ACopy: boolean = False);

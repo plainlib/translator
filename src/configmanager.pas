@@ -563,12 +563,39 @@ end;
 procedure TCustomConfigManager.AppActivate(Sender: TObject);
 var
   Handled: boolean;
+  EditorForm: TformConfigTrayslate;
+  EditorHasChanges: boolean;
 begin
   if csDesigning in ComponentState then Exit;
   if csDestroying in ComponentState then Exit;
-  // Do not reload under the editor, its unsaved edits must survive
-  if ConfigEditorVisible then Exit;
   if not SelectedConfigChanged then Exit;
+
+  EditorForm := nil;
+  EditorHasChanges := False;
+  if ConfigEditorVisible then
+  begin
+    EditorForm := TformConfigTrayslate(FConfigForm);
+    // Only the config shown in the editor is at risk of losing unsaved edits
+    if SameText(EditorForm.ComboConfig.Text, FSelectedConfig) then
+      EditorHasChanges := EditorForm.HasUnsavedChanges;
+  end;
+
+  // Ask the editor what to do when there are unsaved edits over a changed file
+  if EditorHasChanges then
+  begin
+    case EditorForm.AskFileChanged of
+      mrYes:
+      begin
+        // Keep my changes - skip reload, advance the stamp to stop asking
+        AcceptSelectedConfigChange;
+        Exit;
+      end;
+      mrNo:
+        ; // Reload from disk - proceed with the reload below
+      else
+        Exit; // Cancel - leave the stamp unchanged so we ask again later
+    end;
+  end;
 
   // Reuse the reload event so the host applies the new INI content
   Handled := False;
@@ -579,9 +606,14 @@ begin
     Handled := True;
   end;
 
-  // Advance the stamp only when the change was actually applied
   if Handled then
+  begin
+    // Advance the stamp only when the change was actually applied
     AcceptSelectedConfigChange;
+    // Refresh the editor view to match the reloaded config
+    if Assigned(EditorForm) and SameText(EditorForm.ComboConfig.Text, FSelectedConfig) then
+      EditorForm.UpdateConfig;
+  end;
 end;
 
 procedure TCustomConfigManager.SetTargetMenu(Value: TMenuItem);
