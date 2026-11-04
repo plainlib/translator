@@ -24,6 +24,7 @@ uses
   IniFiles,
   fpjson,
   jsonparser,
+  TranslateHistory,
   ScriptRunner,
   Network,
   {$PUSH}
@@ -62,8 +63,36 @@ type
   TLanguageDetectEvent = procedure(Sender: TObject; const AResult: TLanguageDetectResult) of object;
   TGetParameterEvent = procedure(const AParamName: string; var AValue: string; var AHandled: boolean) of object;
   TTranslateNotify = procedure(Sender: TObject; const AText: string) of object;
+  THistoryItemEvent = procedure(Sender: TObject; AItem: THistoryItem) of object;
 
   TTranslateThread = class;  // defined below the base class
+
+  { History options for the Object Inspector }
+  THistorySettings = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FAppName: string;
+    FFileName: string;
+    FMaxItems: integer;
+    FOnChange: TNotifyEvent;
+    procedure Changed;
+    procedure SetEnabled(Value: boolean);
+    procedure SetAppName(const Value: string);
+    procedure SetFileName(const Value: string);
+    procedure SetMaxItems(Value: integer);
+  public
+    procedure Assign(Source: TPersistent); override;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  published
+    // Enables storing translations in the history file
+    property Enabled: boolean read FEnabled write SetEnabled default False;
+    // App name used to resolve the default history file location
+    property AppName: string read FAppName write SetAppName;
+    // Explicit history file path, overrides AppName when set
+    property FileName: string read FFileName write SetFileName;
+    // Maximum number of entries kept, oldest are dropped first
+    property MaxItems: integer read FMaxItems write SetMaxItems default 100;
+  end;
 
 type
   { Proxy options for the Object Inspector }
@@ -241,6 +270,16 @@ type
     FCancelled: boolean;
     FRawTranslate: string;
 
+    // History support
+    FHistory: THistorySettings;
+    FHistoryManager: THistoryManager;
+    FHistoryFileLoaded: string;
+    FHistoryNavigating: boolean;
+    // True when the screen is empty after New and positioned past the last item
+    FPastLast: boolean;
+    FOnHistoryItem: THistoryItemEvent;
+    FOnHistoryChanged: TNotifyEvent;
+
     // Built-in language detection profiles state
     FProfilesLoaded: boolean;
 
@@ -266,6 +305,14 @@ type
     procedure SyncGetParameterValue;
     procedure ThreadTerminated(Sender: TObject);
     procedure ThreadTerminatedAsync(Sender: TObject);
+
+    // History support
+    procedure SetHistory(Value: THistorySettings);
+    procedure HistoryChanged(Sender: TObject);
+    procedure EnsureHistoryManager;
+    procedure AddToHistoryItemEx(const ASource, ATarget, ASrcLang, ATrgLang, AConfig: string);
+    procedure AddToHistoryItem(const ASource, ATarget: string);
+    procedure FireHistoryChanged;
 
     // Config file handling
     procedure SetConfigFile(const Value: string);
@@ -320,8 +367,8 @@ type
     function CleanTranslatedText(const OriginalText, TranslatedText: string): string;
     function Translate: string;
     // Thread management
-    function TranslateSync(const AText: string; ADetectLanguage: boolean = True): string;
-    procedure TranslateAsync(const AText: string; ADetectLanguage: boolean = True);
+    function TranslateSync(const AText: string; ADetectLanguage: boolean = True; AAddToHistory: boolean = True): string;
+    procedure TranslateAsync(const AText: string; ADetectLanguage: boolean = True; AAddToHistory: boolean = True);
     function IsTranslating: boolean;
     procedure CancelTranslate;
 
@@ -346,6 +393,11 @@ type
     property Detect: TDetectSettings read FDetect write SetDetect;
     property DetectEngine: TCustomTranslate read FDetectEngine;
     property OnLanguageDetected: TLanguageDetectEvent read FOnLanguageDetected write FOnLanguageDetected;
+
+    // History settings and navigation events
+    property History: THistorySettings read FHistory write SetHistory;
+    property OnHistoryItem: THistoryItemEvent read FOnHistoryItem write FOnHistoryItem;
+    property OnHistoryChanged: TNotifyEvent read FOnHistoryChanged write FOnHistoryChanged;
     // True when built-in detection profiles are loaded in memory
     property ProfilesLoaded: boolean read FProfilesLoaded;
 
@@ -403,6 +455,24 @@ type
     property UserParameters: TStringList read FUserParameters write SetUserParameters;
     property OnGetParameter: TGetParameterEvent read FOnGetParameter write FOnGetParameter;
 
+    // History navigation; events are fired from the main thread
+    function HistoryPrev: boolean;
+    function HistoryNext: boolean;
+    function HistoryFirst: boolean;
+    function HistoryLast: boolean;
+    function HistoryDelete: boolean;
+    // Adds an explicit entry; empty language/config fall back to current values.
+    // AMarkEmpty puts the position past the last item so the first Back shows
+    // the committed entry without moving (host uses it from New Document)
+    function HistoryAdd(const ASourceText, ATargetText: string; const ASourceLang: string = '';
+      const ATargetLang: string = ''; const AConfigFile: string = ''; const AMarkEmpty: boolean = False): boolean;
+    // Marks the screen as empty (e.g. after New or on restart with empty memos)
+    procedure HistoryMarkEmpty;
+    function HistoryCanPrev: boolean;
+    function HistoryCanNext: boolean;
+    function HistoryCount: integer;
+    procedure HistoryClear;
+
     // Thread state
     property RawTranslate: string read FRawTranslate;
     property TranslateThread: TTranslateThread read FTranslateThread;
@@ -438,6 +508,11 @@ type
     // Language detection settings
     property Detect;
 
+    // History storage and navigation events
+    property History;
+    property OnHistoryItem;
+    property OnHistoryChanged;
+
     // Proxy settings, expandable group in the Object Inspector
     property Proxy;
 
@@ -463,7 +538,6 @@ type
     property OnChange;
   end;
 
-  { TTranslateThread }
   TTranslateThread = class(TThread)
   private
     FTrans: TCustomTranslate;
@@ -473,6 +547,10 @@ type
     FDetectLanguage: boolean;
     FExceptionMessage: string;
     FCancelled: boolean;
+    FAddToHistory: boolean;
+    FHistorySourceLang: string;
+    FHistoryTargetLang: string;
+    FHistoryConfigFile: string;
   protected
     procedure Execute; override;
     function GetIsTerminated: boolean;
@@ -486,6 +564,13 @@ type
     property IsCancelled: boolean read GetIsCancelled;
     property ExceptionMessage: string read FExceptionMessage;
     property ResultText: string read GetResultText;
+    property SourceText: string read FSourceText;
+    // When True, ThreadTerminatedAsync records the result in history
+    property AddToHistory: boolean read FAddToHistory write FAddToHistory;
+    // History context captured inside Execute after detection finalizes
+    property HistorySourceLang: string read FHistorySourceLang;
+    property HistoryTargetLang: string read FHistoryTargetLang;
+    property HistoryConfigFile: string read FHistoryConfigFile;
   end;
 
 const
@@ -658,6 +743,8 @@ begin
   Changed;
 end;
 
+{%EndRegion}
+
 { TTranslateTimeout }
 
 procedure TTranslateTimeout.Changed;
@@ -693,7 +780,59 @@ end;
 
 {%EndRegion}
 
-{%Region -fold TCustomTranslate }
+{%Region -fold THistorySettings }
+
+procedure THistorySettings.Changed;
+begin
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
+
+procedure THistorySettings.SetEnabled(Value: boolean);
+begin
+  if FEnabled = Value then Exit;
+  FEnabled := Value;
+  Changed;
+end;
+
+procedure THistorySettings.SetAppName(const Value: string);
+begin
+  if FAppName = Value then Exit;
+  FAppName := Value;
+  Changed;
+end;
+
+procedure THistorySettings.SetFileName(const Value: string);
+begin
+  if FFileName = Value then Exit;
+  FFileName := Value;
+  Changed;
+end;
+
+procedure THistorySettings.SetMaxItems(Value: integer);
+begin
+  if FMaxItems = Value then Exit;
+  FMaxItems := Value;
+  Changed;
+end;
+
+procedure THistorySettings.Assign(Source: TPersistent);
+begin
+  if Source is THistorySettings then
+  begin
+    FEnabled := THistorySettings(Source).FEnabled;
+    FAppName := THistorySettings(Source).FAppName;
+    FFileName := THistorySettings(Source).FFileName;
+    FMaxItems := THistorySettings(Source).FMaxItems;
+    Changed;
+  end
+  else
+    inherited Assign(Source);
+end;
+
+{%EndRegion}
+
+{%Region -fold TCustomTranslate %}
 
 { Private }
 
@@ -725,11 +864,15 @@ var
   Idx: integer;
   Text: string;
   WasCancelled: boolean;
+  Th: TTranslateThread = nil;
 begin
   // Snapshot before firing user events, so a new async call from a handler
   // does not see a half-updated state
   Text := FRawTranslate;
   WasCancelled := FCancelled;
+
+  if Sender is TTranslateThread then
+    Th := TTranslateThread(Sender);
 
   // Clear the active thread first so user handlers may start a new async call
   if Sender = FTranslateThread then
@@ -745,6 +888,10 @@ begin
   try
     if not WasCancelled and (Text.Trim <> string.Empty) then
     begin
+      // Read history fields captured by the thread itself, so a concurrent
+      // async start cannot overwrite the language and source context
+      if (Th <> nil) and Th.AddToHistory and not Th.IsCancelled then
+        AddToHistoryItemEx(Th.SourceText, Text, Th.HistorySourceLang, Th.HistoryTargetLang, Th.HistoryConfigFile);
       if Assigned(FOnTranslateComplete) then
         FOnTranslateComplete(Self, Text);
     end;
@@ -1066,6 +1213,86 @@ begin
   Result := ADetectLanguage and FDetect.Enabled and not FCancelled;
 end;
 
+procedure TCustomTranslate.SetHistory(Value: THistorySettings);
+begin
+  FHistory.Assign(Value);
+end;
+
+procedure TCustomTranslate.HistoryChanged(Sender: TObject);
+var
+  ResolvedName: string;
+begin
+  // Detect whether the effective file name has changed
+  ResolvedName := FHistory.FileName;
+  if (ResolvedName = '') and (FHistory.AppName <> '') then
+    ResolvedName := TOS.GetSettingsDirectory(FHistory.AppName, 'history.bin');
+
+  if (not FHistory.Enabled) or (ResolvedName <> FHistoryFileLoaded) then
+  begin
+    FreeAndNil(FHistoryManager);
+    FHistoryFileLoaded := string.Empty;
+  end;
+
+  // Notify the host so it can refresh button states
+  FireHistoryChanged;
+end;
+
+procedure TCustomTranslate.EnsureHistoryManager;
+var
+  ResolvedName: string;
+begin
+  if not FHistory.Enabled then Exit;
+
+  ResolvedName := FHistory.FileName;
+  if ResolvedName = '' then
+  begin
+    if FHistory.AppName <> '' then
+      ResolvedName := TOS.GetSettingsDirectory(FHistory.AppName, 'history.bin')
+    else
+      Exit;
+  end;
+
+  if Assigned(FHistoryManager) and (FHistoryFileLoaded = ResolvedName) then Exit;
+
+  FreeAndNil(FHistoryManager);
+  try
+    FHistoryManager := THistoryManager.Create(ResolvedName, FHistory.MaxItems);
+    FHistoryManager.Load;
+    FHistoryFileLoaded := ResolvedName;
+  except
+    FreeAndNil(FHistoryManager);
+    FHistoryFileLoaded := string.Empty;
+  end;
+end;
+
+procedure TCustomTranslate.AddToHistoryItemEx(const ASource, ATarget, ASrcLang, ATrgLang, AConfig: string);
+begin
+  if not FHistory.Enabled then Exit;
+  // Suppress while the host restores UI during navigation
+  if FHistoryNavigating then Exit;
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+
+  if FHistoryManager.AddText(ASource, ATarget, ASrcLang, ATrgLang, AConfig) <> nil then
+  begin
+    // Translation just finished and its entry is current; not past-last
+    FPastLast := False;
+    FireHistoryChanged;
+  end;
+end;
+
+procedure TCustomTranslate.AddToHistoryItem(const ASource, ATarget: string);
+begin
+  // Sync path: languages are already finalized by detection in this thread
+  AddToHistoryItemEx(ASource, ATarget, FSourceLanguage, FTargetLanguage, FConfigFile);
+end;
+
+procedure TCustomTranslate.FireHistoryChanged;
+begin
+  if Assigned(FOnHistoryChanged) then
+    FOnHistoryChanged(Self);
+end;
+
 { Protected }
 
 procedure TCustomTranslate.Changed;
@@ -1173,6 +1400,16 @@ begin
   FDetect := TDetectSettings.Create;
   FDetect.OnChange := @DetectChanged;
 
+  // History settings and lazy manager
+  FHistory := THistorySettings.Create;
+  FHistory.OnChange := @HistoryChanged;
+  FHistoryManager := nil;
+  FHistoryFileLoaded := string.Empty;
+  FHistoryNavigating := False;
+  FPastLast := False;
+  FOnHistoryItem := nil;
+  FOnHistoryChanged := nil;
+
   // Detect engine is created lazily only when an INI config is used
   FDetectEngine := nil;
   FLoadedDetectConfig := string.Empty;
@@ -1252,6 +1489,8 @@ begin
   FreeAndNil(FTimeout);
   FreeAndNil(FDetectEngine);
   FreeAndNil(FDetect);
+  FreeAndNil(FHistoryManager);
+  FreeAndNil(FHistory);
   inherited Destroy;
 end;
 
@@ -2356,7 +2595,7 @@ begin
   Temp.TryFormatJson(Result);
 end;
 
-function TCustomTranslate.TranslateSync(const AText: string; ADetectLanguage: boolean = True): string;
+function TCustomTranslate.TranslateSync(const AText: string; ADetectLanguage: boolean = True; AAddToHistory: boolean = True): string;
 var
   Th: TTranslateThread;
   ThDone: boolean;
@@ -2405,6 +2644,9 @@ begin
       if not FCancelled and (FRawTranslate.Trim <> string.Empty) then
       begin
         Result := FRawTranslate;
+        // Detection already applied in this thread, so languages are final
+        if AAddToHistory then
+          AddToHistoryItem(AText, Result);
         if Assigned(FOnTranslateComplete) then FOnTranslateComplete(Self, Result);
       end;
     finally
@@ -2416,7 +2658,9 @@ begin
   end;
 end;
 
-procedure TCustomTranslate.TranslateAsync(const AText: string; ADetectLanguage: boolean = True);
+procedure TCustomTranslate.TranslateAsync(const AText: string; ADetectLanguage: boolean = True; AAddToHistory: boolean = True);
+var
+  Th: TTranslateThread;
 begin
   // Already cancelled - just notify finish and return
   if FCancelled then
@@ -2432,13 +2676,15 @@ begin
   FTextToTranslate := AText;
   FRawTranslate := string.Empty;
 
-  FTranslateThread := TTranslateThread.Create(Self, @FRawTranslate, nil, ADetectLanguage);
-  FActiveThreads.Add(FTranslateThread);
+  Th := TTranslateThread.Create(Self, @FRawTranslate, nil, ADetectLanguage);
+  Th.AddToHistory := AAddToHistory;
+  FTranslateThread := Th;
+  FActiveThreads.Add(Th);
 
   if Assigned(FOnTranslateStart) then FOnTranslateStart(Self);
 
-  FTranslateThread.OnTerminate := @ThreadTerminatedAsync;
-  FTranslateThread.Start;
+  Th.OnTerminate := @ThreadTerminatedAsync;
+  Th.Start;
 end;
 
 function TCustomTranslate.IsTranslating: boolean;
@@ -2451,6 +2697,245 @@ begin
   FCancelled := True;
   if Assigned(FTranslateThread) then
     FTranslateThread.Cancel;
+end;
+
+function TCustomTranslate.HistoryPrev: boolean;
+var
+  Item: THistoryItem = nil;
+begin
+  Result := False;
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+
+  FHistoryNavigating := True;
+  try
+    if FPastLast then
+    begin
+      // First Back from the empty screen shows the last committed entry
+      // without moving the index, so the next Back goes to the previous one
+      Item := FHistoryManager.GetItem(FHistoryManager.Index);
+      FPastLast := False;
+    end
+    else
+    begin
+      if not FHistoryManager.Prev(Item) then Exit;
+    end;
+    if Item = nil then Exit;
+
+    SourceLanguage := Item.SourceLang;
+    TargetLanguage := Item.TargetLang;
+
+    if Assigned(FOnHistoryItem) then
+      FOnHistoryItem(Self, Item);
+
+    Result := True;
+  finally
+    FHistoryNavigating := False;
+    FireHistoryChanged;
+  end;
+end;
+
+function TCustomTranslate.HistoryNext: boolean;
+var
+  Item: THistoryItem = nil;
+begin
+  Result := False;
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+  // Nothing forward from the empty screen; CanNext already reports False
+  if FPastLast then Exit;
+
+  FHistoryNavigating := True;
+  try
+    if not FHistoryManager.Next(Item) then Exit;
+    if Item = nil then Exit;
+
+    SourceLanguage := Item.SourceLang;
+    TargetLanguage := Item.TargetLang;
+
+    if Assigned(FOnHistoryItem) then
+      FOnHistoryItem(Self, Item);
+
+    Result := True;
+  finally
+    FHistoryNavigating := False;
+    FireHistoryChanged;
+  end;
+end;
+
+function TCustomTranslate.HistoryFirst: boolean;
+var
+  Item: THistoryItem = nil;
+begin
+  Result := False;
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+
+  // Explicit navigation always leaves the past-last state
+  FPastLast := False;
+
+  FHistoryNavigating := True;
+  try
+    if not FHistoryManager.First(Item) then Exit;
+    if Item = nil then Exit;
+
+    SourceLanguage := Item.SourceLang;
+    TargetLanguage := Item.TargetLang;
+
+    if Assigned(FOnHistoryItem) then
+      FOnHistoryItem(Self, Item);
+
+    Result := True;
+  finally
+    FHistoryNavigating := False;
+    FireHistoryChanged;
+  end;
+end;
+
+function TCustomTranslate.HistoryLast: boolean;
+var
+  Item: THistoryItem = nil;
+begin
+  Result := False;
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+
+  // Explicit navigation always leaves the past-last state
+  FPastLast := False;
+
+  FHistoryNavigating := True;
+  try
+    if not FHistoryManager.Last(Item) then Exit;
+    if Item = nil then Exit;
+
+    SourceLanguage := Item.SourceLang;
+    TargetLanguage := Item.TargetLang;
+
+    if Assigned(FOnHistoryItem) then
+      FOnHistoryItem(Self, Item);
+
+    Result := True;
+  finally
+    FHistoryNavigating := False;
+    FireHistoryChanged;
+  end;
+end;
+
+function TCustomTranslate.HistoryDelete: boolean;
+var
+  Item: THistoryItem = nil;
+begin
+  Result := False;
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+
+  // Explicit navigation always leaves the past-last state
+  FPastLast := False;
+
+  if not FHistoryManager.DeleteCurrent then Exit;
+
+  FHistoryNavigating := True;
+  try
+    Item := FHistoryManager.GetItem(FHistoryManager.Index);
+
+    if Item <> nil then
+    begin
+      SourceLanguage := Item.SourceLang;
+      TargetLanguage := Item.TargetLang;
+    end;
+
+    // Fires with nil when the history became empty, so the host can clear UI
+    if Assigned(FOnHistoryItem) then
+      FOnHistoryItem(Self, Item);
+
+    Result := True;
+  finally
+    FHistoryNavigating := False;
+    FireHistoryChanged;
+  end;
+end;
+
+function TCustomTranslate.HistoryAdd(const ASourceText, ATargetText: string; const ASourceLang: string = '';
+  const ATargetLang: string = ''; const AConfigFile: string = ''; const AMarkEmpty: boolean = False): boolean;
+var
+  SrcLang: string = '';
+  TrgLang: string = '';
+  Cfg: string = '';
+  Added: boolean = False;
+begin
+  Result := False;
+  if not FHistory.Enabled then Exit;
+  if FHistoryNavigating then Exit;
+  if Trim(ASourceText) = '' then Exit;
+
+  SrcLang := ASourceLang;
+  if SrcLang = '' then SrcLang := FSourceLanguage;
+  TrgLang := ATargetLang;
+  if TrgLang = '' then TrgLang := FTargetLanguage;
+  Cfg := AConfigFile;
+  if Cfg = '' then Cfg := FConfigFile;
+
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+
+  Added := FHistoryManager.AddText(ASourceText, ATargetText, SrcLang, TrgLang, Cfg) <> nil;
+  // Mark past-last even on a duplicate commit: the screen is about to be
+  // cleared and the first Back should still show this entry
+  if Added or AMarkEmpty then
+  begin
+    FPastLast := AMarkEmpty;
+    FireHistoryChanged;
+  end;
+  Result := Added;
+end;
+
+procedure TCustomTranslate.HistoryMarkEmpty;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+  if FHistoryManager.Count = 0 then Exit;
+  if FPastLast then Exit;
+  FPastLast := True;
+  FireHistoryChanged;
+end;
+
+function TCustomTranslate.HistoryCanPrev: boolean;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit(False);
+  // Past-last allows the first Back to show the current item
+  if FPastLast then Exit(FHistoryManager.Count > 0);
+  Result := FHistoryManager.CanPrev;
+end;
+
+function TCustomTranslate.HistoryCanNext: boolean;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit(False);
+  // Nothing to go forward to from the empty screen
+  if FPastLast then Exit(False);
+  Result := FHistoryManager.CanNext;
+end;
+
+function TCustomTranslate.HistoryCount: integer;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then
+    Result := 0
+  else
+    Result := FHistoryManager.Count;
+end;
+
+procedure TCustomTranslate.HistoryClear;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+
+  // Explicit navigation always leaves the past-last state
+  FPastLast := False;
+
+  FHistoryManager.Clear;
+  FireHistoryChanged;
 end;
 
 function TCustomTranslate.DetectLanguage(const AText: string; ACurrentLang: string; MinConfidence: double;
@@ -2736,6 +3221,8 @@ var
 begin
   Ini := TIniFile.Create(AFileName);
   try
+    // Keep the active config path in sync so consumers like history can use it
+    FConfigFile := AFileName;
     FCookies.Clear;
     FParametersAge := 0;
     ServiceName := Ini.ReadString('Service', 'Name', string.Empty);
@@ -2955,6 +3442,9 @@ begin
   FResult := AResult;
   FDone := ADone;
 
+  // Capture config now so a switch during translation does not corrupt the entry
+  FHistoryConfigFile := ATrans.ConfigFile;
+
   if Assigned(FDone) then
     FDone^ := False;
 end;
@@ -3004,6 +3494,11 @@ begin
           if IsCancelled then Exit;
         end;
       end;
+
+      // Capture languages after detection may have changed them; config was
+      // already captured in the constructor and does not change per translation
+      FHistorySourceLang := FTrans.SourceLanguage;
+      FHistoryTargetLang := FTrans.TargetLanguage;
 
       if Length(Trim(FSourceText)) > 0 then
         FResult^ := FTrans.Translate

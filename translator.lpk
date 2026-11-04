@@ -61,6 +61,10 @@ SOFTWARE."/>
         <UnitName Value="FormConfig"/>
       </Item>
       <Item>
+        <Filename Value="src\translatehistory.pas"/>
+        <UnitName Value="translatehistory"/>
+      </Item>
+      <Item>
         <Filename Value="src\languages.pas"/>
         <UnitName Value="Languages"/>
       </Item>
