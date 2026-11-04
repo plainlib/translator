@@ -94,6 +94,7 @@ type
     FConfigVisible: TStringList;
     FProxiedConfigs: TProxiedConfigsList;
     FSelectedConfig: string;
+    FSelectedConfigStamp: string;
     FUpdateLock: boolean;
     FLoaded: boolean;
     FAutoRefresh: boolean;
@@ -108,6 +109,7 @@ type
     FTranslate: TTranslate;
     FOnBusy: TConfigBusyEvent;
     FFormPosition: TConfigFormPosition;
+    FAppProps: TApplicationProperties;
     FOnConfigReload: TConfigReloadEvent;
     FOnConfigsUpdated: TConfigNotifyEvent;
     FOnRefreshSettings: TConfigNotifyEvent;
@@ -132,6 +134,8 @@ type
     function GetConfigTitles: TStrings;
     function GetConfigColors: TStrings;
     function GetConfigImages: TStrings;
+    procedure AppActivate(Sender: TObject);
+    function GetFileStamp(const APath: string): string;
   protected
     function GetConfigCount: integer;
     function GetSelectedIndex: integer;
@@ -152,6 +156,10 @@ type
 
     // Rescan directories and rebuild the menu
     procedure Refresh;
+    // True when the selected config file differs from the last accepted state
+    function SelectedConfigChanged: boolean;
+    // Update the stored stamp to the current file state
+    procedure AcceptSelectedConfigChange;
     // Clear all cached data and the menu
     procedure Clear;
     // Add a single config file to the list; returns its index or -1
@@ -292,7 +300,7 @@ type
     property OnBeforeRefresh;
     // Fires after Refresh finished and the menu has been rebuilt
     property OnAfterRefresh;
-    // Fires when the editor has loaded or saved a config
+    // Fires when the active config was reloaded, from the editor or from a detected file change
     property OnConfigReload;
     // Fires when the set or contents of configs changed; refresh derived UI
     property OnConfigsUpdated;
@@ -344,6 +352,8 @@ end;
 constructor TCustomConfigManager.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  // Watch application activation to detect external config file changes
+  FAppProps := TApplicationProperties.Create(Self);
   FDirectories := TStringList.Create;
   FConfigFiles := TStringList.Create;
   FConfigTitles := TStringList.Create;
@@ -369,6 +379,7 @@ destructor TCustomConfigManager.Destroy;
 begin
   // Cancel a pending deferred refresh before tearing down
   ClearTimeout(FRefreshTimer);
+  FreeAndNil(FAppProps);
   FreeAndNil(FFormPosition);
   FreeAndNil(FProxiedConfigs);
   FreeAndNil(FConfigVisible);
@@ -534,6 +545,8 @@ procedure TCustomConfigManager.Loaded;
 begin
   inherited Loaded;
   FLoaded := True;
+  // Subscribe to activation only after LFM is fully streamed
+  FAppProps.OnActivate := @AppActivate;
   // Defer the first scan past LFM streaming; only when AutoRefresh is True
   if FAutoRefresh and (not (csDesigning in ComponentState)) then
     SetTimeout(FRefreshTimer, 10, @DeferredRefresh);
@@ -545,6 +558,30 @@ begin
   if csDesigning in ComponentState then Exit;
   if csDestroying in ComponentState then Exit;
   Refresh;
+end;
+
+procedure TCustomConfigManager.AppActivate(Sender: TObject);
+var
+  Handled: boolean;
+begin
+  if csDesigning in ComponentState then Exit;
+  if csDestroying in ComponentState then Exit;
+  // Do not reload under the editor, its unsaved edits must survive
+  if ConfigEditorVisible then Exit;
+  if not SelectedConfigChanged then Exit;
+
+  // Reuse the reload event so the host applies the new INI content
+  Handled := False;
+  NotifyConfigReload(Handled);
+  if (not Handled) and FAutoApplyTranslate and Assigned(FTranslate) then
+  begin
+    FTranslate.ConfigFile := FSelectedConfig;
+    Handled := True;
+  end;
+
+  // Advance the stamp only when the change was actually applied
+  if Handled then
+    AcceptSelectedConfigChange;
 end;
 
 procedure TCustomConfigManager.SetTargetMenu(Value: TMenuItem);
@@ -572,6 +609,7 @@ procedure TCustomConfigManager.SetSelectedConfigSilent(const Value: string);
 begin
   if FSelectedConfig = Value then Exit;
   FSelectedConfig := Value;
+  FSelectedConfigStamp := GetFileStamp(FSelectedConfig);
   UpdateCheckState;
 end;
 
@@ -655,6 +693,7 @@ begin
   if not Allow then Exit;
 
   FSelectedConfig := AConfigFile;
+  FSelectedConfigStamp := GetFileStamp(FSelectedConfig);
   UpdateCheckState;
 
   // Optional shortcut: load the chosen ConfigFile into the translator
@@ -684,6 +723,7 @@ begin
   if not Allow then Exit;
 
   FSelectedConfig := Value;
+  FSelectedConfigStamp := GetFileStamp(FSelectedConfig);
   UpdateCheckState;
 
   // Optional shortcut: load the chosen ConfigFile into the translator
@@ -935,6 +975,7 @@ begin
     RebuildMenu;
     if Assigned(FOnAfterRefresh) then
       FOnAfterRefresh(Self);
+    FSelectedConfigStamp := GetFileStamp(FSelectedConfig);
   end;
 end;
 
@@ -1090,6 +1131,36 @@ end;
 function TCustomConfigManager.GetConfigImages: TStrings;
 begin
   Result := FConfigImages;
+end;
+
+function TCustomConfigManager.GetFileStamp(const APath: string): string;
+var
+  SR: TSearchRec;
+begin
+  Result := '';
+  if APath = '' then Exit;
+  if FindFirst(APath, faAnyFile, SR) <> 0 then Exit;
+  try
+    Result := IntToStr(SR.Time) + ':' + IntToStr(SR.Size);
+  finally
+    FindClose(SR);
+  end;
+end;
+
+function TCustomConfigManager.SelectedConfigChanged: boolean;
+var
+  CurrentStamp: string;
+begin
+  Result := False;
+  if FSelectedConfig = '' then Exit;
+  CurrentStamp := GetFileStamp(FSelectedConfig);
+  if CurrentStamp = '' then Exit;
+  Result := CurrentStamp <> FSelectedConfigStamp;
+end;
+
+procedure TCustomConfigManager.AcceptSelectedConfigChange;
+begin
+  FSelectedConfigStamp := GetFileStamp(FSelectedConfig);
 end;
 
 procedure TCustomConfigManager.Notification(AComponent: TComponent; Operation: TOperation);
