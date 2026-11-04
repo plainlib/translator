@@ -13,7 +13,8 @@ interface
 
 uses
   Classes,
-  SysUtils;
+  SysUtils,
+  Math;
 
 type
   // Single stored translation entry
@@ -65,7 +66,7 @@ type
 implementation
 
 uses
-  Math,
+  StringHelper,
   OSUtils;
 
 const
@@ -319,13 +320,20 @@ begin
   if Trim(ASourceText) = '' then
     Exit;
 
-  // Skip duplicates of the current item
+  // Skip when the new entry fully matches the current item, which after the
+  // forward-branch truncation becomes the record immediately before it.
+  // Trim drops outer whitespace, EqualNormalized folds CRLF vs LF: RichMemo
+  // rewrites line endings when text round-trips through the memo, so the raw
+  // service output and the memo readback rarely match byte-for-byte
   if (FIndex >= 0) and (FIndex < FItems.Count) then
   begin
     Current := THistoryItem(FItems[FIndex]);
-    if SameText(Current.SourceText, ASourceText) and SameText(Current.TargetText, ATargetText) and
-      SameText(Current.SourceLang, ASourceLang) and SameText(Current.TargetLang, ATargetLang) and
-      SameStr(Current.ConfigFile, AConfigFile) then
+    if Trim(Current.SourceText).EqualNormalized(Trim(ASourceText), False) and
+      Trim(Current.TargetText).EqualNormalized(Trim(ATargetText), False) and SameText(Current.SourceLang, ASourceLang) and
+      SameText(Current.TargetLang, ATargetLang) and
+      // Config paths are case-insensitive on Windows; never treat them as
+      // different entries just because the case drifted
+      SameText(Current.ConfigFile, AConfigFile) then
       Exit;
   end;
 
