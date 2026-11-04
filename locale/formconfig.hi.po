@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: hi\n"
@@ -31,6 +31,31 @@ msgstr "क्या आप वाकई कॉन्फ़िगरेशन �
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "कॉन्फ़िग हटाएँ"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "रद्द करें"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "मेरे बदलाव रखें"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "फ़ाइल \"%s\" को खोलने के बाद किसी अन्य एप्लिकेशन द्वारा संशोधित किया गया है।"
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "आपके पास सहेजे नहीं गए बदलाव हैं। क्या आप उन्हें रखना चाहते हैं या डिस्क से पुनः लोड करना चाहते हैं?"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "डिस्क से पुनः लोड करें"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "डिस्क पर फ़ाइल बदल गई"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -341,6 +366,10 @@ msgstr "माप इकाइयाँ"
 msgid "Clear Icon"
 msgstr "सिस्टम आइकन साफ़ करें"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "फ़ाइल संपादित करें..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "सहेजें"
@@ -497,6 +526,11 @@ msgstr "हाल का रंग"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "अनुरोधों में {key} के माध्यम से उपयोग किए जाने वाले key=value प्रारूप के पैरामीटर। यदि मान छोड़ दिया जाता है (key=), तो उसे उपयोगकर्ता से पूछा जाएगा।"
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -521,25 +555,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "नए अनुरोध के साथ पैरामीटर को रीफ़्रेश करने का समय सेकंड में (0 = प्रत्येक अनुरोध पर)"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "जीवनकाल"
+msgstr "वास्तविक समय"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "पैरामीटर name=regexp प्रतिक्रिया से निकाले जाते हैं और अनुरोधों में नाम से उपयोग किए जाते हैं"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "नए अनुरोध के साथ पैरामीटर ताज़ा करने का समय सेकंड में (0 = हर अनुरोध)"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "पैरामीटर"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "key=value प्रारूप में पैरामीटर, जिन्हें अनुरोधों में {key} द्वारा उपयोग किया जाता है। यदि मान छोड़ा गया है (key=), तो इसे उपयोगकर्ता से पूछा जाएगा।"
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

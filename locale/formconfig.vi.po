@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2026-08-07 21:35+0700\n"
-"Last-Translator: Vũ Anh Vũ <vuanhvu11982@gmail.com>\n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: none\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
@@ -33,6 +33,31 @@ msgstr "Bạn có chắc chắn muốn xóa cấu hình"
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "Xóa cấu hình"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "Hủy"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "Giữ các thay đổi của tôi"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "Tệp \"%s\" đã bị ứng dụng khác sửa đổi kể từ khi được mở."
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "Bạn có các thay đổi chưa lưu. Bạn muốn giữ chúng hay tải lại tệp từ đĩa?"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "Tải lại từ đĩa"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "Tệp đã thay đổi trên đĩa"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -346,6 +371,10 @@ msgstr "Đơn vị đo lường"
 msgid "Clear Icon"
 msgstr "Xóa biểu tượng"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "Chỉnh sửa tệp..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "Lưu"
@@ -502,6 +531,11 @@ msgstr "Màu gần đây"
 msgid "Content Type"
 msgstr "Loại nội dung"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Các tham số có dạng key=value được sử dụng thông qua {key} trong các yêu cầu. Nếu giá trị bị bỏ qua (key=), người dùng sẽ được yêu cầu nhập."
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -526,25 +560,23 @@ msgid "Headers"
 msgstr "Tiêu đề"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Thời gian tính bằng giây để làm mới các tham số bằng một yêu cầu mới (0 = mỗi yêu cầu)"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "Thời gian trực tiếp"
+msgstr "Thời gian thực"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "Các tham số name=regexp được trích xuất từ ​​phản hồi và được sử dụng theo tên trong các yêu cầu"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "Thời gian tính bằng giây để làm mới tham số với yêu cầu mới (0 = mọi yêu cầu)"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "Thông số"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "Các tham số ở dạng key=value được {key} sử dụng trong các yêu cầu. Nếu giá trị bị bỏ qua (key=), nó sẽ được yêu cầu từ người dùng."
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

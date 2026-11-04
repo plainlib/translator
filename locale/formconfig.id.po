@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: id\n"
@@ -31,6 +31,31 @@ msgstr "Apakah Anda yakin ingin menghapus konfigurasi"
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "Hapus konfigurasi"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "Batal"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "Pertahankan perubahan saya"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "File \"%s\" telah diubah oleh aplikasi lain sejak dibuka."
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "Anda memiliki perubahan yang belum disimpan. Pertahankan atau muat ulang dari disk?"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "Muat ulang dari disk"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "File berubah di disk"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -342,6 +367,10 @@ msgstr "Satuan Ukur"
 msgid "Clear Icon"
 msgstr "Hapus Ikon"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "Edit File..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "Simpan"
@@ -498,6 +527,11 @@ msgstr "Warna terbaru"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Parameter dalam bentuk key=value yang digunakan melalui {key} dalam permintaan. Jika nilainya tidak disertakan (key=), nilainya akan diminta dari pengguna."
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -522,25 +556,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Waktu dalam detik untuk memperbarui parameter dengan permintaan baru (0 = setiap permintaan)"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "Waktu hidup"
+msgstr "Waktu langsung"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "Parameter name=regexp diekstrak dari respons dan digunakan berdasarkan nama dalam permintaan"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "Waktu dalam detik untuk menyegarkan parameter dengan permintaan baru (0 = setiap permintaan)"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "Parameter"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "Parameter dalam bentuk key=value yang digunakan oleh {key} dalam permintaan. Jika nilainya dihilangkan (key=), nilainya akan diminta dari pengguna."
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

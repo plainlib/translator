@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -31,6 +31,31 @@ msgstr "确定要删除配置"
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "删除配置"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "取消"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "保留我的更改"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "文件 \"%s\" 自打开以来已被其他应用程序修改。"
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "您有未保存的更改。要保留这些更改还是从磁盘重新加载？"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "从磁盘重新加载"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "磁盘上的文件已更改"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -341,6 +366,10 @@ msgstr "计量单位"
 msgid "Clear Icon"
 msgstr "清除图标"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "编辑文件..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "保存"
@@ -497,6 +526,11 @@ msgstr "最近颜色"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "请求中通过 {key} 使用的 key=value 格式参数。如果省略值 (key=)，则会向用户请求该值。"
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -521,25 +555,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "使用新请求刷新参数的时间间隔（秒）（0 = 每次请求）"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "存活时间"
+msgstr "实时"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "参数 name=regexp 从响应中提取，并在请求中按名称使用"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "通过新请求刷新参数的时间（秒），0 = 每个请求都刷新"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "参数"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "请求中由 {key} 使用的 key=value 形式参数。如果省略值（key=），将向用户请求。"
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -31,6 +31,31 @@ msgstr "設定を削除してもよろしいですか"
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "設定を削除"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "変更を保持"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "ファイル \"%s\" は、開いてから別のアプリケーションによって変更されました。"
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "未保存の変更があります。変更を保持しますか、それともディスクから再読み込みしますか？"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "ディスクから再読み込み"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "ディスク上のファイルが変更されました"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -341,6 +366,10 @@ msgstr "測定単位"
 msgid "Clear Icon"
 msgstr "アイコンをクリア"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "ファイルを編集..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "保存"
@@ -497,6 +526,11 @@ msgstr "最近の色"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "リクエストで {key} を通じて使用される key=value 形式のパラメーターです。値が省略された場合 (key=)、ユーザーに入力を求めます。"
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -521,25 +555,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "新しいリクエストでパラメーターを更新する間隔（秒）（0 = リクエストごと）"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "生存時間"
+msgstr "リアルタイム"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "パラメータ name=regexp はレスポンスから抽出され、リクエスト内で名前により使用されます"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "新しいリクエストでパラメータを更新する時間（秒）（0 = リクエストごと）"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "パラメータ"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "リクエスト内で {key} が使用する key=value 形式のパラメーターです。値が省略された場合（key=）、ユーザーに入力を求めます。"
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

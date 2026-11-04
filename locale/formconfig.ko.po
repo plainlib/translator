@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: ko\n"
@@ -31,6 +31,31 @@ msgstr "설정을 삭제하시겠습니까"
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "설정 삭제"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "취소"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "변경 사항 유지"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "파일 \"%s\"이(가) 열린 이후 다른 애플리케이션에 의해 수정되었습니다."
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "저장되지 않은 변경 사항이 있습니다. 변경 사항을 유지하시겠습니까, 아니면 디스크에서 다시 불러오시겠습니까?"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "디스크에서 다시 불러오기"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "디스크의 파일이 변경됨"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -341,6 +366,10 @@ msgstr "측정 단위"
 msgid "Clear Icon"
 msgstr "아이콘 지우기"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "파일 편집..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "저장"
@@ -497,6 +526,11 @@ msgstr "최근 색상"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "요청에서 {key}를 통해 사용되는 key=value 형식의 매개변수입니다. 값이 생략된 경우 (key=), 사용자에게 입력을 요청합니다."
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -521,25 +555,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "새 요청으로 매개변수를 새로 고치는 시간(초) (0 = 매 요청마다)"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "생존 시간"
+msgstr "실시간"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "매개변수 name=regexp는 응답에서 추출되어 요청에서 이름으로 사용됩니다"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "새 요청으로 매개변수를 갱신하는 시간(초) (0 = 모든 요청마다)"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "매개변수"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "요청에서 {key}가 사용하는 key=value 형식의 매개변수입니다. 값이 생략되면(key=) 사용자에게 입력을 요청합니다."
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

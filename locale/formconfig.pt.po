@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: pt\n"
@@ -31,6 +31,31 @@ msgstr "Tem a certeza de que pretende eliminar a configuração"
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "Eliminar configuração"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "Manter minhas alterações"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "O arquivo \"%s\" foi modificado por outro aplicativo desde que foi aberto."
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "Você tem alterações não salvas. Deseja mantê-las ou recarregar o arquivo do disco?"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "Recarregar do disco"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "Arquivo alterado no disco"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -341,6 +366,10 @@ msgstr "Unidades de medida"
 msgid "Clear Icon"
 msgstr "Limpar ícone"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "Editar arquivo..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "Guardar"
@@ -497,6 +526,11 @@ msgstr "Cor recente"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Parâmetros no formato key=value usados por meio de {key} nas solicitações. Se o valor for omitido (key=), ele será solicitado ao usuário."
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -521,25 +555,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Tempo em segundos para atualizar os parâmetros com uma nova solicitação (0 = a cada solicitação)"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "Tempo de vida"
+msgstr "Tempo real"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "Os parâmetros name=regexp são extraídos da resposta e usados pelo nome nos pedidos"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "Tempo em segundos para atualizar os parâmetros com um novo pedido (0 = cada pedido)"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "Parâmetros"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "Parâmetros no formato key=value utilizados por {key} nos pedidos. Se o valor for omitido (key=), será solicitado ao utilizador."
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

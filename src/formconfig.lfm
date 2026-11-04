@@ -19,7 +19,7 @@ object formConfigTrayslate: TformConfigTrayslate
     Left = 5
     Height = 25
     Top = 607
-    Width = 75
+    Width = 130
     Action = AEditFile
     Anchors = [akLeft, akBottom]
     TabOrder = 4

@@ -22,6 +22,31 @@ msgstr ""
 msgid "Delete config"
 msgstr ""
 
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr ""
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr ""
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr ""
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr ""
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr ""
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr ""
+
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
 msgstr ""
@@ -203,6 +228,10 @@ msgstr ""
 msgid "Clear Icon"
 msgstr ""
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr ""
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr ""
@@ -359,6 +388,11 @@ msgstr ""
 msgid "Content Type"
 msgstr ""
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr ""
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -383,6 +417,12 @@ msgid "Headers"
 msgstr ""
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr ""
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
 msgstr ""
 
@@ -390,17 +430,9 @@ msgstr ""
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr ""
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr ""
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
-msgstr ""
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
 msgstr ""
 
 #: tformconfigtrayslate.labelinitparemeters.caption

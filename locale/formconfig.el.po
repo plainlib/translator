@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: el\n"
@@ -31,6 +31,31 @@ msgstr "Είστε σίγουροι ότι θέλετε να διαγράψετ�
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "Διαγραφή ρύθμισης"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "Ακύρωση"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "Διατήρηση των αλλαγών μου"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "Το αρχείο \"%s\" τροποποιήθηκε από άλλη εφαρμογή μετά το άνοιγμά του."
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "Έχετε μη αποθηκευμένες αλλαγές. Θέλετε να τις διατηρήσετε ή να φορτώσετε ξανά το αρχείο από τον δίσκο;"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "Επαναφόρτωση από τον δίσκο"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "Το αρχείο άλλαξε στον δίσκο"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -341,6 +366,10 @@ msgstr "Μονάδες μέτρησης"
 msgid "Clear Icon"
 msgstr "Εκκαθάριση εικονιδίου"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "Επεξεργασία αρχείου..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "Αποθήκευση"
@@ -497,6 +526,11 @@ msgstr "Πρόσφατο χρώμα"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Παράμετροι σε μορφή key=value που χρησιμοποιούνται μέσω του {key} στα αιτήματα. Εάν η τιμή παραλειφθεί (key=), θα ζητηθεί από τον χρήστη."
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -521,25 +555,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Χρόνος σε δευτερόλεπτα για την ανανέωση των παραμέτρων με νέο αίτημα (0 = σε κάθε αίτημα)"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "Διάρκεια ζωής"
+msgstr "Ζωντανός χρόνος"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "Οι παράμετροι name=regexp εξάγονται από την απόκριση και χρησιμοποιούνται με το όνομά τους σε αιτήματα"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "Χρόνος σε δευτερόλεπτα για ανανέωση παραμέτρων με νέο αίτημα (0 = κάθε αίτημα)"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "Παράμετροι"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "Παράμετροι στη μορφή key=value που χρησιμοποιούνται από το {key} στα αιτήματα. Αν παραλειφθεί η τιμή (key=), θα ζητηθεί από τον χρήστη."
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

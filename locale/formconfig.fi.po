@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: fi\n"
@@ -31,6 +31,31 @@ msgstr "Oletko varma, että haluat poistaa konfiguraation"
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "Poista konfiguraatio"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "Peruuta"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "Säilytä muutokseni"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "Toinen sovellus on muuttanut tiedostoa \"%s\" sen avaamisen jälkeen."
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "Sinulla on tallentamattomia muutoksia. Säilytetäänkö ne vai ladataanko tiedosto uudelleen levyltä?"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "Lataa levyltä uudelleen"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "Tiedostoa on muutettu levyllä"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -341,6 +366,10 @@ msgstr "Mittayksiköt"
 msgid "Clear Icon"
 msgstr "Tyhjennä kuvake"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "Muokkaa tiedostoa..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "Tallenna"
@@ -497,6 +526,11 @@ msgstr "Viimeaikainen väri"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Parametrit muodossa key=value, joita käytetään pyyntöjen yhteydessä muodossa {key}. Jos arvo jätetään pois (key=), sitä pyydetään käyttäjältä."
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -521,25 +555,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Aika sekunteina parametrien päivittämiseen uudella pyynnöllä (0 = jokaisella pyynnöllä)"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "Elinaika"
+msgstr "Reaaliaikainen aika"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "Parametrit name=regexp poimitaan vastauksesta ja käytetään nimellä pyynnöissä"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "Aika sekunneissa parametrien päivittämiseen uudella pyynnöllä (0 = joka pyyntö)"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "Parametrit"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "Parametrit muodossa key=value, joita {key} käyttää pyynnöissä. Jos arvo puuttuu (key=), sitä pyydetään käyttäjältä."
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2026-11-04 14:41-0300\n"
 "Last-Translator: plaintool <astverskoy@gmail.com>\n"
 "Language-Team: \n"
 "Language: ro\n"
@@ -31,6 +31,31 @@ msgstr "Sigur doriți să ștergeți configurația"
 #: formconfig.rdeleteconfigcaption
 msgid "Delete config"
 msgstr "Șterge configurația"
+
+#: formconfig.rfilechangedcancel
+msgid "Cancel"
+msgstr "Anulare"
+
+#: formconfig.rfilechangedkeepchanges
+msgid "Keep my changes"
+msgstr "Păstrează modificările mele"
+
+#: formconfig.rfilechangedmsg
+#, object-pascal-format
+msgid "The file \"%s\" has been modified by another application since it was opened."
+msgstr "Fișierul \"%s\" a fost modificat de o altă aplicație de când a fost deschis."
+
+#: formconfig.rfilechangedmsgactivate
+msgid "You have unsaved changes. Keep them or reload from disk?"
+msgstr "Aveți modificări nesalvate. Doriți să le păstrați sau să reîncărcați fișierul de pe disc?"
+
+#: formconfig.rfilechangedreloaddisk
+msgid "Reload from disk"
+msgstr "Reîncarcă de pe disc"
+
+#: formconfig.rfilechangedtitle
+msgid "File changed on disk"
+msgstr "Fișier modificat pe disc"
 
 #: formconfig.rnamequestion
 msgid "Enter new config file name:"
@@ -341,6 +366,10 @@ msgstr "Unități de măsură"
 msgid "Clear Icon"
 msgstr "Șterge pictograma"
 
+#: tformconfigtrayslate.aeditfile.caption
+msgid "Edit File..."
+msgstr "Editare fișier..."
+
 #: tformconfigtrayslate.asave.caption
 msgid "Save"
 msgstr "Salvare"
@@ -497,6 +526,11 @@ msgstr "Culoare recentă"
 msgid "Content Type"
 msgstr "Content Type"
 
+#: tformconfigtrayslate.labelcustomparameters.caption
+msgctxt "tformconfigtrayslate.labelcustomparameters.caption"
+msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
+msgstr "Parametri în formatul key=value utilizați prin {key} în cereri. Dacă valoarea este omisă (key=), aceasta va fi solicitată utilizatorului."
+
 #: tformconfigtrayslate.labelfilllanguages.caption
 msgctxt "tformconfigtrayslate.labelfilllanguages.caption"
 msgid "Fill with default"
@@ -521,25 +555,23 @@ msgid "Headers"
 msgstr "Headers"
 
 #: tformconfigtrayslate.labelinitlivetime.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime.caption"
+msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
+msgstr "Timp în secunde pentru reîmprospătarea parametrilor cu o nouă cerere (0 = la fiecare cerere)"
+
+#: tformconfigtrayslate.labelinitlivetime2.caption
+msgctxt "tformconfigtrayslate.labelinitlivetime2.caption"
 msgid "Live time"
-msgstr "Durata de viață"
+msgstr "Timp real"
 
 #: tformconfigtrayslate.labelinitparameters.caption
 msgid "Parameters name=regexp are extracted from the response and used by name in requests"
 msgstr "Parametrii name=regexp sunt extrași din răspuns și utilizați după nume în cereri"
 
-#: tformconfigtrayslate.labelinitparameters1.caption
-msgid "Time in seconds to refresh parameters with a new request (0 = every request)"
-msgstr "Timpul în secunde pentru reîmprospătarea parametrilor cu o nouă cerere (0 = fiecare cerere)"
-
 #: tformconfigtrayslate.labelinitparameters2.caption
 msgctxt "tformconfigtrayslate.labelinitparameters2.caption"
 msgid "Parameters"
 msgstr "Parametri"
-
-#: tformconfigtrayslate.labelinitparameters4.caption
-msgid "Parameters in the form key=value used by {key} in requests. If the value is omitted (key=), it will be requested from the user."
-msgstr "Parametri în formatul key=value utilizați de {key} în cereri. Dacă valoarea este omisă (key=), va fi solicitată utilizatorului."
 
 #: tformconfigtrayslate.labelinitparemeters.caption
 msgid "Initial GET request to obtain required parameters."
