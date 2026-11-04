@@ -1149,6 +1149,7 @@ begin
       FManager.NotifyBusy(False);
     end;
     UpdateConfigList(False);
+    UpdateConfig;
   finally
     Screen.Cursor := crDefault;
     Caption := rcaption;
