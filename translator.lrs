@@ -17796,3 +17796,991 @@ LazarusResources.Add('formconfig.zh','PO',[
   +'msgid "New configuration"'#13#10'msgstr "'#230#150#176#229#187#186#233#133
   +#141#231#189#174'"'#13#10#13#10
 ]);
+LazarusResources.Add('formsearch.ar','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:26-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: ar\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=6; plural=n'
+  +'==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 :'
+  +' 5;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rse'
+  +'archcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#216#179#216
+  +#172#217#132' '#216#167#217#132#216#170#216#177#216#172#217#133#216#169'"'#13
+  +#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type to search..."'#13#10
+  +'msgstr "'#216#167#217#131#216#170#216#168' '#217#132#217#132#216#168#216#173
+  +#216#171'..."'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-'
+  +'pascal-format'#13#10'msgid "%d results"'#13#10'msgstr "%d '#217#134#216#170
+  +#217#138#216#172#216#169'"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13
+  +#10'msgid "No results"'#13#10'msgstr "'#217#132#216#167' '#216#170#217#136
+  +#216#172#216#175' '#217#134#216#170#216#167#216#166#216#172'"'#13#10#13#10'#'
+  +': formsearch.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "'#217
+  +#134#216#170#217#138#216#172#216#169' '#217#136#216#167#216#173#216#175#216
+  +#169'"'#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, object-pa'
+  +'scal-format'#13#10'msgid "Showing %d of %d results - refine the filter to n'
+  +'arrow down"'#13#10'msgstr "'#216#185#216#177#216#182' %d '#217#133#217#134
+  +' '#216#163#216#181#217#132' %d '#217#134#216#170#217#138#216#172#216#169' -'
+  +' '#217#130#217#133' '#216#168#216#170#216#173#216#179#217#138#217#134' '#216
+  +#185#216#167#217#133#217#132' '#216#167#217#132#216#170#216#181#217#129#217
+  +#138#216#169' '#217#132#216#170#216#182#217#138#217#138#217#130' '#217#134
+  +#216#183#216#167#217#130' '#216#167#217#132#217#134#216#170#216#167#216#166
+  +#216#172'"'#13#10#13#10'#: tfrmsearch.filter.texthint'#13#10'msgid "Type to '
+  +'filter..."'#13#10'msgstr "'#216#167#217#131#216#170#216#168' '#217#132#217
+  +#132#216#170#216#181#217#129#217#138#216#169'..."'#13#10#13#10'#: tfrmsearch'
+  +'.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr "'
+  +#216#167#217#132#216#170#216#167#216#177#217#138#216#174'"'#13#10#13#10'#: t'
+  +'frmsearch.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13#10
+  +'msgstr "'#216#167#217#132#217#133#216#181#216#175#216#177'"'#13#10#13#10'#:'
+  +' tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13#10
+  +'msgstr "'#216#167#217#132#217#135#216#175#217#129'"'#13#10#13#10'#: tfrmsea'
+  +'rch.gridsearch.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "'
+  +#216#167#217#132#217#134#216#181'"'#13#10#13#10'#: tfrmsearch.gridsearch.col'
+  +'umns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "'#216#167
+  +#217#132#216#170#216#177#216#172#217#133#216#169'"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.be','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:26-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: be\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=3; plural=n'
+  +'%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 '
+  +': 2;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rs'
+  +'earchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#208#147#209
+  +#150#209#129#209#130#208#190#209#128#209#139#209#143' '#208#191#208#181#209
+  +#128#208#176#208#186#208#187#208#176#208#180#208#176#209#158'"'#13#10#13#10
+  +'#: formsearch.rsearchhint'#13#10'msgid "Type to search..."'#13#10'msgstr "'
+  +#208#163#208#178#209#143#208#180#208#183#209#150#209#134#208#181' '#208#180
+  +#208#187#209#143' '#208#191#208#190#209#136#209#131#208#186#209#131'..."'#13
+  +#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-format'#13
+  +#10'msgid "%d results"'#13#10'msgstr "%d '#208#178#209#139#208#189#209#150
+  +#208#186#208#176#209#158'"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13
+  +#10'msgid "No results"'#13#10'msgstr "'#208#157#209#143#208#188#208#176' '
+  +#208#178#209#139#208#189#209#150#208#186#208#176#209#158'"'#13#10#13#10'#: f'
+  +'ormsearch.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 '#208
+  +#178#209#139#208#189#209#150#208#186'"'#13#10#13#10'#: formsearch.rsearchsta'
+  +'tustruncated'#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d '
+  +'results - refine the filter to narrow down"'#13#10'msgstr "'#208#159#208#176
+  +#208#186#208#176#208#183#208#176#208#189#208#176' %d '#208#183' %d '#208#178
+  +#209#139#208#189#209#150#208#186#208#176#209#158' - '#209#131#208#180#208#176
+  +#208#186#208#187#208#176#208#180#208#189#209#150#209#134#208#181' '#209#132
+  +#209#150#208#187#209#140#209#130#209#128', '#208#186#208#176#208#177' '#208
+  +#183#208#178#209#131#208#183#209#150#209#134#209#140' '#208#191#208#190#209
+  +#136#209#131#208#186'"'#13#10#13#10'#: tfrmsearch.filter.texthint'#13#10'msg'
+  +'id "Type to filter..."'#13#10'msgstr "'#208#163#208#178#209#143#208#180#208
+  +#183#209#150#209#134#208#181' '#208#180#208#187#209#143' '#209#132#209#150
+  +#208#187#209#140#209#130#209#128#208#176#209#134#209#139#209#150'..."'#13#10
+  +#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'
+  +#13#10'msgstr "'#208#148#208#176#209#130#208#176'"'#13#10#13#10'#: tfrmsearc'
+  +'h.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13#10'msgstr "'
+  +#208#154#209#128#209#139#208#189#209#150#209#134#208#176'"'#13#10#13#10'#: t'
+  +'frmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13#10
+  +'msgstr "'#208#156#209#141#209#130#208#176'"'#13#10#13#10'#: tfrmsearch.grid'
+  +'search.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "'#208#162
+  +#209#141#208#186#209#129#209#130'"'#13#10#13#10'#: tfrmsearch.gridsearch.col'
+  +'umns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "'#208#159
+  +#208#181#209#128#208#176#208#186#208#187#208#176#208#180'"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.bg','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:26-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: bg\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#208#152
+  +#209#129#209#130#208#190#209#128#208#184#209#143' '#208#189#208#176' '#208
+  +#191#209#128#208#181#208#178#208#190#208#180#208#184#209#130#208#181'"'#13#10
+  +#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type to search..."'#13#10'msg'
+  +'str "'#208#146#209#138#208#178#208#181#208#180#208#181#209#130#208#181' '
+  +#208#183#208#176' '#209#130#209#138#209#128#209#129#208#181#208#189#208#181
+  +'..."'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-f'
+  +'ormat'#13#10'msgid "%d results"'#13#10'msgstr "%d '#209#128#208#181#208#183
+  +#209#131#208#187#209#130#208#176#209#130#208#176'"'#13#10#13#10'#: formsearc'
+  +'h.rsearchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "'#208#157#209
+  +#143#208#188#208#176' '#209#128#208#181#208#183#209#131#208#187#209#130#208
+  +#176#209#130#208#184'"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'ms'
+  +'gid "1 result"'#13#10'msgstr "1 '#209#128#208#181#208#183#209#131#208#187
+  +#209#130#208#176#209#130'"'#13#10#13#10'#: formsearch.rsearchstatustruncated'
+  +#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d results - refi'
+  +'ne the filter to narrow down"'#13#10'msgstr "'#208#159#208#190#208#186#208
+  +#176#208#183#208#176#208#189#208#184' '#209#129#208#176' %d '#208#190#209#130
+  +' %d '#209#128#208#181#208#183#209#131#208#187#209#130#208#176#209#130#208
+  +#176' - '#208#191#209#128#208#181#209#134#208#184#208#183#208#184#209#128#208
+  +#176#208#185#209#130#208#181' '#209#132#208#184#208#187#209#130#209#138#209
+  +#128#208#176', '#208#183#208#176' '#208#180#208#176' '#209#129#209#130#208
+  +#181#209#129#208#189#208#184#209#130#208#181' '#209#128#208#181#208#183#209
+  +#131#208#187#209#130#208#176#209#130#208#184#209#130#208#181'"'#13#10#13#10
+  +'#: tfrmsearch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgst'
+  +'r "'#208#146#209#138#208#178#208#181#208#180#208#181#209#130#208#181' '#208
+  +#183#208#176' '#209#132#208#184#208#187#209#130#209#128#208#184#209#128#208
+  +#176#208#189#208#181'..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].t'
+  +'itle.caption'#13#10'msgid "Date"'#13#10'msgstr "'#208#148#208#176#209#130
+  +#208#176'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13
+  +#10'msgid "Source"'#13#10'msgstr "'#208#152#208#183#209#130#208#190#209#135
+  +#208#189#208#184#208#186'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[2].'
+  +'title.caption'#13#10'msgid "Target"'#13#10'msgstr "'#208#166#208#181#208#187
+  +'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10'msg'
+  +'id "Text"'#13#10'msgstr "'#208#162#208#181#208#186#209#129#209#130'"'#13#10
+  +#13#10'#: tfrmsearch.gridsearch.columns[4].title.caption'#13#10'msgid "Trans'
+  +'lation"'#13#10'msgstr "'#208#159#209#128#208#181#208#178#208#190#208#180'"'
+  +#13#10#13#10
+]);
+LazarusResources.Add('formsearch.cs','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:26-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: cs\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=3; plural=('
+  +'n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n'
+  +'"'#13#10#13#10'#: formsearch.rsearchcaption'#13#10'msgid "Translation Histo'
+  +'ry"'#13#10'msgstr "Historie p'#197#153'eklad'#197#175'"'#13#10#13#10'#: for'
+  +'msearch.rsearchhint'#13#10'msgid "Type to search..."'#13#10'msgstr "Zadejte'
+  +' text pro hled'#195#161'n'#195#173'..."'#13#10#13#10'#: formsearch.rsearchs'
+  +'tatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d results"'#13#10'm'
+  +'sgstr "%d v'#195#189'sledk'#197#175'"'#13#10#13#10'#: formsearch.rsearchsta'
+  +'tusnone'#13#10'msgid "No results"'#13#10'msgstr "'#197#189#195#161'dn'#195
+  +#169' v'#195#189'sledky"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10
+  +'msgid "1 result"'#13#10'msgstr "1 v'#195#189'sledek"'#13#10#13#10'#: formse'
+  +'arch.rsearchstatustruncated'#13#10'#, object-pascal-format'#13#10'msgid "Sh'
+  +'owing %d of %d results - refine the filter to narrow down"'#13#10'msgstr "Z'
+  +'obrazeno %d z %d v'#195#189'sledk'#197#175' - upravte filtr pro z'#195#186
+  +#197#190'en'#195#173' v'#195#189'sledk'#197#175'"'#13#10#13#10'#: tfrmsearch'
+  +'.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "Zadejte te'
+  +'xt pro filtrov'#195#161'n'#195#173'..."'#13#10#13#10'#: tfrmsearch.gridsear'
+  +'ch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr "Datum"'#13#10
+  +#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13#10'msgid "Sourc'
+  +'e"'#13#10'msgstr "Zdroj"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[2].t'
+  +'itle.caption'#13#10'msgid "Target"'#13#10'msgstr "C'#195#173'l"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10'msgid "Text"'#13#10
+  +'msgstr "Text"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.captio'
+  +'n'#13#10'msgid "Translation"'#13#10'msgstr "P'#197#153'eklad"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.da','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:27-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: da\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Overs'#195
+  +#166'ttelseshistorik"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "T'
+  +'ype to search..."'#13#10'msgstr "Skriv for at s'#195#184'ge..."'#13#10#13#10
+  +'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid'
+  +' "%d results"'#13#10'msgstr "%d resultater"'#13#10#13#10'#: formsearch.rsea'
+  +'rchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "Ingen resultater"'#13
+  +#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgs'
+  +'tr "1 resultat"'#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#,'
+  +' object-pascal-format'#13#10'msgid "Showing %d of %d results - refine the f'
+  +'ilter to narrow down"'#13#10'msgstr "Viser %d af %d resultater - juster fil'
+  +'teret for at indsn'#195#166'vre s'#195#184'gningen"'#13#10#13#10'#: tfrmsea'
+  +'rch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "Skriv f'
+  +'or at filtrere..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].title.c'
+  +'aption'#13#10'msgid "Date"'#13#10'msgstr "Dato"'#13#10#13#10'#: tfrmsearch.'
+  +'gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13#10'msgstr "Ki'
+  +'lde"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10
+  +'msgid "Target"'#13#10'msgstr "M'#195#165'l"'#13#10#13#10'#: tfrmsearch.grid'
+  +'search.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "Tekst"'
+  +#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.caption'#13#10'msgid '
+  +'"Translation"'#13#10'msgstr "Overs'#195#166'ttelse"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.de','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:27-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: de\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#195#156
+  +'bersetzungsverlauf"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Ty'
+  +'pe to search..."'#13#10'msgstr "Zum Suchen tippen..."'#13#10#13#10'#: forms'
+  +'earch.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d res'
+  +'ults"'#13#10'msgstr "%d Ergebnisse"'#13#10#13#10'#: formsearch.rsearchstatu'
+  +'snone'#13#10'msgid "No results"'#13#10'msgstr "Keine Ergebnisse"'#13#10#13
+  +#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 '
+  +'Ergebnis"'#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, objec'
+  +'t-pascal-format'#13#10'msgid "Showing %d of %d results - refine the filter '
+  +'to narrow down"'#13#10'msgstr "%d von %d Ergebnissen angezeigt - verfeinern'
+  +' Sie den Filter, um die Ergebnisse einzugrenzen"'#13#10#13#10'#: tfrmsearch'
+  +'.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "Zum Filter'
+  +'n tippen..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'
+  +#13#10'msgid "Date"'#13#10'msgstr "Datum"'#13#10#13#10'#: tfrmsearch.gridsea'
+  +'rch.columns[1].title.caption'#13#10'msgid "Source"'#13#10'msgstr "Quelle"'
+  +#13#10#13#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid '
+  +'"Target"'#13#10'msgstr "Ziel"'#13#10#13#10'#: tfrmsearch.gridsearch.columns'
+  +'[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "Text"'#13#10#13#10'#: '
+  +'tfrmsearch.gridsearch.columns[4].title.caption'#13#10'msgid "Translation"'
+  +#13#10'msgstr "'#195#156'bersetzung"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.el','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:27-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: el\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#206#153
+  +#207#131#207#132#206#191#207#129#206#185#206#186#207#140' '#206#188#206#181
+  +#207#132#206#177#207#134#207#129#206#172#207#131#206#181#207#137#206#189'"'
+  +#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type to search..."'#13
+  +#10'msgstr "'#206#160#206#187#206#183#206#186#207#132#207#129#206#191#206#187
+  +#206#191#206#179#206#174#207#131#207#132#206#181' '#206#179#206#185#206#177
+  +' '#206#177#206#189#206#177#206#182#206#174#207#132#206#183#207#131#206#183
+  +'..."'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-f'
+  +'ormat'#13#10'msgid "%d results"'#13#10'msgstr "%d '#206#177#207#128#206#191
+  +#207#132#206#181#206#187#206#173#207#131#206#188#206#177#207#132#206#177'"'
+  +#13#10#13#10'#: formsearch.rsearchstatusnone'#13#10'msgid "No results"'#13#10
+  +'msgstr "'#206#148#206#181#206#189' '#207#133#207#128#206#172#207#129#207#135
+  +#206#191#207#133#206#189' '#206#177#207#128#206#191#207#132#206#181#206#187
+  +#206#173#207#131#206#188#206#177#207#132#206#177'"'#13#10#13#10'#: formsearc'
+  +'h.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 '#206#177#207
+  +#128#206#191#207#132#206#173#206#187#206#181#207#131#206#188#206#177'"'#13#10
+  +#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, object-pascal-format'
+  +#13#10'msgid "Showing %d of %d results - refine the filter to narrow down"'
+  +#13#10'msgstr "'#206#149#206#188#207#134#206#172#206#189#206#185#207#131#206
+  +#183' %d '#206#177#207#128#207#140' %d '#206#177#207#128#206#191#207#132#206
+  +#181#206#187#206#173#207#131#206#188#206#177#207#132#206#177' - '#207#128#207
+  +#129#206#191#207#131#206#177#207#129#206#188#207#140#207#131#207#132#206#181
+  +' '#207#132#206#191' '#207#134#206#175#206#187#207#132#207#129#206#191' '#206
+  +#179#206#185#206#177' '#206#189#206#177' '#207#128#206#181#207#129#206#185
+  +#206#191#207#129#206#175#207#131#206#181#207#132#206#181' '#207#132#206#177
+  +' '#206#177#207#128#206#191#207#132#206#181#206#187#206#173#207#131#206#188
+  +#206#177#207#132#206#177'"'#13#10#13#10'#: tfrmsearch.filter.texthint'#13#10
+  +'msgid "Type to filter..."'#13#10'msgstr "'#206#160#206#187#206#183#206#186
+  +#207#132#207#129#206#191#206#187#206#191#206#179#206#174#207#131#207#132#206
+  +#181' '#206#179#206#185#206#177' '#207#134#206#185#206#187#207#132#207#129
+  +#206#172#207#129#206#185#207#131#206#188#206#177'..."'#13#10#13#10'#: tfrmse'
+  +'arch.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr '
+  +'"'#206#151#206#188#206#181#207#129#206#191#206#188#206#183#206#189#206#175
+  +#206#177'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13
+  +#10'msgid "Source"'#13#10'msgstr "'#206#160#206#183#206#179#206#174'"'#13#10
+  +#13#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Targe'
+  +'t"'#13#10'msgstr "'#206#163#207#132#207#140#207#135#206#191#207#130'"'#13#10
+  +#13#10'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10'msgid "Text"'
+  +#13#10'msgstr "'#206#154#206#181#206#175#206#188#206#181#206#189#206#191'"'
+  +#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.caption'#13#10'msgid '
+  +'"Translation"'#13#10'msgstr "'#206#156#206#181#207#132#206#172#207#134#207
+  +#129#206#177#207#131#206#183'"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.en','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:28-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: en\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Translatio'
+  +'n History"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type to sea'
+  +'rch..."'#13#10'msgstr "Type to search..."'#13#10#13#10'#: formsearch.rsearc'
+  +'hstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d results"'#13#10
+  +'msgstr "%d results"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13#10'msg'
+  +'id "No results"'#13#10'msgstr "No results"'#13#10#13#10'#: formsearch.rsear'
+  +'chstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 result"'#13#10#13#10'#'
+  +': formsearch.rsearchstatustruncated'#13#10'#, object-pascal-format'#13#10'm'
+  +'sgid "Showing %d of %d results - refine the filter to narrow down"'#13#10'm'
+  +'sgstr "Showing %d of %d results - refine the filter to narrow down"'#13#10
+  +#13#10'#: tfrmsearch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10
+  +'msgstr "Type to filter..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0]'
+  +'.title.caption'#13#10'msgid "Date"'#13#10'msgstr "Date"'#13#10#13#10'#: tfr'
+  +'msearch.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13#10'ms'
+  +'gstr "Source"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[2].title.captio'
+  +'n'#13#10'msgid "Target"'#13#10'msgstr "Target"'#13#10#13#10'#: tfrmsearch.g'
+  +'ridsearch.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "Text"'
+  +#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.caption'#13#10'msgid '
+  +'"Translation"'#13#10'msgstr "Translation"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.es','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:28-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: es\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Historial '
+  +'de traducciones"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type '
+  +'to search..."'#13#10'msgstr "Escriba para buscar..."'#13#10#13#10'#: formse'
+  +'arch.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d resu'
+  +'lts"'#13#10'msgstr "%d resultados"'#13#10#13#10'#: formsearch.rsearchstatus'
+  +'none'#13#10'msgid "No results"'#13#10'msgstr "No hay resultados"'#13#10#13
+  +#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 '
+  +'resultado"'#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, obje'
+  +'ct-pascal-format'#13#10'msgid "Showing %d of %d results - refine the filter'
+  +' to narrow down"'#13#10'msgstr "Mostrando %d de %d resultados - refine el f'
+  +'iltro para reducir los resultados"'#13#10#13#10'#: tfrmsearch.filter.texthi'
+  +'nt'#13#10'msgid "Type to filter..."'#13#10'msgstr "Escriba para filtrar..."'
+  +#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10'msgid '
+  +'"Date"'#13#10'msgstr "Fecha"'#13#10#13#10'#: tfrmsearch.gridsearch.columns['
+  +'1].title.caption'#13#10'msgid "Source"'#13#10'msgstr "Origen"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13
+  +#10'msgstr "Destino"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.'
+  +'caption'#13#10'msgid "Text"'#13#10'msgstr "Texto"'#13#10#13#10'#: tfrmsearc'
+  +'h.gridsearch.columns[4].title.caption'#13#10'msgid "Translation"'#13#10'msg'
+  +'str "Traducci'#195#179'n"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.fi','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:28-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: fi\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "K'#195#164
+  +#195#164'nn'#195#182'shistoria"'#13#10#13#10'#: formsearch.rsearchhint'#13#10
+  +'msgid "Type to search..."'#13#10'msgstr "Kirjoita hakeaksesi..."'#13#10#13
+  +#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'ms'
+  +'gid "%d results"'#13#10'msgstr "%d tulosta"'#13#10#13#10'#: formsearch.rsea'
+  +'rchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "Ei tuloksia"'#13#10
+  +#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr '
+  +'"1 tulos"'#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, objec'
+  +'t-pascal-format'#13#10'msgid "Showing %d of %d results - refine the filter '
+  +'to narrow down"'#13#10'msgstr "N'#195#164'ytet'#195#164#195#164'n %d / %d t'
+  +'ulosta - tarkenna suodatinta rajataksesi tuloksia"'#13#10#13#10'#: tfrmsear'
+  +'ch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "Kirjoita'
+  +' suodattaaksesi..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].title.'
+  +'caption'#13#10'msgid "Date"'#13#10'msgstr "P'#195#164'iv'#195#164'm'#195#164
+  +#195#164'r'#195#164'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title'
+  +'.caption'#13#10'msgid "Source"'#13#10'msgstr "L'#195#164'hde"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13
+  +#10'msgstr "Kohde"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.ca'
+  +'ption'#13#10'msgid "Text"'#13#10'msgstr "Teksti"'#13#10#13#10'#: tfrmsearch'
+  +'.gridsearch.columns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgs'
+  +'tr "K'#195#164#195#164'nn'#195#182's"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.fr','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:28-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: fr\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' > 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.r'
+  +'searchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Historique '
+  +'des traductions"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type '
+  +'to search..."'#13#10'msgstr "Saisissez pour rechercher..."'#13#10#13#10'#: '
+  +'formsearch.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%'
+  +'d results"'#13#10'msgstr "%d r'#195#169'sultats"'#13#10#13#10'#: formsearch'
+  +'.rsearchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "Aucun r'#195#169
+  +'sultat"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 result"'
+  +#13#10'msgstr "1 r'#195#169'sultat"'#13#10#13#10'#: formsearch.rsearchstatus'
+  +'truncated'#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d res'
+  +'ults - refine the filter to narrow down"'#13#10'msgstr "Affichage de %d sur'
+  +' %d r'#195#169'sultats - affinez le filtre pour r'#195#169'duire les r'#195
+  +#169'sultats"'#13#10#13#10'#: tfrmsearch.filter.texthint'#13#10'msgid "Type '
+  +'to filter..."'#13#10'msgstr "Saisissez pour filtrer..."'#13#10#13#10'#: tfr'
+  +'msearch.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgs'
+  +'tr "Date"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13
+  +#10'msgid "Source"'#13#10'msgstr "Source"'#13#10#13#10'#: tfrmsearch.gridsea'
+  +'rch.columns[2].title.caption'#13#10'msgid "Target"'#13#10'msgstr "Cible"'#13
+  +#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10'msgid "Te'
+  +'xt"'#13#10'msgstr "Texte"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].'
+  +'title.caption'#13#10'msgid "Translation"'#13#10'msgstr "Traduction"'#13#10
+  +#13#10
+]);
+LazarusResources.Add('formsearch.he','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:28-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: he\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#215#148
+  +#215#153#215#161#215#152#215#149#215#168#215#153#215#153#215#170' '#215#170
+  +#215#168#215#146#215#149#215#157'"'#13#10#13#10'#: formsearch.rsearchhint'#13
+  +#10'msgid "Type to search..."'#13#10'msgstr "'#215#148#215#167#215#156#215
+  +#147' '#215#156#215#151#215#153#215#164#215#149#215#169'..."'#13#10#13#10'#:'
+  +' formsearch.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "'
+  +'%d results"'#13#10'msgstr "%d '#215#170#215#149#215#166#215#144#215#149#215
+  +#170'"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13#10'msgid "No results'
+  +'"'#13#10'msgstr "'#215#144#215#153#215#159' '#215#170#215#149#215#166#215
+  +#144#215#149#215#170'"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'ms'
+  +'gid "1 result"'#13#10'msgstr "'#215#170#215#149#215#166#215#144#215#148' '
+  +#215#144#215#151#215#170'"'#13#10#13#10'#: formsearch.rsearchstatustruncated'
+  +#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d results - refi'
+  +'ne the filter to narrow down"'#13#10'msgstr "'#215#158#215#166#215#153#215
+  +#146' %d '#215#158#215#170#215#149#215#154' %d '#215#170#215#149#215#166#215
+  +#144#215#149#215#170' - '#215#169#215#164#215#168' '#215#144#215#170' '#215
+  +#148#215#158#215#161#215#160#215#159' '#215#155#215#147#215#153' '#215#156
+  +#215#166#215#158#215#166#215#157' '#215#144#215#170' '#215#148#215#170#215
+  +#149#215#166#215#144#215#149#215#170'"'#13#10#13#10'#: tfrmsearch.filter.tex'
+  +'thint'#13#10'msgid "Type to filter..."'#13#10'msgstr "'#215#148#215#167#215
+  +#156#215#147' '#215#156#215#161#215#153#215#160#215#149#215#159'..."'#13#10
+  +#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'
+  +#13#10'msgstr "'#215#170#215#144#215#168#215#153#215#154'"'#13#10#13#10'#: t'
+  +'frmsearch.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13#10
+  +'msgstr "'#215#158#215#167#215#149#215#168'"'#13#10#13#10'#: tfrmsearch.grid'
+  +'search.columns[2].title.caption'#13#10'msgid "Target"'#13#10'msgstr "'#215
+  +#153#215#162#215#147'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].titl'
+  +'e.caption'#13#10'msgid "Text"'#13#10'msgstr "'#215#152#215#167#215#161#215
+  +#152'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.caption'#13#10
+  +'msgid "Translation"'#13#10'msgstr "'#215#170#215#168#215#146#215#149#215#157
+  +'"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.hi','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:28-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: hi\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' > 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.r'
+  +'searchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#224#164
+  +#133#224#164#168#224#165#129#224#164#181#224#164#190#224#164#166' '#224#164
+  +#135#224#164#164#224#164#191#224#164#185#224#164#190#224#164#184'"'#13#10#13
+  +#10'#: formsearch.rsearchhint'#13#10'msgid "Type to search..."'#13#10'msgstr'
+  +' "'#224#164#150#224#165#139#224#164#156#224#164#168#224#165#135' '#224#164
+  +#149#224#165#135' '#224#164#178#224#164#191#224#164#143' '#224#164#159#224
+  +#164#190#224#164#135#224#164#170' '#224#164#149#224#164#176#224#165#135#224
+  +#164#130'..."'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-'
+  +'pascal-format'#13#10'msgid "%d results"'#13#10'msgstr "%d '#224#164#170#224
+  +#164#176#224#164#191#224#164#163#224#164#190#224#164#174'"'#13#10#13#10'#: f'
+  +'ormsearch.rsearchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "'#224
+  +#164#149#224#165#139#224#164#136' '#224#164#170#224#164#176#224#164#191#224
+  +#164#163#224#164#190#224#164#174' '#224#164#168#224#164#185#224#165#128#224
+  +#164#130'"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 resul'
+  +'t"'#13#10'msgstr "1 '#224#164#170#224#164#176#224#164#191#224#164#163#224
+  +#164#190#224#164#174'"'#13#10#13#10'#: formsearch.rsearchstatustruncated'#13
+  +#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d results - refine '
+  +'the filter to narrow down"'#13#10'msgstr "%d '#224#164#174#224#165#135#224
+  +#164#130' '#224#164#184#224#165#135' %d '#224#164#170#224#164#176#224#164#191
+  +#224#164#163#224#164#190#224#164#174' '#224#164#166#224#164#191#224#164#150
+  +#224#164#190#224#164#143' '#224#164#156#224#164#190' '#224#164#176#224#164
+  +#185#224#165#135' '#224#164#185#224#165#136#224#164#130' - '#224#164#170#224
+  +#164#176#224#164#191#224#164#163#224#164#190#224#164#174' '#224#164#184#224
+  +#165#128#224#164#174#224#164#191#224#164#164' '#224#164#149#224#164#176#224
+  +#164#168#224#165#135' '#224#164#149#224#165#135' '#224#164#178#224#164#191
+  +#224#164#143' '#224#164#171#224#164#188#224#164#191#224#164#178#224#165#141
+  +#224#164#159#224#164#176' '#224#164#149#224#165#139' '#224#164#170#224#164
+  +#176#224#164#191#224#164#183#224#165#141#224#164#149#224#165#131#224#164#164
+  +' '#224#164#149#224#164#176#224#165#135#224#164#130'"'#13#10#13#10'#: tfrmse'
+  +'arch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "'#224
+  +#164#171#224#164#188#224#164#191#224#164#178#224#165#141#224#164#159#224#164
+  +#176' '#224#164#149#224#164#176#224#164#168#224#165#135' '#224#164#149#224
+  +#165#135' '#224#164#178#224#164#191#224#164#143' '#224#164#159#224#164#190
+  +#224#164#135#224#164#170' '#224#164#149#224#164#176#224#165#135#224#164#130
+  +'..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10
+  +'msgid "Date"'#13#10'msgstr "'#224#164#164#224#164#190#224#164#176#224#165
+  +#128#224#164#150'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.ca'
+  +'ption'#13#10'msgid "Source"'#13#10'msgstr "'#224#164#184#224#165#141#224#164
+  +#176#224#165#139#224#164#164'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns'
+  +'[2].title.caption'#13#10'msgid "Target"'#13#10'msgstr "'#224#164#178#224#164
+  +#149#224#165#141#224#164#183#224#165#141#224#164#175'"'#13#10#13#10'#: tfrms'
+  +'earch.gridsearch.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr'
+  +' "'#224#164#170#224#164#190#224#164#160'"'#13#10#13#10'#: tfrmsearch.gridse'
+  +'arch.columns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "'
+  +#224#164#133#224#164#168#224#165#129#224#164#181#224#164#190#224#164#166'"'
+  +#13#10#13#10
+]);
+LazarusResources.Add('formsearch.id','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:28-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: id\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=1; plural=0'
+  +';\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rsear'
+  +'chcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Riwayat Terjema'
+  +'han"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type to search...'
+  +'"'#13#10'msgstr "Ketik untuk mencari..."'#13#10#13#10'#: formsearch.rsearch'
+  +'statusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d results"'#13#10
+  +'msgstr "%d hasil"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13#10'msgid'
+  +' "No results"'#13#10'msgstr "Tidak ada hasil"'#13#10#13#10'#: formsearch.rs'
+  +'earchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 hasil"'#13#10#13#10
+  +'#: formsearch.rsearchstatustruncated'#13#10'#, object-pascal-format'#13#10
+  +'msgid "Showing %d of %d results - refine the filter to narrow down"'#13#10
+  +'msgstr "Menampilkan %d dari %d hasil - sesuaikan filter untuk mempersempit '
+  +'hasil"'#13#10#13#10'#: tfrmsearch.filter.texthint'#13#10'msgid "Type to fil'
+  +'ter..."'#13#10'msgstr "Ketik untuk memfilter..."'#13#10#13#10'#: tfrmsearch'
+  +'.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr "Tan'
+  +'ggal"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13#10
+  +'msgid "Source"'#13#10'msgstr "Sumber"'#13#10#13#10'#: tfrmsearch.gridsearch'
+  +'.columns[2].title.caption'#13#10'msgid "Target"'#13#10'msgstr "Target"'#13
+  +#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10'msgid "Te'
+  +'xt"'#13#10'msgstr "Teks"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].t'
+  +'itle.caption'#13#10'msgid "Translation"'#13#10'msgstr "Terjemahan"'#13#10#13
+  +#10
+]);
+LazarusResources.Add('formsearch.it','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: it\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Cronologia'
+  +' traduzioni"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type to s'
+  +'earch..."'#13#10'msgstr "Digita per cercare..."'#13#10#13#10'#: formsearch.'
+  +'rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d results"'
+  +#13#10'msgstr "%d risultati"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13
+  +#10'msgid "No results"'#13#10'msgstr "Nessun risultato"'#13#10#13#10'#: form'
+  +'search.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 risultato"'
+  +#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, object-pascal-fo'
+  +'rmat'#13#10'msgid "Showing %d of %d results - refine the filter to narrow d'
+  +'own"'#13#10'msgstr "Visualizzazione di %d su %d risultati - perfeziona il f'
+  +'iltro per restringere i risultati"'#13#10#13#10'#: tfrmsearch.filter.texthi'
+  +'nt'#13#10'msgid "Type to filter..."'#13#10'msgstr "Digita per filtrare..."'
+  +#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10'msgid '
+  +'"Date"'#13#10'msgstr "Data"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1'
+  +'].title.caption'#13#10'msgid "Source"'#13#10'msgstr "Origine"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13
+  +#10'msgstr "Destinazione"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].t'
+  +'itle.caption'#13#10'msgid "Text"'#13#10'msgstr "Testo"'#13#10#13#10'#: tfrm'
+  +'search.gridsearch.columns[4].title.caption'#13#10'msgid "Translation"'#13#10
+  +'msgstr "Traduzione"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.ja','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: ja\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=1; plural=0'
+  +';\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rsear'
+  +'chcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#231#191#187
+  +#232#168#179#229#177#165#230#173#180'"'#13#10#13#10'#: formsearch.rsearchhin'
+  +'t'#13#10'msgid "Type to search..."'#13#10'msgstr "'#230#164#156#231#180#162
+  +#227#129#153#227#130#139#227#129#171#227#129#175#229#133#165#229#138#155'...'
+  +'"'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-form'
+  +'at'#13#10'msgid "%d results"'#13#10'msgstr "%d '#228#187#182#227#129#174#231
+  +#181#144#230#158#156'"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13#10'm'
+  +'sgid "No results"'#13#10'msgstr "'#231#181#144#230#158#156#227#129#170#227
+  +#129#151'"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 resul'
+  +'t"'#13#10'msgstr "1 '#228#187#182#227#129#174#231#181#144#230#158#156'"'#13
+  +#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, object-pascal-forma'
+  +'t'#13#10'msgid "Showing %d of %d results - refine the filter to narrow down'
+  +'"'#13#10'msgstr "%d '#228#187#182#228#184#173' %d '#228#187#182#227#130#146
+  +#232#161#168#231#164#186' - '#227#131#149#227#130#163#227#131#171#227#130#191
+  +#227#131#188#227#130#146#232#170#191#230#149#180#227#129#151#227#129#166#231
+  +#181#144#230#158#156#227#130#146#231#181#158#227#130#138#232#190#188#227#130
+  +#147#227#129#167#227#129#143#227#129#160#227#129#149#227#129#132'"'#13#10#13
+  +#10'#: tfrmsearch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'ms'
+  +'gstr "'#227#131#149#227#130#163#227#131#171#227#130#191#227#131#188#227#129
+  +#153#227#130#139#227#129#171#227#129#175#229#133#165#229#138#155'..."'#13#10
+  +#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'
+  +#13#10'msgstr "'#230#151#165#228#187#152'"'#13#10#13#10'#: tfrmsearch.gridse'
+  +'arch.columns[1].title.caption'#13#10'msgid "Source"'#13#10'msgstr "'#231#191
+  +#187#232#168#179#229#133#131'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns'
+  +'[2].title.caption'#13#10'msgid "Target"'#13#10'msgstr "'#231#191#187#232#168
+  +#179#229#133#136'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.ca'
+  +'ption'#13#10'msgid "Text"'#13#10'msgstr "'#227#131#134#227#130#173#227#130
+  +#185#227#131#136'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.ca'
+  +'ption'#13#10'msgid "Translation"'#13#10'msgstr "'#231#191#187#232#168#179'"'
+  +#13#10#13#10
+]);
+LazarusResources.Add('formsearch.ko','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: ko\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=1; plural=0'
+  +';\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rsear'
+  +'chcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#235#178#136
+  +#236#151#173' '#234#184#176#235#161#157'"'#13#10#13#10'#: formsearch.rsearch'
+  +'hint'#13#10'msgid "Type to search..."'#13#10'msgstr "'#234#178#128#236#131
+  +#137#237#149#152#235#160#164#235#169#180' '#236#158#133#235#160#165'..."'#13
+  +#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-format'#13
+  +#10'msgid "%d results"'#13#10'msgstr "%d'#234#176#156#236#157#152' '#234#178
+  +#176#234#179#188'"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13#10'msgid'
+  +' "No results"'#13#10'msgstr "'#234#178#176#234#179#188' '#236#151#134#236
+  +#157#140'"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 resul'
+  +'t"'#13#10'msgstr "'#234#178#176#234#179#188' 1'#234#176#156'"'#13#10#13#10
+  +'#: formsearch.rsearchstatustruncated'#13#10'#, object-pascal-format'#13#10
+  +'msgid "Showing %d of %d results - refine the filter to narrow down"'#13#10
+  +'msgstr "%d'#234#176#156' '#236#164#145' %d'#234#176#156' '#234#178#176#234
+  +#179#188' '#237#145#156#236#139#156' - '#237#149#132#237#132#176#235#165#188
+  +' '#236#161#176#236#160#149#237#149#152#236#151#172' '#234#178#176#234#179
+  +#188#235#165#188' '#236#162#129#237#158#136#236#132#184#236#154#148'"'#13#10
+  +#13#10'#: tfrmsearch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10
+  +'msgstr "'#237#149#132#237#132#176#235#167#129#237#149#152#235#160#164#235
+  +#169#180' '#236#158#133#235#160#165'..."'#13#10#13#10'#: tfrmsearch.gridsear'
+  +'ch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr "'#235#130#160
+  +#236#167#156'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.captio'
+  +'n'#13#10'msgid "Source"'#13#10'msgstr "'#236#155#144#235#179#184'"'#13#10#13
+  +#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'
+  +#13#10'msgstr "'#235#140#128#236#131#129'"'#13#10#13#10'#: tfrmsearch.gridse'
+  +'arch.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "'#237#133
+  +#141#236#138#164#237#138#184'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns'
+  +'[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "'#235#178#136
+  +#236#151#173'"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.nl','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: nl\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Vertaalges'
+  +'chiedenis"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type to sea'
+  +'rch..."'#13#10'msgstr "Typ om te zoeken..."'#13#10#13#10'#: formsearch.rsea'
+  +'rchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d results"'#13
+  +#10'msgstr "%d resultaten"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13
+  +#10'msgid "No results"'#13#10'msgstr "Geen resultaten"'#13#10#13#10'#: forms'
+  +'earch.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 resultaat"'
+  +#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, object-pascal-fo'
+  +'rmat'#13#10'msgid "Showing %d of %d results - refine the filter to narrow d'
+  +'own"'#13#10'msgstr "%d van %d resultaten weergegeven - verfijn het filter o'
+  +'m de resultaten te beperken"'#13#10#13#10'#: tfrmsearch.filter.texthint'#13
+  +#10'msgid "Type to filter..."'#13#10'msgstr "Typ om te filteren..."'#13#10#13
+  +#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'#13
+  +#10'msgstr "Datum"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.ca'
+  +'ption'#13#10'msgid "Source"'#13#10'msgstr "Bron"'#13#10#13#10'#: tfrmsearch'
+  +'.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13#10'msgstr "D'
+  +'oel"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10
+  +'msgid "Text"'#13#10'msgstr "Tekst"'#13#10#13#10'#: tfrmsearch.gridsearch.co'
+  +'lumns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "Vertaling"'
+  +#13#10#13#10
+]);
+LazarusResources.Add('formsearch.pl','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: pl\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=3; plural=n'
+  +'==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2;\n"'#13#10'"'
+  +'X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rsearchcaption'#13
+  +#10'msgid "Translation History"'#13#10'msgstr "Historia t'#197#130'umacze'
+  +#197#132'"'#13#10#13#10'#: formsearch.rsearchhint'#13#10'msgid "Type to sear'
+  +'ch..."'#13#10'msgstr "Wpisz, aby wyszuka'#196#135'..."'#13#10#13#10'#: form'
+  +'search.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d re'
+  +'sults"'#13#10'msgstr "%d wynik'#195#179'w"'#13#10#13#10'#: formsearch.rsear'
+  +'chstatusnone'#13#10'msgid "No results"'#13#10'msgstr "Brak wynik'#195#179'w'
+  +'"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 result"'#13#10
+  +'msgstr "1 wynik"'#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#'
+  +', object-pascal-format'#13#10'msgid "Showing %d of %d results - refine the '
+  +'filter to narrow down"'#13#10'msgstr "Wy'#197#155'wietlono %d z %d wynik'
+  +#195#179'w - doprecyzuj filtr, aby zaw'#196#153'zi'#196#135' wyniki"'#13#10
+  +#13#10'#: tfrmsearch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10
+  +'msgstr "Wpisz, aby filtrowa'#196#135'..."'#13#10#13#10'#: tfrmsearch.gridse'
+  +'arch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr "Data"'#13
+  +#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13#10'msgid "So'
+  +'urce"'#13#10'msgstr "'#197#185'r'#195#179'd'#197#130'o"'#13#10#13#10'#: tfr'
+  +'msearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13#10'ms'
+  +'gstr "Cel"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.caption'
+  +#13#10'msgid "Text"'#13#10'msgstr "Tekst"'#13#10#13#10'#: tfrmsearch.gridsea'
+  +'rch.columns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "T'
+  +#197#130'umaczenie"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.pt','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: pt\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Hist'#195
+  +#179'rico de tradu'#195#167#195#181'es"'#13#10#13#10'#: formsearch.rsearchhi'
+  +'nt'#13#10'msgid "Type to search..."'#13#10'msgstr "Digite para pesquisar...'
+  +'"'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-form'
+  +'at'#13#10'msgid "%d results"'#13#10'msgstr "%d resultados"'#13#10#13#10'#: '
+  +'formsearch.rsearchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "Nenhu'
+  +'m resultado"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 re'
+  +'sult"'#13#10'msgstr "1 resultado"'#13#10#13#10'#: formsearch.rsearchstatust'
+  +'runcated'#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d resu'
+  +'lts - refine the filter to narrow down"'#13#10'msgstr "Exibindo %d de %d re'
+  +'sultados - refine o filtro para restringir os resultados"'#13#10#13#10'#: t'
+  +'frmsearch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "D'
+  +'igite para filtrar..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].tit'
+  +'le.caption'#13#10'msgid "Date"'#13#10'msgstr "Data"'#13#10#13#10'#: tfrmsea'
+  +'rch.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13#10'msgstr'
+  +' "Origem"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13
+  +#10'msgid "Target"'#13#10'msgstr "Destino"'#13#10#13#10'#: tfrmsearch.gridse'
+  +'arch.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "Texto"'#13
+  +#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.caption'#13#10'msgid "Tr'
+  +'anslation"'#13#10'msgstr "Tradu'#195#167#195#163'o"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.pt-BR','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: pt-BR\n"'#13#10'"MIME'
+  +'-Version: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10
+  +'"Content-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plura'
+  +'l=n > 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearc'
+  +'h.rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "Hist'#195
+  +#179'rico de tradu'#195#167#195#181'es"'#13#10#13#10'#: formsearch.rsearchhi'
+  +'nt'#13#10'msgid "Type to search..."'#13#10'msgstr "Digite para pesquisar...'
+  +'"'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal-form'
+  +'at'#13#10'msgid "%d results"'#13#10'msgstr "%d resultados"'#13#10#13#10'#: '
+  +'formsearch.rsearchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "Nenhu'
+  +'m resultado"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 re'
+  +'sult"'#13#10'msgstr "1 resultado"'#13#10#13#10'#: formsearch.rsearchstatust'
+  +'runcated'#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d resu'
+  +'lts - refine the filter to narrow down"'#13#10'msgstr "Exibindo %d de %d re'
+  +'sultados - refine o filtro para restringir os resultados"'#13#10#13#10'#: t'
+  +'frmsearch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "D'
+  +'igite para filtrar..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].tit'
+  +'le.caption'#13#10'msgid "Date"'#13#10'msgstr "Data"'#13#10#13#10'#: tfrmsea'
+  +'rch.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13#10'msgstr'
+  +' "Origem"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13
+  +#10'msgid "Target"'#13#10'msgstr "Destino"'#13#10#13#10'#: tfrmsearch.gridse'
+  +'arch.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "Texto"'#13
+  +#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.caption'#13#10'msgid "Tr'
+  +'anslation"'#13#10'msgstr "Tradu'#195#167#195#163'o"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.ro','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: ro\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=3; plural=n'
+  +'==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2;\n"'#13#10'"X-Generat'
+  +'or: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rsearchcaption'#13#10'msgid'
+  +' "Translation History"'#13#10'msgstr "Istoric traduceri"'#13#10#13#10'#: fo'
+  +'rmsearch.rsearchhint'#13#10'msgid "Type to search..."'#13#10'msgstr "Tasta'
+  +#200#155'i pentru a c'#196#131'uta..."'#13#10#13#10'#: formsearch.rsearchsta'
+  +'tusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d results"'#13#10'msg'
+  +'str "%d rezultate"'#13#10#13#10'#: formsearch.rsearchstatusnone'#13#10'msgi'
+  +'d "No results"'#13#10'msgstr "Niciun rezultat"'#13#10#13#10'#: formsearch.r'
+  +'searchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 rezultat"'#13#10#13
+  +#10'#: formsearch.rsearchstatustruncated'#13#10'#, object-pascal-format'#13
+  +#10'msgid "Showing %d of %d results - refine the filter to narrow down"'#13
+  +#10'msgstr "Se afi'#200#153'eaz'#196#131' %d din %d rezultate - rafina'#200
+  +#155'i filtrul pentru a restr'#195#162'nge rezultatele"'#13#10#13#10'#: tfrm'
+  +'search.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "Tast'
+  +'a'#200#155'i pentru a filtra..."'#13#10#13#10'#: tfrmsearch.gridsearch.colu'
+  +'mns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr "Data"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13
+  +#10'msgstr "Surs'#196#131'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[2]'
+  +'.title.caption'#13#10'msgid "Target"'#13#10'msgstr "'#200#154'int'#196#131
+  +'"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10'msg'
+  +'id "Text"'#13#10'msgstr "Text"'#13#10#13#10'#: tfrmsearch.gridsearch.column'
+  +'s[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "Traducere"'#13
+  +#10#13#10
+]);
+LazarusResources.Add('formsearch.ru','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:30-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: ru\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=3; plural=n'
+  +'%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 '
+  +': 2;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rs'
+  +'earchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#208#152#209
+  +#129#209#130#208#190#209#128#208#184#209#143' '#208#191#208#181#209#128#208
+  +#181#208#178#208#190#208#180#208#190#208#178'"'#13#10#13#10'#: formsearch.rs'
+  +'earchhint'#13#10'msgid "Type to search..."'#13#10'msgstr "'#208#146#208#178
+  +#208#181#208#180#208#184#209#130#208#181' '#208#180#208#187#209#143' '#208
+  +#191#208#190#208#184#209#129#208#186#208#176'..."'#13#10#13#10'#: formsearch'
+  +'.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d results"'
+  +#13#10'msgstr "%d '#209#128#208#181#208#183#209#131#208#187#209#140#209#130
+  +#208#176#209#130#208#190#208#178'"'#13#10#13#10'#: formsearch.rsearchstatusn'
+  +'one'#13#10'msgid "No results"'#13#10'msgstr "'#208#157#208#181#209#130' '
+  +#209#128#208#181#208#183#209#131#208#187#209#140#209#130#208#176#209#130#208
+  +#190#208#178'"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 r'
+  +'esult"'#13#10'msgstr "1 '#209#128#208#181#208#183#209#131#208#187#209#140
+  +#209#130#208#176#209#130'"'#13#10#13#10'#: formsearch.rsearchstatustruncated'
+  +#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d results - refi'
+  +'ne the filter to narrow down"'#13#10'msgstr "'#208#159#208#190#208#186#208
+  +#176#208#183#208#176#208#189#208#190' %d '#208#184#208#183' %d '#209#128#208
+  +#181#208#183#209#131#208#187#209#140#209#130#208#176#209#130#208#190#208#178
+  +' - '#209#131#209#130#208#190#209#135#208#189#208#184#209#130#208#181' '#209
+  +#132#208#184#208#187#209#140#209#130#209#128', '#209#135#209#130#208#190#208
+  +#177#209#139' '#209#129#209#131#208#183#208#184#209#130#209#140' '#208#191
+  +#208#190#208#184#209#129#208#186'"'#13#10#13#10'#: tfrmsearch.filter.texthin'
+  +'t'#13#10'msgid "Type to filter..."'#13#10'msgstr "'#208#146#208#178#208#181
+  +#208#180#208#184#209#130#208#181' '#208#180#208#187#209#143' '#209#132#208
+  +#184#208#187#209#140#209#130#209#128#208#176#209#134#208#184#208#184'..."'#13
+  +#10#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10'msgid "Da'
+  +'te"'#13#10'msgstr "'#208#148#208#176#209#130#208#176'"'#13#10#13#10'#: tfrm'
+  +'search.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13#10'msg'
+  +'str "'#208#152#209#129#209#130#208#190#209#135#208#189#208#184#208#186'"'#13
+  +#10#13#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Ta'
+  +'rget"'#13#10'msgstr "'#208#166#208#181#208#187#209#140'"'#13#10#13#10'#: tf'
+  +'rmsearch.gridsearch.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msg'
+  +'str "'#208#162#208#181#208#186#209#129#209#130'"'#13#10#13#10'#: tfrmsearch'
+  +'.gridsearch.columns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgs'
+  +'tr "'#208#159#208#181#209#128#208#181#208#178#208#190#208#180'"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.sv','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:29-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: sv\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#195#150
+  +'vers'#195#164'ttningshistorik"'#13#10#13#10'#: formsearch.rsearchhint'#13#10
+  +'msgid "Type to search..."'#13#10'msgstr "Skriv f'#195#182'r att s'#195#182
+  +'ka..."'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pascal'
+  +'-format'#13#10'msgid "%d results"'#13#10'msgstr "%d resultat"'#13#10#13#10
+  +'#: formsearch.rsearchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "In'
+  +'ga resultat"'#13#10#13#10'#: formsearch.rsearchstatusone'#13#10'msgid "1 re'
+  +'sult"'#13#10'msgstr "1 resultat"'#13#10#13#10'#: formsearch.rsearchstatustr'
+  +'uncated'#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d resul'
+  +'ts - refine the filter to narrow down"'#13#10'msgstr "Visar %d av %d result'
+  +'at - f'#195#182'rfina filtret f'#195#182'r att begr'#195#164'nsa resultaten'
+  +'"'#13#10#13#10'#: tfrmsearch.filter.texthint'#13#10'msgid "Type to filter..'
+  +'."'#13#10'msgstr "Skriv f'#195#182'r att filtrera..."'#13#10#13#10'#: tfrms'
+  +'earch.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr'
+  +' "Datum"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13
+  +#10'msgid "Source"'#13#10'msgstr "K'#195#164'lla"'#13#10#13#10'#: tfrmsearch'
+  +'.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13#10'msgstr "M'
+  +#195#165'l"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[3].title.caption'
+  +#13#10'msgid "Text"'#13#10'msgstr "Text"'#13#10#13#10'#: tfrmsearch.gridsear'
+  +'ch.columns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "'#195
+  +#150'vers'#195#164'ttning"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.tr','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:30-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: tr\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=2; plural=n'
+  +' != 1;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.'
+  +'rsearchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#195#135
+  +'eviri Ge'#195#167'mi'#197#159'i"'#13#10#13#10'#: formsearch.rsearchhint'#13
+  +#10'msgid "Type to search..."'#13#10'msgstr "Aramak i'#195#167'in yaz'#196
+  +#177'n..."'#13#10#13#10'#: formsearch.rsearchstatusmany'#13#10'#, object-pas'
+  +'cal-format'#13#10'msgid "%d results"'#13#10'msgstr "%d sonu'#195#167'"'#13
+  +#10#13#10'#: formsearch.rsearchstatusnone'#13#10'msgid "No results"'#13#10'm'
+  +'sgstr "Sonu'#195#167' yok"'#13#10#13#10'#: formsearch.rsearchstatusone'#13
+  +#10'msgid "1 result"'#13#10'msgstr "1 sonu'#195#167'"'#13#10#13#10'#: formse'
+  +'arch.rsearchstatustruncated'#13#10'#, object-pascal-format'#13#10'msgid "Sh'
+  +'owing %d of %d results - refine the filter to narrow down"'#13#10'msgstr "%'
+  +'d sonu'#195#167'tan %d tanesi g'#195#182'steriliyor - sonu'#195#167'lar'#196
+  +#177' daraltmak i'#195#167'in filtreyi iyile'#197#159'tirin"'#13#10#13#10'#:'
+  +' tfrmsearch.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr '
+  +'"Filtrelemek i'#195#167'in yaz'#196#177'n..."'#13#10#13#10'#: tfrmsearch.gr'
+  +'idsearch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'msgstr "Tarih"'
+  +#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13#10'msgid '
+  +'"Source"'#13#10'msgstr "Kaynak"'#13#10#13#10'#: tfrmsearch.gridsearch.colum'
+  +'ns[2].title.caption'#13#10'msgid "Target"'#13#10'msgstr "Hedef"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10'msgid "Text"'#13#10
+  +'msgstr "Metin"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.capti'
+  +'on'#13#10'msgid "Translation"'#13#10'msgstr "'#195#135'eviri"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.uk','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:30-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: uk\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=3; plural=n'
+  +'%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 '
+  +': 2;\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rs'
+  +'earchcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#208#134#209
+  +#129#209#130#208#190#209#128#209#150#209#143' '#208#191#208#181#209#128#208
+  +#181#208#186#208#187#208#176#208#180#209#150#208#178'"'#13#10#13#10'#: forms'
+  +'earch.rsearchhint'#13#10'msgid "Type to search..."'#13#10'msgstr "'#208#146
+  +#208#178#208#181#208#180#209#150#209#130#209#140' '#208#180#208#187#209#143
+  +' '#208#191#208#190#209#136#209#131#208#186#209#131'..."'#13#10#13#10'#: for'
+  +'msearch.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d r'
+  +'esults"'#13#10'msgstr "%d '#209#128#208#181#208#183#209#131#208#187#209#140
+  +#209#130#208#176#209#130#209#150#208#178'"'#13#10#13#10'#: formsearch.rsearc'
+  +'hstatusnone'#13#10'msgid "No results"'#13#10'msgstr "'#208#157#208#181#208
+  +#188#208#176#209#148' '#209#128#208#181#208#183#209#131#208#187#209#140#209
+  +#130#208#176#209#130#209#150#208#178'"'#13#10#13#10'#: formsearch.rsearchsta'
+  +'tusone'#13#10'msgid "1 result"'#13#10'msgstr "1 '#209#128#208#181#208#183
+  +#209#131#208#187#209#140#209#130#208#176#209#130'"'#13#10#13#10'#: formsearc'
+  +'h.rsearchstatustruncated'#13#10'#, object-pascal-format'#13#10'msgid "Showi'
+  +'ng %d of %d results - refine the filter to narrow down"'#13#10'msgstr "'#208
+  +#159#208#190#208#186#208#176#208#183#208#176#208#189#208#190' %d '#208#183' '
+  +'%d '#209#128#208#181#208#183#209#131#208#187#209#140#209#130#208#176#209#130
+  +#209#150#208#178' - '#209#131#209#130#208#190#209#135#208#189#209#150#209#130
+  +#209#140' '#209#132#209#150#208#187#209#140#209#130#209#128', '#209#137#208
+  +#190#208#177' '#208#183#208#178#209#131#208#183#208#184#209#130#208#184' '
+  +#208#191#208#190#209#136#209#131#208#186'"'#13#10#13#10'#: tfrmsearch.filter'
+  +'.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "'#208#146#208#178
+  +#208#181#208#180#209#150#209#130#209#140' '#208#180#208#187#209#143' '#209
+  +#132#209#150#208#187#209#140#209#130#209#128#208#176#209#134#209#150#209#151
+  +'..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].title.caption'#13#10
+  +'msgid "Date"'#13#10'msgstr "'#208#148#208#176#209#130#208#176'"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[1].title.caption'#13#10'msgid "Source"'#13
+  +#10'msgstr "'#208#148#208#182#208#181#209#128#208#181#208#187#208#190'"'#13
+  +#10#13#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Ta'
+  +'rget"'#13#10'msgstr "'#208#166#209#150#208#187#209#140'"'#13#10#13#10'#: tf'
+  +'rmsearch.gridsearch.columns[3].title.caption'#13#10'msgid "Text"'#13#10'msg'
+  +'str "'#208#162#208#181#208#186#209#129#209#130'"'#13#10#13#10'#: tfrmsearch'
+  +'.gridsearch.columns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgs'
+  +'tr "'#208#159#208#181#209#128#208#181#208#186#208#187#208#176#208#180'"'#13
+  +#10#13#10
+]);
+LazarusResources.Add('formsearch.vi','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:30-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: vi\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=1; plural=0'
+  +';\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rsear'
+  +'chcaption'#13#10'msgid "Translation History"'#13#10'msgstr "L'#225#187#139
+  +'ch s'#225#187#173' d'#225#187#139'ch"'#13#10#13#10'#: formsearch.rsearchhin'
+  +'t'#13#10'msgid "Type to search..."'#13#10'msgstr "Nh'#225#186#173'p '#196
+  +#145#225#187#131' t'#195#172'm ki'#225#186#191'm..."'#13#10#13#10'#: formsea'
+  +'rch.rsearchstatusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d resul'
+  +'ts"'#13#10'msgstr "%d k'#225#186#191't qu'#225#186#163'"'#13#10#13#10'#: fo'
+  +'rmsearch.rsearchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "Kh'#195
+  +#180'ng c'#195#179' k'#225#186#191't qu'#225#186#163'"'#13#10#13#10'#: forms'
+  +'earch.rsearchstatusone'#13#10'msgid "1 result"'#13#10'msgstr "1 k'#225#186
+  +#191't qu'#225#186#163'"'#13#10#13#10'#: formsearch.rsearchstatustruncated'
+  +#13#10'#, object-pascal-format'#13#10'msgid "Showing %d of %d results - refi'
+  +'ne the filter to narrow down"'#13#10'msgstr "Hi'#225#187#131'n th'#225#187
+  +#139' %d trong s'#225#187#145' %d k'#225#186#191't qu'#225#186#163' - tinh c'
+  +'h'#225#187#137'nh b'#225#187#153' l'#225#187#141'c '#196#145#225#187#131' t'
+  +'hu h'#225#186#185'p k'#225#186#191't qu'#225#186#163'"'#13#10#13#10'#: tfrm'
+  +'search.filter.texthint'#13#10'msgid "Type to filter..."'#13#10'msgstr "Nh'
+  +#225#186#173'p '#196#145#225#187#131' l'#225#187#141'c..."'#13#10#13#10'#: t'
+  +'frmsearch.gridsearch.columns[0].title.caption'#13#10'msgid "Date"'#13#10'ms'
+  +'gstr "Ng'#195#160'y"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title'
+  +'.caption'#13#10'msgid "Source"'#13#10'msgstr "Ngu'#225#187#147'n"'#13#10#13
+  +#10'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'
+  +#13#10'msgstr "'#196#144#195#173'ch"'#13#10#13#10'#: tfrmsearch.gridsearch.c'
+  +'olumns[3].title.caption'#13#10'msgid "Text"'#13#10'msgstr "V'#196#131'n b'
+  +#225#186#163'n"'#13#10#13#10'#: tfrmsearch.gridsearch.columns[4].title.capti'
+  +'on'#13#10'msgid "Translation"'#13#10'msgstr "B'#225#186#163'n d'#225#187#139
+  +'ch"'#13#10#13#10
+]);
+LazarusResources.Add('formsearch.zh','PO',[
+  'msgid ""'#13#10'msgstr ""'#13#10'"Project-Id-Version: \n"'#13#10'"Report-Msg'
+  +'id-Bugs-To: \n"'#13#10'"POT-Creation-Date: \n"'#13#10'"PO-Revision-Date: 20'
+  +'26-11-05 21:30-0300\n"'#13#10'"Last-Translator: plaintool <astverskoy@gmail'
+  +'.com>\n"'#13#10'"Language-Team: \n"'#13#10'"Language: zh\n"'#13#10'"MIME-Ve'
+  +'rsion: 1.0\n"'#13#10'"Content-Type: text/plain; charset=UTF-8\n"'#13#10'"Co'
+  +'ntent-Transfer-Encoding: 8bit\n"'#13#10'"Plural-Forms: nplurals=1; plural=0'
+  +';\n"'#13#10'"X-Generator: PoBatch 1.0.0\n"'#13#10#13#10'#: formsearch.rsear'
+  +'chcaption'#13#10'msgid "Translation History"'#13#10'msgstr "'#231#191#187
+  +#232#175#145#229#142#134#229#143#178'"'#13#10#13#10'#: formsearch.rsearchhin'
+  +'t'#13#10'msgid "Type to search..."'#13#10'msgstr "'#232#190#147#229#133#165
+  +#228#187#165#230#144#156#231#180#162'..."'#13#10#13#10'#: formsearch.rsearch'
+  +'statusmany'#13#10'#, object-pascal-format'#13#10'msgid "%d results"'#13#10
+  +'msgstr "%d '#228#184#170#231#187#147#230#158#156'"'#13#10#13#10'#: formsear'
+  +'ch.rsearchstatusnone'#13#10'msgid "No results"'#13#10'msgstr "'#230#178#161
+  +#230#156#137#231#187#147#230#158#156'"'#13#10#13#10'#: formsearch.rsearchsta'
+  +'tusone'#13#10'msgid "1 result"'#13#10'msgstr "1 '#228#184#170#231#187#147
+  +#230#158#156'"'#13#10#13#10'#: formsearch.rsearchstatustruncated'#13#10'#, o'
+  +'bject-pascal-format'#13#10'msgid "Showing %d of %d results - refine the fil'
+  +'ter to narrow down"'#13#10'msgstr "'#230#152#190#231#164#186' %d / %d '#228
+  +#184#170#231#187#147#230#158#156' - '#232#176#131#230#149#180#231#173#155#233
+  +#128#137#230#157#161#228#187#182#228#187#165#231#188#169#229#176#143#232#140
+  +#131#229#155#180'"'#13#10#13#10'#: tfrmsearch.filter.texthint'#13#10'msgid "'
+  +'Type to filter..."'#13#10'msgstr "'#232#190#147#229#133#165#228#187#165#231
+  +#173#155#233#128#137'..."'#13#10#13#10'#: tfrmsearch.gridsearch.columns[0].t'
+  +'itle.caption'#13#10'msgid "Date"'#13#10'msgstr "'#230#151#165#230#156#159'"'
+  +#13#10#13#10'#: tfrmsearch.gridsearch.columns[1].title.caption'#13#10'msgid '
+  +'"Source"'#13#10'msgstr "'#230#186#144#232#175#173#232#168#128'"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[2].title.caption'#13#10'msgid "Target"'#13
+  +#10'msgstr "'#231#155#174#230#160#135#232#175#173#232#168#128'"'#13#10#13#10
+  +'#: tfrmsearch.gridsearch.columns[3].title.caption'#13#10'msgid "Text"'#13#10
+  +'msgstr "'#230#150#135#230#156#172'"'#13#10#13#10'#: tfrmsearch.gridsearch.c'
+  +'olumns[4].title.caption'#13#10'msgid "Translation"'#13#10'msgstr "'#231#191
+  +#187#232#175#145'"'#13#10#13#10
+]);

@@ -116,7 +116,7 @@ object FrmSearch: TFrmSearch
   object TimerDebounce: TTimer
     Enabled = False
     OnTimer = TimerDebounceTimer
-    Left = 24
-    Top = 48
+    Left = 56
+    Top = 80
   end
 end

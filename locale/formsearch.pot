@@ -1,0 +1,53 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: formsearch.rsearchcaption
+msgid "Translation History"
+msgstr ""
+
+#: formsearch.rsearchhint
+msgid "Type to search..."
+msgstr ""
+
+#: formsearch.rsearchstatusmany
+#, object-pascal-format
+msgid "%d results"
+msgstr ""
+
+#: formsearch.rsearchstatusnone
+msgid "No results"
+msgstr ""
+
+#: formsearch.rsearchstatusone
+msgid "1 result"
+msgstr ""
+
+#: formsearch.rsearchstatustruncated
+#, object-pascal-format
+msgid "Showing %d of %d results - refine the filter to narrow down"
+msgstr ""
+
+#: tfrmsearch.filter.texthint
+msgid "Type to filter..."
+msgstr ""
+
+#: tfrmsearch.gridsearch.columns[0].title.caption
+msgid "Date"
+msgstr ""
+
+#: tfrmsearch.gridsearch.columns[1].title.caption
+msgid "Source"
+msgstr ""
+
+#: tfrmsearch.gridsearch.columns[2].title.caption
+msgid "Target"
+msgstr ""
+
+#: tfrmsearch.gridsearch.columns[3].title.caption
+msgid "Text"
+msgstr ""
+
+#: tfrmsearch.gridsearch.columns[4].title.caption
+msgid "Translation"
+msgstr ""
+

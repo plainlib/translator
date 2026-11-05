@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-11-05 21:29-0300\n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2;\n"
+"X-Generator: PoBatch 1.0.0\n"
+
+#: formsearch.rsearchcaption
+msgid "Translation History"
+msgstr "Historia tłumaczeń"
+
+#: formsearch.rsearchhint
+msgid "Type to search..."
+msgstr "Wpisz, aby wyszukać..."
+
+#: formsearch.rsearchstatusmany
+#, object-pascal-format
+msgid "%d results"
+msgstr "%d wyników"
+
+#: formsearch.rsearchstatusnone
+msgid "No results"
+msgstr "Brak wyników"
+
+#: formsearch.rsearchstatusone
+msgid "1 result"
+msgstr "1 wynik"
+
+#: formsearch.rsearchstatustruncated
+#, object-pascal-format
+msgid "Showing %d of %d results - refine the filter to narrow down"
+msgstr "Wyświetlono %d z %d wyników - doprecyzuj filtr, aby zawęzić wyniki"
+
+#: tfrmsearch.filter.texthint
+msgid "Type to filter..."
+msgstr "Wpisz, aby filtrować..."
+
+#: tfrmsearch.gridsearch.columns[0].title.caption
+msgid "Date"
+msgstr "Data"
+
+#: tfrmsearch.gridsearch.columns[1].title.caption
+msgid "Source"
+msgstr "Źródło"
+
+#: tfrmsearch.gridsearch.columns[2].title.caption
+msgid "Target"
+msgstr "Cel"
+
+#: tfrmsearch.gridsearch.columns[3].title.caption
+msgid "Text"
+msgstr "Tekst"
+
+#: tfrmsearch.gridsearch.columns[4].title.caption
+msgid "Translation"
+msgstr "Tłumaczenie"
+

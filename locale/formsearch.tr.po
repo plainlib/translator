@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-11-05 21:30-0300\n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
+"Language-Team: \n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: PoBatch 1.0.0\n"
+
+#: formsearch.rsearchcaption
+msgid "Translation History"
+msgstr "Çeviri Geçmişi"
+
+#: formsearch.rsearchhint
+msgid "Type to search..."
+msgstr "Aramak için yazın..."
+
+#: formsearch.rsearchstatusmany
+#, object-pascal-format
+msgid "%d results"
+msgstr "%d sonuç"
+
+#: formsearch.rsearchstatusnone
+msgid "No results"
+msgstr "Sonuç yok"
+
+#: formsearch.rsearchstatusone
+msgid "1 result"
+msgstr "1 sonuç"
+
+#: formsearch.rsearchstatustruncated
+#, object-pascal-format
+msgid "Showing %d of %d results - refine the filter to narrow down"
+msgstr "%d sonuçtan %d tanesi gösteriliyor - sonuçları daraltmak için filtreyi iyileştirin"
+
+#: tfrmsearch.filter.texthint
+msgid "Type to filter..."
+msgstr "Filtrelemek için yazın..."
+
+#: tfrmsearch.gridsearch.columns[0].title.caption
+msgid "Date"
+msgstr "Tarih"
+
+#: tfrmsearch.gridsearch.columns[1].title.caption
+msgid "Source"
+msgstr "Kaynak"
+
+#: tfrmsearch.gridsearch.columns[2].title.caption
+msgid "Target"
+msgstr "Hedef"
+
+#: tfrmsearch.gridsearch.columns[3].title.caption
+msgid "Text"
+msgstr "Metin"
+
+#: tfrmsearch.gridsearch.columns[4].title.caption
+msgid "Translation"
+msgstr "Çeviri"
+

@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-11-05 21:30-0300\n"
+"Last-Translator: plaintool <astverskoy@gmail.com>\n"
+"Language-Team: \n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: PoBatch 1.0.0\n"
+
+#: formsearch.rsearchcaption
+msgid "Translation History"
+msgstr "翻译历史"
+
+#: formsearch.rsearchhint
+msgid "Type to search..."
+msgstr "输入以搜索..."
+
+#: formsearch.rsearchstatusmany
+#, object-pascal-format
+msgid "%d results"
+msgstr "%d 个结果"
+
+#: formsearch.rsearchstatusnone
+msgid "No results"
+msgstr "没有结果"
+
+#: formsearch.rsearchstatusone
+msgid "1 result"
+msgstr "1 个结果"
+
+#: formsearch.rsearchstatustruncated
+#, object-pascal-format
+msgid "Showing %d of %d results - refine the filter to narrow down"
+msgstr "显示 %d / %d 个结果 - 调整筛选条件以缩小范围"
+
+#: tfrmsearch.filter.texthint
+msgid "Type to filter..."
+msgstr "输入以筛选..."
+
+#: tfrmsearch.gridsearch.columns[0].title.caption
+msgid "Date"
+msgstr "日期"
+
+#: tfrmsearch.gridsearch.columns[1].title.caption
+msgid "Source"
+msgstr "源语言"
+
+#: tfrmsearch.gridsearch.columns[2].title.caption
+msgid "Target"
+msgstr "目标语言"
+
+#: tfrmsearch.gridsearch.columns[3].title.caption
+msgid "Text"
+msgstr "文本"
+
+#: tfrmsearch.gridsearch.columns[4].title.caption
+msgid "Translation"
+msgstr "翻译"
+

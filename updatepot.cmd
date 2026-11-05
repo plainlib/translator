@@ -1,24 +1,28 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
 set "LAZARUS=C:\lazarus"
-set "LRJ=src\formconfig.lrj"
-set "RSJ=lib\x86_64-win64\formconfig.rsj"
-set "POT=locale\formconfig.pot"
+set "ITEMS=formconfig formsearch"
 
-if not exist "%RSJ%" (
-    echo Cannot find %RSJ%
-    echo Compile the package first to generate it.
-    pause
-    exit /b 1
-)
+for %%N in (%ITEMS%) do (
+    set "LRJ=src\%%N.lrj"
+    set "RSJ=lib\x86_64-win64\%%N.rsj"
+    set "POT=locale\%%N.pot"
 
-"%LAZARUS%\tools\updatepofiles.exe" "%LRJ%" "%RSJ%" "%POT%"
+    if not exist "!RSJ!" (
+        echo Cannot find !RSJ!
+        echo Compile the package first to generate it.
+        pause
+        exit /b 1
+    )
 
-if errorlevel 1 (
-    echo Failed to update POT.
-    pause
-    exit /b 1
+    "%LAZARUS%\tools\updatepofiles.exe" "!LRJ!" "!RSJ!" "!POT!"
+
+    if errorlevel 1 (
+        echo Failed to update POT for %%N.
+        pause
+        exit /b 1
+    )
 )
 
 echo POT updated successfully.
