@@ -17,6 +17,7 @@ uses
   Grids,
   StdCtrls,
   LCLType,
+  LCLIntf,
   Translate,
   TranslateHistory;
 
@@ -74,6 +75,8 @@ type
     procedure DrawLanguageCell(const ARect: TRect; const ALangCode: string);
   public
     constructor Create(AOwner: TComponent; ATranslate: TCustomTranslate); reintroduce;
+    // Re-apply translation from package or custom PO and refresh UI strings
+    procedure Relocalize;
   end;
 
 resourcestring
@@ -86,7 +89,7 @@ resourcestring
 
 implementation
 
-uses DarkUtils, StringGridHelper, ColorHelper, Localize, OSUtils, Languages, LCLIntf;
+uses DarkUtils, StringGridHelper, ColorHelper, Localize, Languages;
 
 const
   MAX_VISIBLE_ROWS = 3000;
@@ -152,6 +155,10 @@ end;
 procedure TFrmSearch.FormShow(Sender: TObject);
 begin
   if not Assigned(FTranslate) then Exit;
+
+  // Reapply translation on every show; covers the case where the form was
+  // kept hidden (custom LFM without OnClose) and FormCreate did not re-run
+  Relocalize;
 
   // Materialize the whole history for fast filtering; Translate releases it
   // again when this form closes, so the normal translator workflow stays lazy
@@ -441,8 +448,8 @@ begin
     FlagRect := Rect(FlagLeft, FlagTop, FlagLeft + FFlagWidth, FlagTop + FFlagHeight);
     GridSearch.Canvas.StretchDraw(FlagRect, Info.Flag);
 
-    TextRect := Rect(FlagRect.Right + GridSearch.Scale96ToForm(4), ARect.Top, ARect.Right -
-      GridSearch.Scale96ToForm(2), ARect.Bottom);
+    TextRect := Rect(FlagRect.Right + GridSearch.Scale96ToForm(4), ARect.Top, ARect.Right - GridSearch.Scale96ToForm(2),
+      ARect.Bottom);
 
     GridSearch.Canvas.Brush.Style := bsClear;
     DrawText(
@@ -539,6 +546,19 @@ begin
   // ActivateHistoryItem fires HistorySelect (switches config/languages/text)
   // and then OnHistoryItemActivated so the host can bring itself forward
   FTranslate.ActivateHistoryItem(Idx);
+end;
+
+procedure TFrmSearch.Relocalize;
+begin
+  // Re-apply translation from package or custom PO
+  TLocalize.TranslateForm('formsearch', Self, ['FormSearch']);
+
+  // Strings that live in code, not LFM
+  Caption := rsearchcaption;
+  Filter.TextHint := rsearchhint;
+
+  // Status bar text is produced by PopulateGrid; refresh it in the new language
+  PopulateGrid;
 end;
 
 end.

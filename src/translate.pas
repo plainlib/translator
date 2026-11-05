@@ -530,6 +530,9 @@ type
     function SearchFormVisible: boolean;
     // Close the search form if it is open
     procedure CloseSearchForm;
+    // Reapply translation on the open search form after a language change;
+    // does nothing when the form is not created
+    procedure RelocalizeSearchForm;
     // Selects the history entry and fires OnHistoryItemActivated;
     // used by the search form on double-click
     function ActivateHistoryItem(AIndex: integer): boolean;
@@ -3172,6 +3175,12 @@ procedure TCustomTranslate.CloseSearchForm;
 begin
   if Assigned(FSearchForm) then
     FSearchForm.Close;
+end;
+
+procedure TCustomTranslate.RelocalizeSearchForm;
+begin
+  if Assigned(FSearchForm) and FSearchForm.HandleAllocated then
+    TFrmSearch(FSearchForm).Relocalize;
 end;
 
 function TCustomTranslate.ActivateHistoryItem(AIndex: integer): boolean;
