@@ -481,6 +481,10 @@ type
     function HistoryCanNext: boolean;
     function HistoryCount: integer;
     procedure HistoryClear;
+    // Forces all history entries into memory for bulk access; call before
+    // opening a search form, and pair with HistoryUnload on close
+    procedure HistoryLoadFull;
+    procedure HistoryUnload;
 
     // Thread state
     property RawTranslate: string read FRawTranslate;
@@ -2998,6 +3002,20 @@ begin
 
   FHistoryManager.Clear;
   FireHistoryChanged;
+end;
+
+procedure TCustomTranslate.HistoryLoadFull;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+  FHistoryManager.LoadFull;
+end;
+
+procedure TCustomTranslate.HistoryUnload;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+  FHistoryManager.Unload;
 end;
 
 function TCustomTranslate.DetectLanguage(const AText: string; ACurrentLang: string; MinConfidence: double;

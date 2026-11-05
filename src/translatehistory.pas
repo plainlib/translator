@@ -30,30 +30,50 @@ type
   // Dynamic array of entry indices, returned by Find
   TIntegerArray = array of integer;
 
-  // Holds the translation history and the current navigation position
+  // Per-record index entry: file offset and compressed payload length.
+  // Record must be declared before the pointer that refers to it
+  TFileEntry = record
+    Offset: int64;
+    PayloadLen: uint32;
+  end;
+  PFileEntry = ^TFileEntry;
+
+  // Holds the translation history and the current navigation position.
+  // In lazy mode only the file index is kept in memory; entries are read
+  // on demand. Call LoadFull to materialize everything (used by Find and by
+  // host forms that need bulk access), and Unload to release it again
   THistoryManager = class
   private
-    FItems: TList;
-    FIndex: integer;
+    FEntries: TList;         // of PFileEntry, mirrors file record order
+    FItems: TList;           // of THistoryItem, populated only when FLoaded
+    FCurrentItem: THistoryItem;  // cached current entry for lazy mode
+    FLoaded: boolean;        // True when FItems holds every entry
+    FIndex: integer;         // current position in the live entry list
     FMaxItems: integer;
     FFileName: string;
-    // Number of Add records currently in the file; grows on each append,
-    // resets when the file is rewritten by Compact
-    FFileEntryCount: integer;
-    // True when the file could not be fully parsed; next Add will Compact
-    FNeedsRebuild: boolean;
+    FFileEntryCount: integer;  // records physically present in the file
+    FNeedsRebuild: boolean;    // file could not be trusted; next Add compacts
     procedure ClearItems;
+    procedure ClearEntries;
     procedure TrimOldest;
     procedure WriteString(AStream: TStream; const AValue: string);
     function ReadString(AStream: TStream): string;
-    procedure AppendEntryToFile(AItem: THistoryItem);
+    function LoadEntryFromStream(AStream: TStream; AEntry: PFileEntry): THistoryItem;
+    function LoadEntryFromFile(AIndex: integer): THistoryItem;
+    procedure AppendEntryToFile(AItem: THistoryItem; AEntry: PFileEntry);
+    procedure EnsureLoaded;
     function GetCount: integer;
+    function GetLoaded: boolean;
   public
     constructor Create(const AFileName: string; AMaxItems: integer = 100);
     destructor Destroy; override;
+    // Builds only the file index; existing FItems are released
     procedure Load;
-    // Rewrites the file from the current in-memory state; used for Delete,
-    // Clear, forward-branch truncation and lazy cleanup of orphan records
+    // Materializes every entry into memory for bulk access
+    procedure LoadFull;
+    // Releases the loaded entries, keeps the index and the current entry
+    procedure Unload;
+    // Rewrites the file from the current in-memory state
     procedure Compact;
     // Alias for Compact, kept for backward compatibility
     procedure Save;
@@ -72,13 +92,14 @@ type
     function GetItem(AIndex: integer): THistoryItem;
     // Returns indices of entries matching the filter and the date range.
     // Filter is a case-insensitive substring in any field; empty means all.
-    // Date range is half-open [ADateFrom, ADateTo); zero means unbounded
+    // Date range is half-open [ADateFrom, ADateTo); zero means unbounded.
+    // Auto-calls LoadFull; caller should Unload when bulk access ends
     function Find(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0): TIntegerArray;
-    // Convenience wrapper: date range only, same time semantics as Find
     function FindByDate(const ADateFrom, ADateTo: TDateTime): TIntegerArray;
     procedure Clear;
     property Index: integer read FIndex;
     property Count: integer read GetCount;
+    property Loaded: boolean read GetLoaded;
     property MaxItems: integer read FMaxItems write FMaxItems;
     property FileName: string read FFileName write FFileName;
   end;
@@ -100,14 +121,15 @@ const
   MAX_RECORD_PAYLOAD = 64 * 1024 * 1024;
   MAX_STRING_BYTES = 16 * 1024 * 1024;
 
-  // Record types
   REC_ADD = 1;
-  REC_CLEAR = 2;
 
 constructor THistoryManager.Create(const AFileName: string; AMaxItems: integer = 100);
 begin
   inherited Create;
+  FEntries := TList.Create;
   FItems := TList.Create;
+  FCurrentItem := nil;
+  FLoaded := False;
   FIndex := -1;
   FMaxItems := AMaxItems;
   FFileName := AFileName;
@@ -118,7 +140,10 @@ end;
 destructor THistoryManager.Destroy;
 begin
   ClearItems;
-  FItems.Free;
+  ClearEntries;
+  FreeAndNil(FCurrentItem);
+  FreeAndNil(FItems);
+  FreeAndNil(FEntries);
   inherited Destroy;
 end;
 
@@ -131,13 +156,27 @@ begin
   FItems.Clear;
 end;
 
+procedure THistoryManager.ClearEntries;
+var
+  i: integer;
+begin
+  for i := 0 to FEntries.Count - 1 do
+    Dispose(PFileEntry(FEntries[i]));
+  FEntries.Clear;
+end;
+
 procedure THistoryManager.TrimOldest;
 begin
   // Drop oldest entries until the limit is respected
-  while (FMaxItems > 0) and (FItems.Count > FMaxItems) do
+  while (FMaxItems > 0) and (FEntries.Count > FMaxItems) do
   begin
-    THistoryItem(FItems[0]).Free;
-    FItems.Delete(0);
+    if FLoaded then
+    begin
+      THistoryItem(FItems[0]).Free;
+      FItems.Delete(0);
+    end;
+    Dispose(PFileEntry(FEntries[0]));
+    FEntries.Delete(0);
     if FIndex > 0 then
       Dec(FIndex);
   end;
@@ -145,48 +184,106 @@ end;
 
 procedure THistoryManager.WriteString(AStream: TStream; const AValue: string);
 var
-  Len: cardinal;
-  Utf8: rawbytestring;
+  Len: cardinal = 0;
 begin
-  Utf8 := UTF8Encode(AValue);
-  Len := Length(Utf8);
+  // AValue is string in $codepage utf8 mode, i.e. already UTF-8; store raw
+  Len := Length(AValue);
   AStream.WriteBuffer(Len, SizeOf(Len));
   if Len > 0 then
-    AStream.WriteBuffer(Utf8[1], Len);
+    AStream.WriteBuffer(AValue[1], Len);
 end;
 
 function THistoryManager.ReadString(AStream: TStream): string;
 var
-  Len: cardinal;
-  Utf8: rawbytestring;
+  Len: cardinal = 0;
 begin
   AStream.ReadBuffer(Len, SizeOf(Len));
   if Len > MAX_STRING_BYTES then
     raise Exception.Create('History entry is corrupted');
   if Len = 0 then
-  begin
-    Result := '';
+    Exit('');
+  SetLength(Result, Len);
+  AStream.ReadBuffer(Result[1], Len);
+end;
+
+function THistoryManager.LoadEntryFromStream(AStream: TStream; AEntry: PFileEntry): THistoryItem;
+var
+  CompressedBuf: TMemoryStream;
+  RawBuf: TMemoryStream;
+  Ts: double = 0;
+begin
+  Result := nil;
+  if (AStream = nil) or (AEntry = nil) then
     Exit;
+
+  AStream.Position := AEntry^.Offset;
+  CompressedBuf := TMemoryStream.Create;
+  try
+    CompressedBuf.SetSize(AEntry^.PayloadLen);
+    if AEntry^.PayloadLen > 0 then
+      AStream.ReadBuffer(CompressedBuf.Memory^, AEntry^.PayloadLen);
+    CompressedBuf.Position := 0;
+    RawBuf := TOS.DecompressMemoryStream(CompressedBuf);
+  finally
+    CompressedBuf.Free;
   end;
-  SetLength(Utf8, Len);
-  AStream.ReadBuffer(Utf8[1], Len);
-  Result := UTF8Decode(Utf8);
+
+  try
+    Result := THistoryItem.Create;
+    try
+      Result.SourceText := ReadString(RawBuf);
+      Result.TargetText := ReadString(RawBuf);
+      Result.SourceLang := ReadString(RawBuf);
+      Result.TargetLang := ReadString(RawBuf);
+      Result.ConfigFile := ReadString(RawBuf);
+      RawBuf.ReadBuffer(Ts, SizeOf(Ts));
+      Result.Timestamp := Ts;
+    except
+      Result.Free;
+      raise;
+    end;
+  finally
+    RawBuf.Free;
+  end;
+end;
+
+function THistoryManager.LoadEntryFromFile(AIndex: integer): THistoryItem;
+var
+  FileStream: TFileStream;
+begin
+  Result := nil;
+  if (AIndex < 0) or (AIndex >= FEntries.Count) then
+    Exit;
+  if not FileExists(FFileName) then
+    Exit;
+
+  try
+    FileStream := TFileStream.Create(FFileName, fmOpenRead or fmShareDenyNone);
+    try
+      Result := LoadEntryFromStream(FileStream, PFileEntry(FEntries[AIndex]));
+    finally
+      FileStream.Free;
+    end;
+  except
+    Result := nil;
+  end;
 end;
 
 procedure THistoryManager.Load;
 var
-  FileStream: TFileStream = nil;
-  Header: array[0..HISTORY_HEADER_SIZE - 1] of byte;
-  RecType: byte;
-  PayloadLen: cardinal;
-  CompressedBuf: TMemoryStream = nil;
-  RawBuf: TMemoryStream = nil;
-  Item: THistoryItem;
-  Ts: double;
-  Ver: word;
+  FileStream: TFileStream;
+  Header: array[0..HISTORY_HEADER_SIZE - 1] of byte = (0, 0, 0, 0, 0, 0, 0, 0);
+  RecType: byte = 0;
+  PayloadLen: uint32 = 0;
+  EntryOffset: int64 = 0;
+  Entry: PFileEntry;
+  Ver: word = 0;
   Clean: boolean;
 begin
   ClearItems;
+  ClearEntries;
+  FreeAndNil(FCurrentItem);
+  FLoaded := False;
   FIndex := -1;
   FFileEntryCount := 0;
 
@@ -196,7 +293,6 @@ begin
     Exit;
   end;
 
-  // Any failure below leaves FNeedsRebuild = True so the next Add compacts
   FNeedsRebuild := True;
 
   try
@@ -207,8 +303,6 @@ begin
           Exit;
 
         FileStream.ReadBuffer(Header, HISTORY_HEADER_SIZE);
-
-        // Reject other formats and versions
         if (Header[0] <> HISTORY_MAGIC[0]) or (Header[1] <> HISTORY_MAGIC[1]) or (Header[2] <> HISTORY_MAGIC[2]) or
           (Header[3] <> HISTORY_MAGIC[3]) then
           Exit;
@@ -235,102 +329,121 @@ begin
             Clean := False;
             Break;
           end;
-          if FileStream.Position + PayloadLen > FileStream.Size then
+          EntryOffset := FileStream.Position;
+          if EntryOffset + PayloadLen > FileStream.Size then
           begin
             Clean := False;
             Break;
           end;
 
-          if PayloadLen > 0 then
+          if RecType = REC_ADD then
           begin
-            CompressedBuf := TMemoryStream.Create;
-            try
-              CompressedBuf.SetSize(PayloadLen);
-              FileStream.ReadBuffer(CompressedBuf.Memory^, PayloadLen);
-              CompressedBuf.Position := 0;
-              RawBuf := TOS.DecompressMemoryStream(CompressedBuf);
-            finally
-              FreeAndNil(CompressedBuf);
-            end;
-          end
-          else
-            RawBuf := TMemoryStream.Create;
-
-          try
-            try
-              case RecType of
-                REC_ADD:
-                begin
-                  Item := THistoryItem.Create;
-                  try
-                    Item.SourceText := ReadString(RawBuf);
-                    Item.TargetText := ReadString(RawBuf);
-                    Item.SourceLang := ReadString(RawBuf);
-                    Item.TargetLang := ReadString(RawBuf);
-                    Item.ConfigFile := ReadString(RawBuf);
-                    RawBuf.ReadBuffer(Ts, SizeOf(Ts));
-                    Item.Timestamp := Ts;
-                  except
-                    Item.Free;
-                    raise;
-                  end;
-                  FItems.Add(Item);
-                  Inc(FFileEntryCount);
-                end;
-                REC_CLEAR:
-                begin
-                  ClearItems;
-                  FFileEntryCount := 0;
-                end;
-                else
-                  raise Exception.Create('Unknown record type');
-              end;
-            except
-              Clean := False;
-              Break;
-            end;
-          finally
-            FreeAndNil(RawBuf);
+            New(Entry);
+            Entry^.Offset := EntryOffset;
+            Entry^.PayloadLen := PayloadLen;
+            FEntries.Add(Entry);
           end;
+
+          FileStream.Position := EntryOffset + PayloadLen;
         end;
 
-        // File fully parsed: trust it for appends
         if Clean then
           FNeedsRebuild := False;
       finally
-        FreeAndNil(FileStream);
+        FileStream.Free;
       end;
 
-      // Memory cap; drop orphans from the file when trimming happened
-      if (FMaxItems > 0) and (FItems.Count > FMaxItems) then
+      FFileEntryCount := FEntries.Count;
+
+      // Enforce memory cap; compact drops orphans from the file too
+      if (FMaxItems > 0) and (FEntries.Count > FMaxItems) then
       begin
         TrimOldest;
         Compact;
       end;
+
+      // Position at the last entry and prime the lazy cache
+      if FEntries.Count > 0 then
+      begin
+        FIndex := FEntries.Count - 1;
+        FCurrentItem := LoadEntryFromFile(FIndex);
+      end;
     except
-      // Unreadable file: start from an empty in-memory history
       ClearItems;
+      ClearEntries;
+      FreeAndNil(FCurrentItem);
       FFileEntryCount := 0;
+      FIndex := -1;
     end;
   finally
-    if FItems.Count = 0 then
-      FIndex := -1
-    else
-      FIndex := FItems.Count - 1;
+    if FEntries.Count = 0 then
+      FIndex := -1;
   end;
 end;
 
-procedure THistoryManager.AppendEntryToFile(AItem: THistoryItem);
+procedure THistoryManager.LoadFull;
+begin
+  EnsureLoaded;
+end;
+
+procedure THistoryManager.EnsureLoaded;
 var
-  RawBuf: TMemoryStream = nil;
-  CompressedBuf: TMemoryStream = nil;
+  FileStream: TFileStream;
+  i: integer;
+  Item: THistoryItem;
+begin
+  if FLoaded then
+    Exit;
+  if FEntries.Count = 0 then
+  begin
+    FreeAndNil(FCurrentItem);
+    FLoaded := True;
+    Exit;
+  end;
+
+  ClearItems;
+  try
+    FileStream := TFileStream.Create(FFileName, fmOpenRead or fmShareDenyNone);
+    try
+      for i := 0 to FEntries.Count - 1 do
+      begin
+        Item := LoadEntryFromStream(FileStream, PFileEntry(FEntries[i]));
+        if Item <> nil then
+          FItems.Add(Item);
+      end;
+    finally
+      FileStream.Free;
+    end;
+    FreeAndNil(FCurrentItem);
+    FLoaded := True;
+  except
+    ClearItems;
+    FLoaded := False;
+    raise;
+  end;
+end;
+
+procedure THistoryManager.Unload;
+begin
+  if not FLoaded then
+    Exit;
+  ClearItems;
+  FLoaded := False;
+  FreeAndNil(FCurrentItem);
+  if (FIndex >= 0) and (FIndex < FEntries.Count) then
+    FCurrentItem := LoadEntryFromFile(FIndex);
+end;
+
+procedure THistoryManager.AppendEntryToFile(AItem: THistoryItem; AEntry: PFileEntry);
+var
   FileStream: TFileStream = nil;
+  CompressedBuf: TMemoryStream = nil;
+  RawBuf: TMemoryStream = nil;
   RecType: byte;
-  PayloadLen: cardinal;
+  PayloadLen: uint32;
   Ver: word;
   Reserved: word;
   Ts: double;
-  Dir: string;
 begin
   if (FFileName = '') or (AItem = nil) then
     Exit;
@@ -351,9 +464,7 @@ begin
   end;
 
   try
-    Dir := ExtractFileDir(FFileName);
-    if Dir <> '' then
-      ForceDirectories(Dir);
+    ForceDirectories(ExtractFileDir(FFileName));
 
     if FileExists(FFileName) then
       FileStream := TFileStream.Create(FFileName, fmOpenReadWrite or fmShareDenyNone)
@@ -361,7 +472,6 @@ begin
       FileStream := TFileStream.Create(FFileName, fmCreate);
 
     try
-      // Fresh file gets the header
       if FileStream.Size = 0 then
       begin
         FileStream.WriteBuffer(HISTORY_MAGIC, SizeOf(HISTORY_MAGIC));
@@ -371,19 +481,27 @@ begin
         FileStream.WriteBuffer(Reserved, SizeOf(Reserved));
       end;
 
-      // Append one Add record
       FileStream.Position := FileStream.Size;
       RecType := REC_ADD;
       FileStream.WriteBuffer(RecType, SizeOf(RecType));
       PayloadLen := CompressedBuf.Size;
       FileStream.WriteBuffer(PayloadLen, SizeOf(PayloadLen));
+
+      if AEntry <> nil then
+      begin
+        AEntry^.Offset := FileStream.Position;
+        AEntry^.PayloadLen := PayloadLen;
+      end;
+
       CompressedBuf.Position := 0;
-      FileStream.CopyFrom(CompressedBuf, CompressedBuf.Size);
+      if CompressedBuf.Size > 0 then
+        FileStream.CopyFrom(CompressedBuf, CompressedBuf.Size);
     finally
       FreeAndNil(FileStream);
     end;
   except
-    // History is not critical; a failed append must not break the app
+    // Append failure: mark for rebuild so the next access regenerates the file
+    FNeedsRebuild := True;
   end;
 
   FreeAndNil(CompressedBuf);
@@ -392,70 +510,97 @@ end;
 procedure THistoryManager.Compact;
 var
   TmpFileName: string;
-  FileStream: TFileStream = nil;
-  RawBuf: TMemoryStream = nil;
-  CompressedBuf: TMemoryStream = nil;
-  i: integer;
+  OutStream: TFileStream = nil;
+  InStream: TFileStream = nil;
   Item: THistoryItem;
+  OwnItem: boolean;
+  i: integer;
   RecType: byte;
-  PayloadLen: cardinal;
+  PayloadLen: uint32;
+  RawBuf: TMemoryStream;
+  CompressedBuf: TMemoryStream;
+  Ts: double;
   Ver: word;
   Reserved: word;
-  Ts: double;
-  Dir: string;
+  Offset: int64;
 begin
   if FFileName = '' then
     Exit;
 
-  Dir := ExtractFileDir(FFileName);
-  if Dir <> '' then
-    ForceDirectories(Dir);
-
+  ForceDirectories(ExtractFileDir(FFileName));
   TmpFileName := FFileName + '.tmp';
 
   try
-    FileStream := TFileStream.Create(TmpFileName, fmCreate);
+    OutStream := TFileStream.Create(TmpFileName, fmCreate);
     try
       // Header
-      FileStream.WriteBuffer(HISTORY_MAGIC, SizeOf(HISTORY_MAGIC));
+      OutStream.WriteBuffer(HISTORY_MAGIC, SizeOf(HISTORY_MAGIC));
       Ver := HISTORY_VERSION;
-      FileStream.WriteBuffer(Ver, SizeOf(Ver));
+      OutStream.WriteBuffer(Ver, SizeOf(Ver));
       Reserved := 0;
-      FileStream.WriteBuffer(Reserved, SizeOf(Reserved));
+      OutStream.WriteBuffer(Reserved, SizeOf(Reserved));
 
-      // One Add record per current entry
-      for i := 0 to FItems.Count - 1 do
+      // Single input handle for lazy mode; one entry decompressed at a time
+      if (not FLoaded) and (FEntries.Count > 0) then
+        InStream := TFileStream.Create(FFileName, fmOpenRead or fmShareDenyNone);
+
+      Offset := HISTORY_HEADER_SIZE;
+      for i := 0 to FEntries.Count - 1 do
       begin
-        Item := THistoryItem(FItems[i]);
-
-        RawBuf := TMemoryStream.Create;
-        try
-          WriteString(RawBuf, Item.SourceText);
-          WriteString(RawBuf, Item.TargetText);
-          WriteString(RawBuf, Item.SourceLang);
-          WriteString(RawBuf, Item.TargetLang);
-          WriteString(RawBuf, Item.ConfigFile);
-          Ts := Item.Timestamp;
-          RawBuf.WriteBuffer(Ts, SizeOf(Ts));
-          RawBuf.Position := 0;
-          CompressedBuf := TOS.CompressMemoryStream(RawBuf);
-        finally
-          FreeAndNil(RawBuf);
+        if FLoaded then
+        begin
+          Item := THistoryItem(FItems[i]);
+          OwnItem := False;
+        end
+        else if (i = FIndex) and (FCurrentItem <> nil) then
+        begin
+          Item := FCurrentItem;
+          OwnItem := False;
+        end
+        else
+        begin
+          Item := LoadEntryFromStream(InStream, PFileEntry(FEntries[i]));
+          OwnItem := True;
         end;
 
         try
-          RecType := REC_ADD;
-          FileStream.WriteBuffer(RecType, SizeOf(RecType));
-          PayloadLen := CompressedBuf.Size;
-          FileStream.WriteBuffer(PayloadLen, SizeOf(PayloadLen));
-          CompressedBuf.Position := 0;
-          FileStream.CopyFrom(CompressedBuf, CompressedBuf.Size);
+          RawBuf := TMemoryStream.Create;
+          try
+            WriteString(RawBuf, Item.SourceText);
+            WriteString(RawBuf, Item.TargetText);
+            WriteString(RawBuf, Item.SourceLang);
+            WriteString(RawBuf, Item.TargetLang);
+            WriteString(RawBuf, Item.ConfigFile);
+            Ts := Item.Timestamp;
+            RawBuf.WriteBuffer(Ts, SizeOf(Ts));
+            RawBuf.Position := 0;
+            CompressedBuf := TOS.CompressMemoryStream(RawBuf);
+          finally
+            FreeAndNil(RawBuf);
+          end;
+
+          try
+            RecType := REC_ADD;
+            OutStream.WriteBuffer(RecType, SizeOf(RecType));
+            PayloadLen := CompressedBuf.Size;
+            OutStream.WriteBuffer(PayloadLen, SizeOf(PayloadLen));
+            PFileEntry(FEntries[i])^.Offset := OutStream.Position;
+            PFileEntry(FEntries[i])^.PayloadLen := PayloadLen;
+            CompressedBuf.Position := 0;
+            if CompressedBuf.Size > 0 then
+              OutStream.CopyFrom(CompressedBuf, CompressedBuf.Size);
+            Inc(Offset, 5 + int64(PayloadLen));
+          finally
+            FreeAndNil(CompressedBuf);
+          end;
         finally
-          FreeAndNil(CompressedBuf);
+          if OwnItem then
+            Item.Free;
         end;
       end;
     finally
-      FreeAndNil(FileStream);
+      FreeAndNil(InStream);
+      FreeAndNil(OutStream);
     end;
 
     // Replace the old file atomically
@@ -464,10 +609,9 @@ begin
     if not RenameFile(TmpFileName, FFileName) then
       DeleteFile(TmpFileName);
 
-    FFileEntryCount := FItems.Count;
+    FFileEntryCount := FEntries.Count;
     FNeedsRebuild := False;
   except
-    // Failed compact leaves the previous file intact
     if FileExists(TmpFileName) then
       DeleteFile(TmpFileName);
   end;
@@ -481,42 +625,53 @@ end;
 procedure THistoryManager.Add(AItem: THistoryItem);
 var
   Truncated: boolean;
+  NewEntry: PFileEntry;
 begin
   if AItem = nil then
     Exit;
 
-  // Truncate the forward branch when not at the last item
-  Truncated := False;
-  if (FIndex >= 0) and (FIndex < FItems.Count - 1) then
+  Truncated := (FIndex >= 0) and (FIndex < FEntries.Count - 1);
+
+  if Truncated then
   begin
-    while FItems.Count > FIndex + 1 do
+    // Drop the forward branch from the index and from the loaded list
+    while FEntries.Count > FIndex + 1 do
     begin
-      THistoryItem(FItems[FItems.Count - 1]).Free;
-      FItems.Delete(FItems.Count - 1);
+      Dispose(PFileEntry(FEntries[FEntries.Count - 1]));
+      FEntries.Delete(FEntries.Count - 1);
     end;
-    Truncated := True;
+    if FLoaded then
+      while FItems.Count > FIndex + 1 do
+      begin
+        THistoryItem(FItems[FItems.Count - 1]).Free;
+        FItems.Delete(FItems.Count - 1);
+      end;
   end;
 
-  FItems.Add(AItem);
-  FIndex := FItems.Count - 1;
+  FreeAndNil(FCurrentItem);
+  if FLoaded then
+    FItems.Add(AItem)
+  else
+    FCurrentItem := AItem;
+  Inc(FIndex);
 
-  // Compact when the file is untrusted or the forward branch was dropped,
-  // because append alone cannot express either case to Load
-  if FNeedsRebuild or Truncated then
+  New(NewEntry);
+  NewEntry^.Offset := 0;
+  NewEntry^.PayloadLen := 0;
+  FEntries.Add(NewEntry);
+
+  if Truncated or FNeedsRebuild then
+    Compact
+  else
   begin
-    Compact;
-    Exit;
+    AppendEntryToFile(AItem, NewEntry);
+    Inc(FFileEntryCount);
   end;
 
-  // Normal case: append one record, O(1) regardless of history size
-  Inc(FFileEntryCount);
-  AppendEntryToFile(AItem);
-
-  // Lazy cleanup of orphan records once the file outgrows twice the limit
-  if (FMaxItems > 0) and (FItems.Count > FMaxItems) then
+  if (FMaxItems > 0) and (FEntries.Count > FMaxItems) then
   begin
     TrimOldest;
-    if FFileEntryCount > FMaxItems * 2 then
+    if (not Truncated) and (not FNeedsRebuild) and (FFileEntryCount > FMaxItems * 2) then
       Compact;
   end;
 end;
@@ -529,20 +684,13 @@ begin
   if Trim(ASourceText) = '' then
     Exit;
 
-  // Skip when the new entry fully matches the current item, which after the
-  // forward-branch truncation becomes the record immediately before it.
-  // Trim drops outer whitespace, EqualNormalized folds CRLF vs LF: RichMemo
-  // rewrites line endings when text round-trips through the memo, so the raw
-  // service output and the memo readback rarely match byte-for-byte
-  if (FIndex >= 0) and (FIndex < FItems.Count) then
+  // Skip when the new entry fully matches the current item
+  Current := GetItem(FIndex);
+  if Current <> nil then
   begin
-    Current := THistoryItem(FItems[FIndex]);
     if Trim(Current.SourceText).EqualNormalized(Trim(ASourceText), False) and
       Trim(Current.TargetText).EqualNormalized(Trim(ATargetText), False) and SameText(Current.SourceLang, ASourceLang) and
-      SameText(Current.TargetLang, ATargetLang) and
-      // Config paths are case-insensitive on Windows; never treat them as
-      // different entries just because the case drifted
-      SameText(Current.ConfigFile, AConfigFile) then
+      SameText(Current.TargetLang, ATargetLang) and SameText(Current.ConfigFile, AConfigFile) then
       Exit;
   end;
 
@@ -558,12 +706,18 @@ end;
 
 function THistoryManager.Prev(out AItem: THistoryItem): boolean;
 begin
-  // Navigation changes only FIndex; the file is not touched
   AItem := nil;
   if not CanPrev then
     Exit(False);
   Dec(FIndex);
-  AItem := THistoryItem(FItems[FIndex]);
+  if FLoaded then
+    AItem := THistoryItem(FItems[FIndex])
+  else
+  begin
+    FreeAndNil(FCurrentItem);
+    FCurrentItem := LoadEntryFromFile(FIndex);
+    AItem := FCurrentItem;
+  end;
   Result := True;
 end;
 
@@ -573,59 +727,99 @@ begin
   if not CanNext then
     Exit(False);
   Inc(FIndex);
-  AItem := THistoryItem(FItems[FIndex]);
+  if FLoaded then
+    AItem := THistoryItem(FItems[FIndex])
+  else
+  begin
+    FreeAndNil(FCurrentItem);
+    FCurrentItem := LoadEntryFromFile(FIndex);
+    AItem := FCurrentItem;
+  end;
   Result := True;
 end;
 
 function THistoryManager.First(out AItem: THistoryItem): boolean;
 begin
   AItem := nil;
-  if FItems.Count = 0 then
+  if FEntries.Count = 0 then
     Exit(False);
   FIndex := 0;
-  AItem := THistoryItem(FItems[FIndex]);
+  if FLoaded then
+    AItem := THistoryItem(FItems[FIndex])
+  else
+  begin
+    FreeAndNil(FCurrentItem);
+    FCurrentItem := LoadEntryFromFile(FIndex);
+    AItem := FCurrentItem;
+  end;
   Result := True;
 end;
 
 function THistoryManager.Last(out AItem: THistoryItem): boolean;
 begin
   AItem := nil;
-  if FItems.Count = 0 then
+  if FEntries.Count = 0 then
     Exit(False);
-  FIndex := FItems.Count - 1;
-  AItem := THistoryItem(FItems[FIndex]);
+  FIndex := FEntries.Count - 1;
+  if FLoaded then
+    AItem := THistoryItem(FItems[FIndex])
+  else
+  begin
+    FreeAndNil(FCurrentItem);
+    FCurrentItem := LoadEntryFromFile(FIndex);
+    AItem := FCurrentItem;
+  end;
   Result := True;
 end;
 
 function THistoryManager.Select(AIndex: integer; out AItem: THistoryItem): boolean;
 begin
-  // Navigation changes only FIndex; the file is not touched
   AItem := nil;
-  if (AIndex < 0) or (AIndex >= FItems.Count) then
+  if (AIndex < 0) or (AIndex >= FEntries.Count) then
     Exit(False);
   FIndex := AIndex;
-  AItem := THistoryItem(FItems[FIndex]);
+  if FLoaded then
+    AItem := THistoryItem(FItems[FIndex])
+  else
+  begin
+    FreeAndNil(FCurrentItem);
+    FCurrentItem := LoadEntryFromFile(FIndex);
+    AItem := FCurrentItem;
+  end;
   Result := True;
 end;
 
 function THistoryManager.Delete(AIndex: integer): boolean;
 begin
   Result := False;
-  if (AIndex < 0) or (AIndex >= FItems.Count) then Exit;
+  if (AIndex < 0) or (AIndex >= FEntries.Count) then
+    Exit;
 
-  THistoryItem(FItems[AIndex]).Free;
-  FItems.Delete(AIndex);
+  if FLoaded then
+  begin
+    THistoryItem(FItems[AIndex]).Free;
+    FItems.Delete(AIndex);
+  end;
+  Dispose(PFileEntry(FEntries[AIndex]));
+  FEntries.Delete(AIndex);
 
-  // Keep the position stable after removal
-  if FItems.Count = 0 then
+  if FEntries.Count = 0 then
     FIndex := -1
   else if AIndex < FIndex then
     Dec(FIndex)
-  else if (AIndex = FIndex) and (FIndex >= FItems.Count) then
-    FIndex := FItems.Count - 1;
+  else if (AIndex = FIndex) and (FIndex >= FEntries.Count) then
+    FIndex := FEntries.Count - 1;
 
-  // Delete is rare; rewrite the file from the in-memory state
+  // Drop the cached entry first: the deleted item may still be referenced
+  // there, and Compact must read the new FIndex entry from disk instead
+  FreeAndNil(FCurrentItem);
+
+  // Delete is rare; rewrite the file from the current state
   Compact;
+
+  if FIndex >= 0 then
+    FCurrentItem := LoadEntryFromFile(FIndex);
+
   Result := True;
 end;
 
@@ -641,15 +835,21 @@ end;
 
 function THistoryManager.CanNext: boolean;
 begin
-  Result := (FIndex >= 0) and (FIndex < FItems.Count - 1);
+  Result := (FIndex >= 0) and (FIndex < FEntries.Count - 1);
 end;
 
 function THistoryManager.GetItem(AIndex: integer): THistoryItem;
 begin
-  if (AIndex >= 0) and (AIndex < FItems.Count) then
-    Result := THistoryItem(FItems[AIndex])
-  else
-    Result := nil;
+  if (AIndex < 0) or (AIndex >= FEntries.Count) then
+    Exit(nil);
+
+  if FLoaded then
+    Exit(THistoryItem(FItems[AIndex]));
+
+  if (AIndex = FIndex) and (FCurrentItem <> nil) then
+    Exit(FCurrentItem);
+
+  Result := LoadEntryFromFile(AIndex);
 end;
 
 function THistoryManager.Find(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0): TIntegerArray;
@@ -660,7 +860,11 @@ var
   Item: THistoryItem;
   Match: boolean;
 begin
-  SetLength(Result, 0);
+  // Explicit init so compiler is happy even if EnsureLoaded raises
+  Result := nil;
+
+  // Find works on the fully loaded list; auto-load for caller convenience
+  EnsureLoaded;
   if FItems.Count = 0 then
     Exit;
 
@@ -690,13 +894,11 @@ begin
     Item := THistoryItem(FItems[i]);
     Match := True;
 
-    // Date range is half-open [From, To); zero means unbounded
     if HasFrom and (Item.Timestamp < ADateFrom) then
       Match := False;
     if Match and HasTo and (Item.Timestamp >= ADateTo) then
       Match := False;
 
-    // Text filter matches any of the stored text or metadata fields
     if Match and HasFilter then
     begin
       if (Pos(FilterLower, UTF8LowerCase(Item.SourceText)) = 0) and (Pos(FilterLower, UTF8LowerCase(Item.TargetText)) = 0) and
@@ -717,18 +919,27 @@ end;
 
 function THistoryManager.FindByDate(const ADateFrom, ADateTo: TDateTime): TIntegerArray;
 begin
+  Result := nil;
   Result := Find('', ADateFrom, ADateTo);
 end;
 
 function THistoryManager.GetCount: integer;
 begin
-  Result := FItems.Count;
+  Result := FEntries.Count;
+end;
+
+function THistoryManager.GetLoaded: boolean;
+begin
+  Result := FLoaded;
 end;
 
 procedure THistoryManager.Clear;
 begin
   ClearItems;
+  ClearEntries;
+  FreeAndNil(FCurrentItem);
   FIndex := -1;
+  FLoaded := False;
   FFileEntryCount := 0;
   Compact;
 end;
