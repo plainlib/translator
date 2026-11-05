@@ -460,7 +460,16 @@ type
     function HistoryNext: boolean;
     function HistoryFirst: boolean;
     function HistoryLast: boolean;
+    // Moves the current position to AIndex and fires OnHistoryItem;
+    // used by the history search form to open a specific entry
+    function HistorySelect(AIndex: integer): boolean;
     function HistoryDelete: boolean;
+    // Returns indices matching the filter and date range; safe to keep
+    // across UI updates, use HistoryGetItem to fetch the actual entry
+    function HistoryFind(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0): TIntegerArray;
+    function HistoryFindByDate(const ADateFrom, ADateTo: TDateTime): TIntegerArray;
+    // Returns the entry by absolute index, caller does not own the result
+    function HistoryGetItem(AIndex: integer): THistoryItem;
     // Adds an explicit entry; empty language/config fall back to current values.
     // AMarkEmpty puts the position past the last item so the first Back shows
     // the committed entry without moving (host uses it from New Document)
@@ -2819,6 +2828,59 @@ begin
     FHistoryNavigating := False;
     FireHistoryChanged;
   end;
+end;
+
+function TCustomTranslate.HistorySelect(AIndex: integer): boolean;
+var
+  Item: THistoryItem = nil;
+begin
+  Result := False;
+  EnsureHistoryManager;
+  if FHistoryManager = nil then Exit;
+
+  FHistoryNavigating := True;
+  try
+    if not FHistoryManager.Select(AIndex, Item) then Exit;
+    if Item = nil then Exit;
+
+    // Leaving the empty screen state, mirrors First/Last behaviour
+    FPastLast := False;
+
+    SourceLanguage := Item.SourceLang;
+    TargetLanguage := Item.TargetLang;
+
+    if Assigned(FOnHistoryItem) then
+      FOnHistoryItem(Self, Item);
+
+    Result := True;
+  finally
+    FHistoryNavigating := False;
+    FireHistoryChanged;
+  end;
+end;
+
+function TCustomTranslate.HistoryFind(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0): TIntegerArray;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then
+    Exit(nil);
+  Result := FHistoryManager.Find(AFilter, ADateFrom, ADateTo);
+end;
+
+function TCustomTranslate.HistoryFindByDate(const ADateFrom, ADateTo: TDateTime): TIntegerArray;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then
+    Exit(nil);
+  Result := FHistoryManager.FindByDate(ADateFrom, ADateTo);
+end;
+
+function TCustomTranslate.HistoryGetItem(AIndex: integer): THistoryItem;
+begin
+  EnsureHistoryManager;
+  if FHistoryManager = nil then
+    Exit(nil);
+  Result := FHistoryManager.GetItem(AIndex);
 end;
 
 function TCustomTranslate.HistoryDelete: boolean;
