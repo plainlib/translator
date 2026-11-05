@@ -1,0 +1,122 @@
+object FrmSearch: TFrmSearch
+  Left = 305
+  Height = 443
+  Top = 250
+  Width = 652
+  ClientHeight = 443
+  ClientWidth = 652
+  Color = clWindow
+  LCLVersion = '4.8.0.0'
+  OnChangeBounds = FormChangeBounds
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnResize = FormResize
+  OnShow = FormShow
+  object PanelFilter: TPanel
+    Left = 5
+    Height = 22
+    Top = 5
+    Width = 642
+    Align = alTop
+    AutoSize = True
+    BorderSpacing.Around = 5
+    ClientHeight = 22
+    ClientWidth = 642
+    ParentBackground = False
+    TabOrder = 2
+    object Filter: TEdit
+      Left = 6
+      Height = 20
+      Top = 1
+      Width = 617
+      Align = alClient
+      BorderSpacing.Left = 5
+      BorderStyle = bsNone
+      Constraints.MinHeight = 20
+      TabOrder = 0
+      TextHint = 'Type to filter...'
+      OnChange = FilterChange
+      OnKeyDown = FilterKeyDown
+    end
+    object btnFilterClear: TSpeedButton
+      Left = 623
+      Height = 20
+      Top = 1
+      Width = 18
+      Align = alRight
+      Color = clWindow
+      Flat = True
+      Glyph.Data = {
+        32010000424D3201000000000000360000002800000009000000090000000100
+        180000000000FC00000064000000640000000000000000000000FFFFFFC9C9C9
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC9C9C9FFFFFF00F1F1F15C5C5CADADADFF
+        FFFFFFFFFFFFFFFFADADAD5C5C5CF1F1F100FFFFFFF1F1F15C5C5CADADADFFFF
+        FFADADAD5C5C5CF1F1F1FFFFFF00FFFFFFFFFFFFF1F1F15C5C5CADADAD5C5C5C
+        F1F1F1FFFFFFFFFFFF00FFFFFFFFFFFFFFFFFFF1F1F15C5C5CF1F1F1FFFFFFFF
+        FFFFFFFFFF00FFFFFFFFFFFFF1F1F15C5C5CADADAD5C5C5CF1F1F1FFFFFFFFFF
+        FF00FFFFFFF1F1F15C5C5CADADADFFFFFFADADAD5C5C5CF1F1F1FFFFFF00F1F1
+        F15C5C5CADADADFFFFFFFFFFFFFFFFFFADADAD5C5C5CF1F1F100FFFFFFC9C9C9
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC9C9C9FFFFFF00
+      }
+      OnClick = btnFilterClearClick
+    end
+  end
+  object GridSearch: TStringGrid
+    Left = 5
+    Height = 383
+    Top = 32
+    Width = 642
+    Align = alClient
+    BorderSpacing.Around = 5
+    BorderStyle = bsNone
+    ColCount = 6
+    Columns = <    
+      item
+        Title.Caption = 'Date'
+        Width = 110
+      end    
+      item
+        Title.Caption = 'Source'
+        Width = 80
+      end    
+      item
+        Title.Caption = 'Target'
+        Width = 80
+      end    
+      item
+        Title.Caption = 'Text'
+        Width = 200
+      end    
+      item
+        Title.Caption = 'Translation'
+        Width = 200
+      end>
+    DefaultColWidth = 30
+    Flat = True
+    FocusRectVisible = False
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goThumbTracking, goSmoothScroll, goFixedRowNumbering, goRowHighlight]
+    RowCount = 1
+    TabOrder = 0
+    TitleStyle = tsNative
+    OnDblClick = GridSearchDblClick
+    OnDrawCell = GridSearchDrawCell
+    OnPrepareCanvas = GridSearchPrepareCanvas
+  end
+  object StatusBar: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 420
+    Width = 652
+    Panels = <    
+      item
+        Width = 50
+      end>
+    SimplePanel = False
+  end
+  object TimerDebounce: TTimer
+    Enabled = False
+    OnTimer = TimerDebounceTimer
+    Left = 24
+    Top = 48
+  end
+end

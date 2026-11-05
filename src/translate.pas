@@ -94,6 +94,30 @@ type
     property MaxItems: integer read FMaxItems write SetMaxItems default 100;
   end;
 
+  // Fires after ActivateHistoryItem successfully selects an entry;
+  // host typically brings itself to front here
+  THistoryItemActivatedEvent = procedure(Sender: TObject; AItem: THistoryItem) of object;
+
+  { Nested search form window position and size }
+  TTranslateSearchPosition = class(TPersistent)
+  private
+    FLeft: integer;
+    FTop: integer;
+    FWidth: integer;
+    FHeight: integer;
+  public
+    procedure Assign(Source: TPersistent); override;
+  published
+    // Left edge of the search window; zero means center
+    property Left: integer read FLeft write FLeft default 0;
+    // Top edge of the search window; zero means center
+    property Top: integer read FTop write FTop default 0;
+    // Search window width; zero means form default
+    property Width: integer read FWidth write FWidth default 0;
+    // Search window height; zero means form default
+    property Height: integer read FHeight write FHeight default 0;
+  end;
+
 type
   { Proxy options for the Object Inspector }
   TTranslateProxy = class(TPersistent)
@@ -279,6 +303,11 @@ type
     FPastLast: boolean;
     FOnHistoryItem: THistoryItemEvent;
     FOnHistoryChanged: TNotifyEvent;
+    FOnHistoryItemActivated: THistoryItemActivatedEvent;
+
+    // Search form owned by the component
+    FSearchForm: TForm;
+    FSearchPosition: TTranslateSearchPosition;
 
     // Built-in language detection profiles state
     FProfilesLoaded: boolean;
@@ -307,6 +336,7 @@ type
     procedure ThreadTerminatedAsync(Sender: TObject);
 
     // History support
+    procedure SetSearchPosition(Value: TTranslateSearchPosition);
     procedure SetHistory(Value: THistorySettings);
     procedure HistoryChanged(Sender: TObject);
     procedure EnsureHistoryManager;
@@ -398,6 +428,11 @@ type
     property History: THistorySettings read FHistory write SetHistory;
     property OnHistoryItem: THistoryItemEvent read FOnHistoryItem write FOnHistoryItem;
     property OnHistoryChanged: TNotifyEvent read FOnHistoryChanged write FOnHistoryChanged;
+    property OnHistoryItemActivated: THistoryItemActivatedEvent read FOnHistoryItemActivated write FOnHistoryItemActivated;
+
+    // Search form window position; persisted by the host if needed
+    property SearchPosition: TTranslateSearchPosition read FSearchPosition write SetSearchPosition;
+
     // True when built-in detection profiles are loaded in memory
     property ProfilesLoaded: boolean read FProfilesLoaded;
 
@@ -486,6 +521,19 @@ type
     procedure HistoryLoadFull;
     procedure HistoryUnload;
 
+    // Creates the search form on first call or raises an existing one.
+    // The form loads history fully on show and unloads it on close
+    procedure ShowSearchForm;
+    // True when the search form currently exists in memory
+    function SearchFormActive: boolean;
+    // True when the search form is visible
+    function SearchFormVisible: boolean;
+    // Close the search form if it is open
+    procedure CloseSearchForm;
+    // Selects the history entry and fires OnHistoryItemActivated;
+    // used by the search form on double-click
+    function ActivateHistoryItem(AIndex: integer): boolean;
+
     // Thread state
     property RawTranslate: string read FRawTranslate;
     property TranslateThread: TTranslateThread read FTranslateThread;
@@ -521,10 +569,24 @@ type
     // Language detection settings
     property Detect;
 
-    // History storage and navigation events
+    // History storage settings, expandable group
     property History;
+
+    // Fires when the current history entry changes via Prev, Next,
+    // First, Last, Select or Delete
     property OnHistoryItem;
+
+    // Fires whenever the history content or position changes;
+    // use it to refresh Enabled states of navigation controls
     property OnHistoryChanged;
+
+    // Fires after a search-form double-click successfully activates an
+    // entry; host usually brings itself to front when hidden
+    property OnHistoryItemActivated;
+
+    // Search form window position; assign before ShowSearchForm or let the
+    // form update it on resize and move
+    property SearchPosition;
 
     // Proxy settings, expandable group in the Object Inspector
     property Proxy;
@@ -594,7 +656,7 @@ const
 
 implementation
 
-uses StringsHelper, StringHelper, Localize, OSUtils, Languages, LangDetect;
+uses StringsHelper, StringHelper, Localize, OSUtils, Languages, LangDetect, FormSearch;
 
   {%Region -fold TDetectSettings }
 
@@ -708,6 +770,23 @@ end;
 
 {%EndRegion}
 
+{%Region -fold TTranslateSearchPosition }
+
+procedure TTranslateSearchPosition.Assign(Source: TPersistent);
+begin
+  if Source is TTranslateSearchPosition then
+  begin
+    FLeft := TTranslateSearchPosition(Source).FLeft;
+    FTop := TTranslateSearchPosition(Source).FTop;
+    FWidth := TTranslateSearchPosition(Source).FWidth;
+    FHeight := TTranslateSearchPosition(Source).FHeight;
+  end
+  else
+    inherited Assign(Source);
+end;
+
+{%EndRegion}
+
 {%Region -fold TTranslateProxy }
 
 procedure TTranslateProxy.Changed;
@@ -758,7 +837,7 @@ end;
 
 {%EndRegion}
 
-{ TTranslateTimeout }
+{%Region -fold TTranslateTimeout }
 
 procedure TTranslateTimeout.Changed;
 begin
@@ -937,6 +1016,14 @@ end;
 procedure TCustomTranslate.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
+  if (Operation = opRemove) and (AComponent = FSearchForm) then
+  begin
+    FSearchForm := nil;
+    // Release the fully-loaded history when the search form is closed by the user.
+    // During component teardown the manager is already unloaded in Destroy
+    if (FHistoryManager <> nil) and not (csDestroying in ComponentState) then
+      FHistoryManager.Unload;
+  end;
 end;
 
 procedure TCustomTranslate.SetProxy(Value: TTranslateProxy);
@@ -1226,6 +1313,11 @@ begin
   Result := ADetectLanguage and FDetect.Enabled and not FCancelled;
 end;
 
+procedure TCustomTranslate.SetSearchPosition(Value: TTranslateSearchPosition);
+begin
+  FSearchPosition.Assign(Value);
+end;
+
 procedure TCustomTranslate.SetHistory(Value: THistorySettings);
 begin
   FHistory.Assign(Value);
@@ -1422,6 +1514,11 @@ begin
   FPastLast := False;
   FOnHistoryItem := nil;
   FOnHistoryChanged := nil;
+  FOnHistoryItemActivated := nil;
+
+  // Search form and its position
+  FSearchForm := nil;
+  FSearchPosition := TTranslateSearchPosition.Create;
 
   // Detect engine is created lazily only when an INI config is used
   FDetectEngine := nil;
@@ -1500,10 +1597,16 @@ begin
     FUserParameters := nil;
   FreeAndNil(FProxy);
   FreeAndNil(FTimeout);
+  // Unload the fully-loaded history before the search form is destroyed
+  if FHistoryManager <> nil then
+    FHistoryManager.Unload;
+  FreeAndNil(FSearchForm);
+
   FreeAndNil(FDetectEngine);
   FreeAndNil(FDetect);
   FreeAndNil(FHistoryManager);
   FreeAndNil(FHistory);
+  FreeAndNil(FSearchPosition);
   inherited Destroy;
 end;
 
@@ -3016,6 +3119,71 @@ begin
   EnsureHistoryManager;
   if FHistoryManager = nil then Exit;
   FHistoryManager.Unload;
+end;
+
+procedure TCustomTranslate.ShowSearchForm;
+var
+  Form: TFrmSearch = nil;
+begin
+  // Bring the existing form to front
+  if Assigned(FSearchForm) then
+  begin
+    if FSearchForm.Visible then FSearchForm.BringToFront
+    else
+      FSearchForm.Show;
+    Exit;
+  end;
+
+  Form := TFrmSearch.Create(Self, Self);
+  Form.FreeNotification(Self);
+  FSearchForm := Form;
+
+  Form.Position := poDesigned;
+  if FSearchPosition.Left > 0 then
+    Form.Left := FSearchPosition.Left
+  else
+    Form.Position := poDesktopCenter;
+
+  if FSearchPosition.Top > 0 then
+    Form.Top := FSearchPosition.Top
+  else
+    Form.Position := poDesktopCenter;
+
+  if FSearchPosition.Width > 0 then
+    Form.Width := FSearchPosition.Width;
+  if FSearchPosition.Height > 0 then
+    Form.Height := FSearchPosition.Height;
+
+  Form.Show;
+  Form.BringToFront;
+end;
+
+function TCustomTranslate.SearchFormActive: boolean;
+begin
+  Result := Assigned(FSearchForm);
+end;
+
+function TCustomTranslate.SearchFormVisible: boolean;
+begin
+  Result := Assigned(FSearchForm) and FSearchForm.Visible;
+end;
+
+procedure TCustomTranslate.CloseSearchForm;
+begin
+  if Assigned(FSearchForm) then
+    FSearchForm.Close;
+end;
+
+function TCustomTranslate.ActivateHistoryItem(AIndex: integer): boolean;
+var
+  Item: THistoryItem;
+begin
+  Result := HistorySelect(AIndex);
+  if not Result then Exit;
+
+  Item := HistoryGetItem(AIndex);
+  if (Item <> nil) and Assigned(FOnHistoryItemActivated) then
+    FOnHistoryItemActivated(Self, Item);
 end;
 
 function TCustomTranslate.DetectLanguage(const AText: string; ACurrentLang: string; MinConfidence: double;

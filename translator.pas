@@ -8,8 +8,9 @@ unit translator;
 interface
 
 uses
-  Translate, ConfigManager, FormConfig, TranslateHistory, Languages, 
-  LangDetect, Network, ScriptRunner, TranslatorRegister, LazarusPackageIntf;
+  Translate, ConfigManager, FormConfig, FormSearch, TranslateHistory, 
+  Languages, LangDetect, Network, ScriptRunner, TranslatorRegister, 
+  LazarusPackageIntf;
 
 implementation
 

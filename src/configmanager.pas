@@ -408,7 +408,7 @@ end;
 
 procedure TCustomConfigManager.ShowConfigEditor;
 var
-  Form: TformConfigTrayslate = nil;
+  Form: TfrmConfig = nil;
 begin
   if not Assigned(FTranslate) then Exit;
 
@@ -421,7 +421,7 @@ begin
     Exit;
   end;
 
-  Form := TformConfigTrayslate.Create(Self, Self, FTranslate);
+  Form := TfrmConfig.Create(Self, Self, FTranslate);
   Form.FreeNotification(Self);
   FConfigForm := Form;
 
@@ -467,7 +467,7 @@ function TCustomConfigManager.TestConfigChanges: boolean;
 begin
   Result := True;
   if Assigned(FConfigForm) and FConfigForm.HandleAllocated and FConfigForm.Showing then
-    Result := TformConfigTrayslate(FConfigForm).TestChanges;
+    Result := TfrmConfig(FConfigForm).TestChanges;
 end;
 
 procedure TCustomConfigManager.UpdateConfigEditor;
@@ -476,8 +476,8 @@ begin
   if not FConfigForm.HandleAllocated then Exit;
   if not FConfigForm.Showing then Exit;
 
-  TformConfigTrayslate(FConfigForm).UpdateConfigList;
-  TformConfigTrayslate(FConfigForm).UpdateConfig;
+  TfrmConfig(FConfigForm).UpdateConfigList;
+  TfrmConfig(FConfigForm).UpdateConfig;
 end;
 
 procedure TCustomConfigManager.InvalidateConfigEditor;
@@ -492,7 +492,7 @@ end;
 procedure TCustomConfigManager.RelocalizeConfigEditor;
 begin
   if Assigned(FConfigForm) and FConfigForm.HandleAllocated then
-    TformConfigTrayslate(FConfigForm).Relocalize;
+    TfrmConfig(FConfigForm).Relocalize;
 end;
 
 procedure TCustomConfigManager.CloseConfigEditor;
@@ -563,7 +563,7 @@ end;
 procedure TCustomConfigManager.AppActivate(Sender: TObject);
 var
   Handled: boolean;
-  EditorForm: TformConfigTrayslate;
+  EditorForm: TfrmConfig;
   EditorHasChanges: boolean;
 begin
   if csDesigning in ComponentState then Exit;
@@ -574,7 +574,7 @@ begin
   EditorHasChanges := False;
   if ConfigEditorVisible then
   begin
-    EditorForm := TformConfigTrayslate(FConfigForm);
+    EditorForm := TfrmConfig(FConfigForm);
     // Only the config shown in the editor is at risk of losing unsaved edits
     if SameText(EditorForm.ComboConfig.Text, FSelectedConfig) then
       EditorHasChanges := EditorForm.HasUnsavedChanges;

@@ -41,9 +41,9 @@ uses
 
 type
 
-  { TformConfigTrayslate }
+  { TfrmConfig }
 
-  TformConfigTrayslate = class(TForm)
+  TfrmConfig = class(TForm)
     AClearIcon: TAction;
     AEditFile: TAction;
     ASaveIconAs: TAction;
@@ -347,16 +347,16 @@ const
   clInfo = TColor($C0F5FF);
   clInfoDark = TColor($496269);
 
-  { TformConfigTrayslate }
+  { TfrmConfig }
 
-constructor TformConfigTrayslate.Create(AOwner: TComponent; AManager: TCustomConfigManager; ATranslate: TTranslate);
+constructor TfrmConfig.Create(AOwner: TComponent; AManager: TCustomConfigManager; ATranslate: TTranslate);
 begin
   FManager := AManager;
   FTranslate := ATranslate;
   inherited Create(AOwner);
 end;
 
-procedure TformConfigTrayslate.FormCreate(Sender: TObject);
+procedure TfrmConfig.FormCreate(Sender: TObject);
 var
   i: integer;
 begin
@@ -421,29 +421,29 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.FormShow(Sender: TObject);
+procedure TfrmConfig.FormShow(Sender: TObject);
 begin
   UpdateConfigList;
   UpdateConfig;
   Self.FitToScreen;
 end;
 
-procedure TformConfigTrayslate.FormDestroy(Sender: TObject);
+procedure TfrmConfig.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FHint);
 end;
 
-procedure TformConfigTrayslate.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+procedure TfrmConfig.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   CloseAction := caFree;
 end;
 
-procedure TformConfigTrayslate.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+procedure TfrmConfig.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := TestChanges;
 end;
 
-procedure TformConfigTrayslate.FormResize(Sender: TObject);
+procedure TfrmConfig.FormResize(Sender: TObject);
 begin
   GroupBoxCustomParameters.Top := 0;
   SplitterCustomParameters.Top := GroupBoxCustomParameters.Height;
@@ -457,19 +457,19 @@ begin
   FManager.FormPosition.Sep2 := GroupResponse.Height;
 end;
 
-procedure TformConfigTrayslate.FormChangeBounds(Sender: TObject);
+procedure TfrmConfig.FormChangeBounds(Sender: TObject);
 begin
   if not Assigned(FManager) then Exit;
   FManager.FormPosition.Left := Left;
   FManager.FormPosition.Top := Top;
 end;
 
-procedure TformConfigTrayslate.aSaveExecute(Sender: TObject);
+procedure TfrmConfig.aSaveExecute(Sender: TObject);
 begin
   SaveConfig;
 end;
 
-procedure TformConfigTrayslate.BtnUrlTestClick(Sender: TObject);
+procedure TfrmConfig.BtnUrlTestClick(Sender: TObject);
 begin
   if not Assigned(FTranslate) then Exit;
   Enabled := False;
@@ -487,7 +487,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.BtnPostDataTestClick(Sender: TObject);
+procedure TfrmConfig.BtnPostDataTestClick(Sender: TObject);
 begin
   if not Assigned(FTranslate) then Exit;
   Enabled := False;
@@ -505,7 +505,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.BtnInitUrlTestClick(Sender: TObject);
+procedure TfrmConfig.BtnInitUrlTestClick(Sender: TObject);
 begin
   if not Assigned(FTranslate) then Exit;
   Enabled := False;
@@ -523,7 +523,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.BtnResponseTestClick(Sender: TObject);
+procedure TfrmConfig.BtnResponseTestClick(Sender: TObject);
 var
   SourceText: string;
 begin
@@ -541,7 +541,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.BtnInitParametersTestClick(Sender: TObject);
+procedure TfrmConfig.BtnInitParametersTestClick(Sender: TObject);
 begin
   if not Assigned(FTranslate) then Exit;
   Enabled := False;
@@ -560,7 +560,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.BtnScriptTestClick(Sender: TObject);
+procedure TfrmConfig.BtnScriptTestClick(Sender: TObject);
 begin
   if not Assigned(FTranslate) then Exit;
   Enabled := False;
@@ -579,7 +579,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.BtnScriptResponseTestClick(Sender: TObject);
+procedure TfrmConfig.BtnScriptResponseTestClick(Sender: TObject);
 begin
   if not Assigned(FTranslate) then Exit;
   Enabled := False;
@@ -597,7 +597,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.BtnScriptHelpClick(Sender: TObject);
+procedure TfrmConfig.BtnScriptHelpClick(Sender: TObject);
 begin
   if not Assigned(FHint) then
     FHint := TOneShotTooltip.Create(Self);
@@ -605,7 +605,7 @@ begin
     500, 300, 0, TDarkUtils.ThemeColor(clInfo, clInfoDark));
 end;
 
-procedure TformConfigTrayslate.BtnScriptResponseHelpClick(Sender: TObject);
+procedure TfrmConfig.BtnScriptResponseHelpClick(Sender: TObject);
 begin
   if not Assigned(FHint) then
     FHint := TOneShotTooltip.Create(Self);
@@ -613,7 +613,7 @@ begin
     BtnScriptResponseHelp.ClientOrigin.Y + BtnScriptResponseHelp.Height, 500, 0, 0, TDarkUtils.ThemeColor(clInfo, clInfoDark));
 end;
 
-procedure TformConfigTrayslate.BtnResponseHelpClick(Sender: TObject);
+procedure TfrmConfig.BtnResponseHelpClick(Sender: TObject);
 begin
   if not Assigned(FHint) then
     FHint := TOneShotTooltip.Create(Self);
@@ -621,7 +621,7 @@ begin
     BtnResponseHelp.Height, 500, 0, 0, TDarkUtils.ThemeColor(clInfo, clInfoDark));
 end;
 
-procedure TformConfigTrayslate.ReloadConfigsExecute(Sender: TObject);
+procedure TfrmConfig.ReloadConfigsExecute(Sender: TObject);
 var
   LastIndex: integer;
 begin
@@ -641,19 +641,19 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.AClearIconExecute(Sender: TObject);
+procedure TfrmConfig.AClearIconExecute(Sender: TObject);
 begin
   FIconBase64 := string.Empty;
   UpdateIconPreview;
   ValueChange(Self);
 end;
 
-procedure TformConfigTrayslate.AEditFileExecute(Sender: TObject);
+procedure TfrmConfig.AEditFileExecute(Sender: TObject);
 begin
   TOS.OpenFile(ComboConfig.Text);
 end;
 
-procedure TformConfigTrayslate.ASaveIconAsExecute(Sender: TObject);
+procedure TfrmConfig.ASaveIconAsExecute(Sender: TObject);
 var
   Bmp: TBitmap;
 begin
@@ -673,17 +673,17 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.GroupLanguagesResize(Sender: TObject);
+procedure TfrmConfig.GroupLanguagesResize(Sender: TObject);
 begin
   LabelSort.Left := LabelFillLanguages.BoundsRect.Right + 10;
 end;
 
-procedure TformConfigTrayslate.GroupLanguagesTargetResize(Sender: TObject);
+procedure TfrmConfig.GroupLanguagesTargetResize(Sender: TObject);
 begin
   LabelTargetSort.Left := LabelFillTargetLanguages.BoundsRect.Right + 10;
 end;
 
-procedure TformConfigTrayslate.LabelFillLanguagesClick(Sender: TObject);
+procedure TfrmConfig.LabelFillLanguagesClick(Sender: TObject);
 var
   List: TStringList;
   AMemo: TMemo;
@@ -709,7 +709,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.LabelSortClick(Sender: TObject);
+procedure TfrmConfig.LabelSortClick(Sender: TObject);
 var
   sl: TStringList;
   AMemo: TMemo;
@@ -734,12 +734,12 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.BtnCloseClick(Sender: TObject);
+procedure TfrmConfig.BtnCloseClick(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TformConfigTrayslate.ComboConfigChange(Sender: TObject);
+procedure TfrmConfig.ComboConfigChange(Sender: TObject);
 begin
   if not Assigned(FManager) then Exit;
 
@@ -766,7 +766,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.ComboConfigKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
+procedure TfrmConfig.ComboConfigKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
   if (ssCtrl in shift) and (Key = VK_C) then
   begin
@@ -781,7 +781,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.ImagePreviewClick(Sender: TObject);
+procedure TfrmConfig.ImagePreviewClick(Sender: TObject);
 begin
   if DialogOpen.Execute then
   begin
@@ -791,19 +791,19 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.ImagePreviewMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+procedure TfrmConfig.ImagePreviewMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
   if Button = mbMiddle then
     AClearIcon.Execute;
 end;
 
-procedure TformConfigTrayslate.CustomEditEnter(Sender: TObject);
+procedure TfrmConfig.CustomEditEnter(Sender: TObject);
 begin
   if Sender is TCustomEdit then
     TCustomEdit(Sender).SetCaretWidth;
 end;
 
-procedure TformConfigTrayslate.MemoKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
+procedure TfrmConfig.MemoKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
   if (ssCtrl in Shift) and (Key = VK_V) then // Ctrl + V
   begin
@@ -812,7 +812,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.ValueChange(Sender: TObject);
+procedure TfrmConfig.ValueChange(Sender: TObject);
 begin
   if not FInUpdateConfig then
   begin
@@ -821,29 +821,29 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.SbNewConfigClick(Sender: TObject);
+procedure TfrmConfig.SbNewConfigClick(Sender: TObject);
 begin
   CreateConfig;
 end;
 
-procedure TformConfigTrayslate.SplitterCustomParametersMoved(Sender: TObject);
+procedure TfrmConfig.SplitterCustomParametersMoved(Sender: TObject);
 begin
   if Assigned(FManager) then
     FManager.FormPosition.Sep1 := GroupBoxCustomParameters.Height;
 end;
 
-procedure TformConfigTrayslate.SplitterResponseMoved(Sender: TObject);
+procedure TfrmConfig.SplitterResponseMoved(Sender: TObject);
 begin
   if Assigned(FManager) then
     FManager.FormPosition.Sep2 := GroupResponse.Height;
 end;
 
-procedure TformConfigTrayslate.SbCopyConfigClick(Sender: TObject);
+procedure TfrmConfig.SbCopyConfigClick(Sender: TObject);
 begin
   CreateConfig(True);
 end;
 
-procedure TformConfigTrayslate.UpdateIconPreview;
+procedure TfrmConfig.UpdateIconPreview;
 var
   Bmp: TBitmap;
 begin
@@ -860,7 +860,7 @@ begin
     ImagePreview.Picture.Clear;
 end;
 
-procedure TformConfigTrayslate.LoadSelectedConfig;
+procedure TfrmConfig.LoadSelectedConfig;
 var
   Handled: boolean;
 begin
@@ -873,7 +873,7 @@ begin
     FTranslate.ConfigFile := FManager.ConfigFile;
 end;
 
-function TformConfigTrayslate.TestChanges(AButtons: TMsgDlgButtons = [mbYes, mbNo, mbCancel]): boolean;
+function TfrmConfig.TestChanges(AButtons: TMsgDlgButtons = [mbYes, mbNo, mbCancel]): boolean;
 var
   res: TModalResult;
 begin
@@ -897,13 +897,13 @@ begin
   end;
 end;
 
-function TformConfigTrayslate.HasUnsavedChanges: boolean;
+function TfrmConfig.HasUnsavedChanges: boolean;
 begin
   // aSave is enabled only when the editor has unsaved edits
   Result := Assigned(aSave) and aSave.Enabled;
 end;
 
-function TformConfigTrayslate.AskFileChanged: TModalResult;
+function TfrmConfig.AskFileChanged: TModalResult;
 var
   Msg: string;
 begin
@@ -914,7 +914,7 @@ begin
     rfilechangedreloaddisk, mrCancel, rfilechangedcancel], 0);
 end;
 
-procedure TformConfigTrayslate.CreateConfig(ACopy: boolean = False);
+procedure TfrmConfig.CreateConfig(ACopy: boolean = False);
 var
   NewName: string;
   SourceFile: string;
@@ -987,7 +987,7 @@ begin
   UpdateConfig;
 end;
 
-procedure TformConfigTrayslate.DeleteConfig;
+procedure TfrmConfig.DeleteConfig;
 var
   FileName: string;
   LastIndex: integer;
@@ -1032,7 +1032,7 @@ begin
   UpdateConfig;
 end;
 
-procedure TformConfigTrayslate.UpdateConfigList(UpdateItemIndex: boolean = True);
+procedure TfrmConfig.UpdateConfigList(UpdateItemIndex: boolean = True);
 var
   idx: integer;
 begin
@@ -1051,7 +1051,7 @@ begin
   FManager.NotifyRefreshSettings;
 end;
 
-procedure TformConfigTrayslate.UpdateConfig;
+procedure TfrmConfig.UpdateConfig;
 begin
   if not Assigned(FTranslate) then Exit;
   with FTranslate do
@@ -1100,14 +1100,14 @@ begin
   Caption := rcaption;
 end;
 
-procedure TformConfigTrayslate.ClearConfig;
+procedure TfrmConfig.ClearConfig;
 begin
   if not Assigned(FTranslate) then Exit;
   FTranslate.Clear;
   UpdateConfig;
 end;
 
-procedure TformConfigTrayslate.SaveConfig;
+procedure TfrmConfig.SaveConfig;
 var
   TempHeaders: TStringList;
 begin
@@ -1192,7 +1192,7 @@ begin
   end;
 end;
 
-procedure TformConfigTrayslate.Relocalize;
+procedure TfrmConfig.Relocalize;
 begin
   // Re-apply translation from package or custom PO, then refill dynamic lists
   TLocalize.TranslateForm('formconfig', Self, ['FormConfig']);
