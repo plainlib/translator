@@ -6,6 +6,7 @@ object FrmSearch: TFrmSearch
   ClientHeight = 443
   ClientWidth = 652
   Color = clWindow
+  ShowInTaskBar = stAlways
   LCLVersion = '4.8.0.0'
   OnChangeBounds = FormChangeBounds
   OnCreate = FormCreate
