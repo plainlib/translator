@@ -30,6 +30,10 @@ type
   // Dynamic array of entry indices, returned by Find
   TIntegerArray = array of integer;
 
+  // Optional resolver that maps a stored language code to its display name;
+  // lets Find match queries like "English" against code "en"
+  TLangDisplayResolver = function(const ACode: string): string of object;
+
   // Per-record index entry: file offset and compressed payload length.
   // Record must be declared before the pointer that refers to it
   TFileEntry = record
@@ -94,7 +98,8 @@ type
     // Filter is a case-insensitive substring in any field; empty means all.
     // Date range is half-open [ADateFrom, ADateTo); zero means unbounded.
     // Auto-calls LoadFull; caller should Unload when bulk access ends
-    function Find(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0): TIntegerArray;
+    function Find(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0;
+      ALangResolver: TLangDisplayResolver = nil): TIntegerArray;
     function FindByDate(const ADateFrom, ADateTo: TDateTime): TIntegerArray;
     procedure Clear;
     property Index: integer read FIndex;
@@ -852,16 +857,19 @@ begin
   Result := LoadEntryFromFile(AIndex);
 end;
 
-function THistoryManager.Find(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0): TIntegerArray;
+function THistoryManager.Find(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0;
+  ALangResolver: TLangDisplayResolver = nil): TIntegerArray;
 var
   FilterLower: string;
   HasFilter, HasFrom, HasTo: boolean;
   i, MatchCount: integer;
   Item: THistoryItem;
   Match: boolean;
+  SourceDisplay, TargetDisplay: string;
+  DateStr, DateStrIso: string;
 begin
-  // Explicit init so compiler is happy even if EnsureLoaded raises
   Result := nil;
+  SetLength(Result, 0);
 
   // Find works on the fully loaded list; auto-load for caller convenience
   EnsureLoaded;
@@ -901,10 +909,27 @@ begin
 
     if Match and HasFilter then
     begin
-      if (Pos(FilterLower, UTF8LowerCase(Item.SourceText)) = 0) and (Pos(FilterLower, UTF8LowerCase(Item.TargetText)) = 0) and
-        (Pos(FilterLower, UTF8LowerCase(Item.SourceLang)) = 0) and (Pos(FilterLower, UTF8LowerCase(Item.TargetLang)) = 0) and
-        (Pos(FilterLower, UTF8LowerCase(Item.ConfigFile)) = 0) then
-        Match := False;
+      // Try raw fields first, including language codes like "en"
+      Match := (Pos(FilterLower, UTF8LowerCase(Item.SourceText)) > 0) or (Pos(FilterLower, UTF8LowerCase(Item.TargetText)) > 0) or
+        (Pos(FilterLower, UTF8LowerCase(Item.SourceLang)) > 0) or (Pos(FilterLower, UTF8LowerCase(Item.TargetLang)) > 0) or
+        (Pos(FilterLower, UTF8LowerCase(Item.ConfigFile)) > 0);
+
+      // Date is stored as TDateTime; match against the display form used by
+      // the UI plus the ISO form so both "05.11.2025" and "2025-11-05" work
+      if not Match then
+      begin
+        DateStr := DateTimeToStr(Item.Timestamp);
+        DateStrIso := FormatDateTime('yyyy-mm-dd hh:nn', Item.Timestamp);
+        Match := (Pos(FilterLower, UTF8LowerCase(DateStr)) > 0) or (Pos(FilterLower, UTF8LowerCase(DateStrIso)) > 0);
+      end;
+
+      // Fall back to display names so "English" matches code "en"
+      if (not Match) and Assigned(ALangResolver) then
+      begin
+        SourceDisplay := ALangResolver(Item.SourceLang);
+        TargetDisplay := ALangResolver(Item.TargetLang);
+        Match := (Pos(FilterLower, UTF8LowerCase(SourceDisplay)) > 0) or (Pos(FilterLower, UTF8LowerCase(TargetDisplay)) > 0);
+      end;
     end;
 
     if Match then

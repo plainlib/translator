@@ -299,6 +299,8 @@ type
     FHistoryManager: THistoryManager;
     FHistoryFileLoaded: string;
     FHistoryNavigating: boolean;
+    // Cached code-to-display-name map used by history search
+    FLangDisplayCache: TStringList;
     // True when the screen is empty after New and positioned past the last item
     FPastLast: boolean;
     FOnHistoryItem: THistoryItemEvent;
@@ -343,6 +345,8 @@ type
     procedure AddToHistoryItemEx(const ASource, ATarget, ASrcLang, ATrgLang, AConfig: string);
     procedure AddToHistoryItem(const ASource, ATarget: string);
     procedure FireHistoryChanged;
+    // Resolves a stored language code to its display name for history search
+    function LangDisplayResolver(const ACode: string): string;
 
     // Config file handling
     procedure SetConfigFile(const Value: string);
@@ -1518,6 +1522,7 @@ begin
   FOnHistoryItem := nil;
   FOnHistoryChanged := nil;
   FOnHistoryItemActivated := nil;
+  FLangDisplayCache := TStringList.Create;
 
   // Search form and its position
   FSearchForm := nil;
@@ -1610,6 +1615,7 @@ begin
   FreeAndNil(FHistoryManager);
   FreeAndNil(FHistory);
   FreeAndNil(FSearchPosition);
+  FreeAndNil(FLangDisplayCache);
   inherited Destroy;
 end;
 
@@ -2969,12 +2975,27 @@ begin
   end;
 end;
 
+function TCustomTranslate.LangDisplayResolver(const ACode: string): string;
+var
+  Idx: integer;
+begin
+  if ACode = '' then
+    Exit('');
+  Idx := FLangDisplayCache.IndexOf(ACode);
+  if Idx >= 0 then
+    Exit(FLangDisplayCache.ValueFromIndex[Idx]);
+  Result := TLanguages.GetDisplayName(ACode);
+  if Result = '' then
+    Result := ACode;
+  FLangDisplayCache.Values[ACode] := Result;
+end;
+
 function TCustomTranslate.HistoryFind(const AFilter: string; const ADateFrom: TDateTime = 0; const ADateTo: TDateTime = 0): TIntegerArray;
 begin
   EnsureHistoryManager;
   if FHistoryManager = nil then
     Exit(nil);
-  Result := FHistoryManager.Find(AFilter, ADateFrom, ADateTo);
+  Result := FHistoryManager.Find(AFilter, ADateFrom, ADateTo, @LangDisplayResolver);
 end;
 
 function TCustomTranslate.HistoryFindByDate(const ADateFrom, ADateTo: TDateTime): TIntegerArray;
@@ -3122,6 +3143,10 @@ begin
   EnsureHistoryManager;
   if FHistoryManager = nil then Exit;
   FHistoryManager.Unload;
+  // Display-name cache is only used by history search; drop it together
+  // with the fully-loaded history so bulk-only state does not survive close
+  if Assigned(FLangDisplayCache) then
+    FLangDisplayCache.Clear;
 end;
 
 procedure TCustomTranslate.ShowSearchForm;

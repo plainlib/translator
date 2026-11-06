@@ -18,6 +18,7 @@ uses
   StdCtrls,
   LCLType,
   LCLIntf,
+  LazUTF8,
   Translate,
   TranslateHistory;
 
@@ -58,8 +59,6 @@ type
     FTranslate: TCustomTranslate;
     // Absolute history indices for each visible grid row
     FIndices: TIntegerArray;
-    // Original widths of the metadata columns taken from LFM
-    FBaseWidths: array[0..3] of integer;
     // Per-code cache of flag, display name and precomputed side width
     FLangCache: TStringList;
     // Fixed pixel metrics for the language cell layout
@@ -128,12 +127,9 @@ begin
   GridSearch.AlternateColor := TDarkUtils.ThemeColor(clLightGray, clLightGrayDark);
   GridSearch.FixedGridLineColor := TDarkUtils.ThemeColor(clLine, clLineDark);
 
-  // Save the initial metadata column widths from the LFM
+  // LCL scales ColWidths of LFM-defined columns automatically through the
+  // form's AutoAdjustLayout, so no manual base-width caching is required
   GridSearch.HandleNeeded;
-  FBaseWidths[0] := GridSearch.ColWidths[0];
-  FBaseWidths[1] := GridSearch.ColWidths[1];
-  FBaseWidths[2] := GridSearch.ColWidths[2];
-  FBaseWidths[3] := GridSearch.ColWidths[3];
 
   // Flag resources are 16x11; keep them unscaled to avoid blur
   FFlagWidth := 16;
@@ -325,16 +321,13 @@ begin
   if not GridSearch.HandleAllocated then Exit;
   if GridSearch.ColCount < 6 then Exit;
 
-  // Keep the metadata columns at their original LFM widths
-  GridSearch.ColWidths[0] := FBaseWidths[0];
-  GridSearch.ColWidths[1] := FBaseWidths[1];
-  GridSearch.ColWidths[2] := FBaseWidths[2];
-  GridSearch.ColWidths[3] := FBaseWidths[3];
-
+  // Metadata columns (row, date, src, trg) keep whatever width LCL applied
+  // for the current DPI and whatever the user resized with goColSizing;
+  // only the two text columns adapt to the remaining space
   LinesWidth := GridSearch.ColCount * GridSearch.GridLineWidth;
 
-  // Text columns share the remaining space
-  Available := GridSearch.ClientWidth - FBaseWidths[0] - FBaseWidths[1] - FBaseWidths[2] - FBaseWidths[3] - LinesWidth;
+  Available := GridSearch.ClientWidth - GridSearch.ColWidths[0] - GridSearch.ColWidths[1] - GridSearch.ColWidths[2] -
+    GridSearch.ColWidths[3] - LinesWidth;
 
   if Available < 200 then
     Available := 200;
@@ -408,70 +401,90 @@ procedure TFrmSearch.DrawLanguageCell(const ARect: TRect; const ALangCode: strin
 var
   Info: TLangCellInfo;
   FlagRect, TextRect: TRect;
-  FlagLeft, FlagTop, TotalH, TextH: integer;
+  FlagLeft, FlagTop, TotalH, TextH, TextTop, TextWidth, InnerWidth: integer;
+  AFilter: string;
+  HighlightColor: TColor;
+  IsStacked: boolean;
+  TxtFlags: cardinal;
 begin
   Info := GetLangCellInfo(ALangCode);
   if not Assigned(Info) then
     Exit;
 
   TextH := GridSearch.Canvas.TextHeight(Info.DisplayName);
+  AFilter := Trim(Filter.Text);
+  if TDarkUtils.IsDarkMode then
+    HighlightColor := clInfoDark
+  else
+    HighlightColor := clInfo;
 
-  if Assigned(Info.Flag) and (Info.SideWidth > ARect.Width) then
+  IsStacked := Assigned(Info.Flag) and (Info.SideWidth > ARect.Width);
+
+  // Flag and text areas are computed once; text goes first, flag is painted
+  // on top afterwards, which matches how DrawHighlightedText expects a clean
+  // rectangle to render into
+  if IsStacked then
   begin
-    // Stacked layout: flag centered on top, name centered below
     TotalH := FFlagHeight + GridSearch.Scale96ToForm(2) + TextH;
     FlagTop := ARect.Top + (ARect.Height - TotalH) div 2;
     FlagLeft := ARect.Left + (ARect.Width - FFlagWidth) div 2;
-
     FlagRect := Rect(FlagLeft, FlagTop, FlagLeft + FFlagWidth, FlagTop + FFlagHeight);
-    GridSearch.Canvas.StretchDraw(FlagRect, Info.Flag);
 
-    TextRect := Rect(ARect.Left + 1, FlagRect.Bottom + GridSearch.Scale96ToForm(2), ARect.Right - 1,
-      FlagRect.Bottom + GridSearch.Scale96ToForm(2) + TextH);
-
-    GridSearch.Canvas.Brush.Style := bsClear;
-    DrawText(
-      GridSearch.Canvas.Handle,
-      PChar(Info.DisplayName),
-      Length(Info.DisplayName),
-      TextRect,
-      DT_CENTER or DT_SINGLELINE or DT_VCENTER or DT_END_ELLIPSIS or DT_NOPREFIX
-      );
-    Exit;
-  end;
-
-  if Assigned(Info.Flag) then
+    TextTop := FlagRect.Bottom + GridSearch.Scale96ToForm(2);
+    TextRect := Rect(ARect.Left + 1, TextTop, ARect.Right - 1, TextTop + TextH);
+    TxtFlags := DT_CENTER;
+  end
+  else if Assigned(Info.Flag) then
   begin
-    // Side-by-side: flag on the left edge, name to its right
     FlagLeft := ARect.Left + GridSearch.Scale96ToForm(2);
     FlagTop := ARect.Top + (ARect.Height - FFlagHeight) div 2;
     FlagRect := Rect(FlagLeft, FlagTop, FlagLeft + FFlagWidth, FlagTop + FFlagHeight);
-    GridSearch.Canvas.StretchDraw(FlagRect, Info.Flag);
 
-    TextRect := Rect(FlagRect.Right + GridSearch.Scale96ToForm(4), ARect.Top, ARect.Right - GridSearch.Scale96ToForm(2),
-      ARect.Bottom);
-
-    GridSearch.Canvas.Brush.Style := bsClear;
-    DrawText(
-      GridSearch.Canvas.Handle,
-      PChar(Info.DisplayName),
-      Length(Info.DisplayName),
-      TextRect,
-      DT_LEFT or DT_SINGLELINE or DT_VCENTER or DT_END_ELLIPSIS or DT_NOPREFIX
-      );
-    Exit;
+    TextTop := ARect.Top + (ARect.Height - TextH) div 2;
+    TextRect := Rect(FlagRect.Right + GridSearch.Scale96ToForm(4), TextTop, ARect.Right - GridSearch.Scale96ToForm(2),
+      TextTop + TextH);
+    TxtFlags := DT_LEFT;
+  end
+  else
+  begin
+    FlagRect := Rect(0, 0, 0, 0);
+    TextTop := ARect.Top + (ARect.Height - TextH) div 2;
+    TextRect := Rect(ARect.Left + GridSearch.Scale96ToForm(2), TextTop, ARect.Right - GridSearch.Scale96ToForm(2), TextTop + TextH);
+    TxtFlags := DT_LEFT;
   end;
 
-  // No flag resource: plain text on the left
-  TextRect := Rect(ARect.Left + GridSearch.Scale96ToForm(2), ARect.Top, ARect.Right - GridSearch.Scale96ToForm(2), ARect.Bottom);
-  GridSearch.Canvas.Brush.Style := bsClear;
-  DrawText(
-    GridSearch.Canvas.Handle,
-    PChar(Info.DisplayName),
-    Length(Info.DisplayName),
-    TextRect,
-    DT_LEFT or DT_SINGLELINE or DT_VCENTER or DT_END_ELLIPSIS or DT_NOPREFIX
-    );
+  TextWidth := GridSearch.Canvas.TextWidth(Info.DisplayName);
+  InnerWidth := TextRect.Right - TextRect.Left;
+
+  if TextWidth > InnerWidth then
+  begin
+    // Name does not fit: truncate with ellipsis, no highlight possible
+    GridSearch.Canvas.Brush.Style := bsClear;
+    DrawText(GridSearch.Canvas.Handle, PChar(Info.DisplayName), Length(Info.DisplayName),
+      TextRect, TxtFlags or DT_SINGLELINE or DT_VCENTER or DT_END_ELLIPSIS or DT_NOPREFIX);
+  end
+  else if (AFilter <> '') and (Pos(UTF8LowerCase(AFilter), UTF8LowerCase(Info.DisplayName)) > 0) then
+  begin
+    // Center horizontally for the stacked case; helper left-aligns from
+    // the rect's left edge, so shift the rect's left to hold the centered text
+    if IsStacked then
+      Inc(TextRect.Left, (InnerWidth - TextWidth) div 2);
+    GridSearch.DrawHighlightedText(
+      GridSearch.Canvas, TextRect,
+      GridDrawColors(HighlightColor, clMaroon, clGray),
+      Info.DisplayName, AFilter, '', False, False, False);
+  end
+  else
+  begin
+    // No filter match (or empty filter); DrawText handles the alignment
+    GridSearch.Canvas.Brush.Style := bsClear;
+    DrawText(GridSearch.Canvas.Handle, PChar(Info.DisplayName), Length(Info.DisplayName),
+      TextRect, TxtFlags or DT_SINGLELINE or DT_VCENTER or DT_END_ELLIPSIS or DT_NOPREFIX);
+  end;
+
+  // Flag goes on top, in the upper strip that does not overlap the text
+  if Assigned(Info.Flag) then
+    GridSearch.Canvas.StretchDraw(FlagRect, Info.Flag);
 end;
 
 procedure TFrmSearch.GridSearchDrawCell(Sender: TObject; aCol, aRow: integer; aRect: TRect; aState: TGridDrawState);
@@ -500,23 +513,14 @@ begin
 
   GridSearch.Canvas.FillRect(aRect);
 
-  // Date column is always single line, no highlighting
-  if aCol = 1 then
-  begin
-    GridSearch.Canvas.TextRect(
-      aRect,
-      aRect.Left + GridSearch.Scale96ToForm(2),
-      aRect.Top + GridSearch.Scale96ToForm(2),
-      CellText
-      );
-    Exit;
-  end;
-
   if TDarkUtils.IsDarkMode then
     HighlightColor := clInfoDark
   else
     HighlightColor := clInfo;
 
+  // Date goes through the same highlighting path as text columns, but with
+  // word wrap disabled so it always stays on one line; the helper still draws
+  // the value even when no match is found inside it
   GridSearch.DrawHighlightedText(
     GridSearch.Canvas,
     Rect(aRect.Left + GridSearch.Scale96ToForm(2), aRect.Top + GridSearch.Scale96ToForm(2), aRect.Right -
@@ -525,9 +529,9 @@ begin
     CellText,
     AFilter,
     '',
-    True,   // word wrap
-    False,  // do not draw \n markers
-    False   // no bidi
+    aCol <> 1,  // word wrap for text columns only
+    False,      // do not draw \n markers
+    False       // no bidi
     );
 end;
 
