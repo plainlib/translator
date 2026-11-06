@@ -531,7 +531,9 @@ begin
     '',
     aCol <> 1,  // word wrap for text columns only
     False,      // do not draw \n markers
-    False       // no bidi
+    False,      // no bidi
+    aCol = 1,   // vertical center: date column only
+    aCol = 1    // horizontal center: date column only
     );
 end;
 
