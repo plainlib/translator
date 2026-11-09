@@ -34,6 +34,10 @@ type
   // lets Find match queries like "English" against code "en"
   TLangDisplayResolver = function(const ACode: string): string of object;
 
+  // Callback invoked before forward history is truncated; AAllow defaults to
+  // True, set to False to keep the full history and jump to the end instead
+  THistoryTruncateQueryEvent = procedure(Sender: TObject; var AAllow: boolean) of object;
+
   // Per-record index entry: file offset and compressed payload length.
   // Record must be declared before the pointer that refers to it
   TFileEntry = record
@@ -57,8 +61,10 @@ type
     FFileName: string;
     FFileEntryCount: integer;  // records physically present in the file
     FNeedsRebuild: boolean;    // file could not be trusted; next Add compacts
+    FOnTruncateQuery: THistoryTruncateQueryEvent;
     procedure ClearItems;
     procedure ClearEntries;
+    procedure SetMaxItems(const AValue: integer);
     procedure TrimOldest;
     procedure WriteString(AStream: TStream; const AValue: string);
     function ReadString(AStream: TStream): string;
@@ -105,8 +111,11 @@ type
     property Index: integer read FIndex;
     property Count: integer read GetCount;
     property Loaded: boolean read GetLoaded;
-    property MaxItems: integer read FMaxItems write FMaxItems;
+    property MaxItems: integer read FMaxItems write SetMaxItems;
     property FileName: string read FFileName write FFileName;
+    // Fires before forward entries are dropped after AddText on a stale
+    // position; leave nil to always truncate (legacy behavior)
+    property OnTruncateQuery: THistoryTruncateQueryEvent read FOnTruncateQuery write FOnTruncateQuery;
   end;
 
 implementation
@@ -168,6 +177,31 @@ begin
   for i := 0 to FEntries.Count - 1 do
     Dispose(PFileEntry(FEntries[i]));
   FEntries.Clear;
+end;
+
+procedure THistoryManager.SetMaxItems(const AValue: integer);
+begin
+  if FMaxItems = AValue then
+    Exit;
+  FMaxItems := AValue;
+
+  // Apply the new limit immediately so the file shrinks as well
+  if (FMaxItems > 0) and (FEntries.Count > FMaxItems) then
+  begin
+    // Release the cache before trimming: after TrimOldest FIndex moves,
+    // so the cached item no longer matches FEntries[FIndex]
+    FreeAndNil(FCurrentItem);
+    TrimOldest;
+    Compact;
+    // Reset position to the newest entry, same as Load does after trimming
+    if FEntries.Count > 0 then
+    begin
+      FIndex := FEntries.Count - 1;
+      FCurrentItem := LoadEntryFromFile(FIndex);
+    end
+    else
+      FIndex := -1;
+  end;
 end;
 
 procedure THistoryManager.TrimOldest;
@@ -684,12 +718,14 @@ end;
 function THistoryManager.AddText(const ASourceText, ATargetText, ASourceLang, ATargetLang, AConfigFile: string): THistoryItem;
 var
   Current: THistoryItem;
+  AllowTruncate: boolean;
 begin
   Result := nil;
   if Trim(ASourceText) = '' then
     Exit;
 
-  // Skip when the new entry fully matches the current item
+  // Skip when the new entry fully matches the current item; a duplicate is
+  // a no-op, so the truncate query must not fire for it
   Current := GetItem(FIndex);
   if Current <> nil then
   begin
@@ -697,6 +733,37 @@ begin
       Trim(Current.TargetText).EqualNormalized(Trim(ATargetText), False) and SameText(Current.SourceLang, ASourceLang) and
       SameText(Current.TargetLang, ATargetLang) and SameText(Current.ConfigFile, AConfigFile) then
       Exit;
+  end;
+
+  // Ask the host before dropping forward entries after the current position
+  if (FIndex >= 0) and (FIndex < FEntries.Count - 1) then
+  begin
+    AllowTruncate := True;
+    if Assigned(FOnTruncateQuery) then
+      FOnTruncateQuery(Self, AllowTruncate);
+    if not AllowTruncate then
+    begin
+      // Jump to end without truncating; reload cache for accurate dedup
+      if FLoaded then
+        FIndex := FEntries.Count - 1
+      else
+      begin
+        FreeAndNil(FCurrentItem);
+        FIndex := FEntries.Count - 1;
+        if FIndex >= 0 then
+          FCurrentItem := LoadEntryFromFile(FIndex);
+      end;
+
+      // Re-check duplicate against the new tail we just jumped to
+      Current := GetItem(FIndex);
+      if Current <> nil then
+      begin
+        if Trim(Current.SourceText).EqualNormalized(Trim(ASourceText), False) and
+          Trim(Current.TargetText).EqualNormalized(Trim(ATargetText), False) and SameText(Current.SourceLang, ASourceLang) and
+          SameText(Current.TargetLang, ATargetLang) and SameText(Current.ConfigFile, AConfigFile) then
+          Exit;
+      end;
+    end;
   end;
 
   Result := THistoryItem.Create;

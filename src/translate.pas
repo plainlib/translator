@@ -306,6 +306,7 @@ type
     FOnHistoryItem: THistoryItemEvent;
     FOnHistoryChanged: TNotifyEvent;
     FOnHistoryItemActivated: THistoryItemActivatedEvent;
+    FOnHistoryTruncateQuery: THistoryTruncateQueryEvent;
 
     // Search form owned by the component
     FSearchForm: TForm;
@@ -345,6 +346,7 @@ type
     procedure AddToHistoryItemEx(const ASource, ATarget, ASrcLang, ATrgLang, AConfig: string);
     procedure AddToHistoryItem(const ASource, ATarget: string);
     procedure FireHistoryChanged;
+    procedure SetOnHistoryTruncateQuery(const Value: THistoryTruncateQueryEvent);
     // Resolves a stored language code to its display name for history search
     function LangDisplayResolver(const ACode: string): string;
 
@@ -433,6 +435,9 @@ type
     property OnHistoryItem: THistoryItemEvent read FOnHistoryItem write FOnHistoryItem;
     property OnHistoryChanged: TNotifyEvent read FOnHistoryChanged write FOnHistoryChanged;
     property OnHistoryItemActivated: THistoryItemActivatedEvent read FOnHistoryItemActivated write FOnHistoryItemActivated;
+    // Fires before forward entries are dropped when AddText hits a non-tail
+    // position; host may cancel to jump to the end and keep the history
+    property OnHistoryTruncateQuery: THistoryTruncateQueryEvent read FOnHistoryTruncateQuery write SetOnHistoryTruncateQuery;
 
     // Search form window position; persisted by the host if needed
     property SearchPosition: TTranslateSearchPosition read FSearchPosition write SetSearchPosition;
@@ -518,6 +523,9 @@ type
     procedure HistoryMarkEmpty;
     function HistoryCanPrev: boolean;
     function HistoryCanNext: boolean;
+    // True when the position is at the tail (or history is empty); used by
+    // the host to decide whether a non-destructive commit is safe
+    function HistoryAtTail: boolean;
     function HistoryCount: integer;
     procedure HistoryClear;
     // Forces all history entries into memory for bulk access; call before
@@ -590,6 +598,10 @@ type
     // Fires after a search-form double-click successfully activates an
     // entry; host usually brings itself to front when hidden
     property OnHistoryItemActivated;
+
+    // Fires before forward history is dropped after navigating back and
+    // translating; host may cancel the drop and jump to the end instead
+    property OnHistoryTruncateQuery;
 
     // Search form window position; assign before ShowSearchForm or let the
     // form update it on resize and move
@@ -1343,7 +1355,11 @@ begin
   begin
     FreeAndNil(FHistoryManager);
     FHistoryFileLoaded := string.Empty;
-  end;
+  end
+  else if Assigned(FHistoryManager) then
+    // Propagate the new limit to the loaded manager; its setter trims the
+    // list and rewrites the file immediately when the limit shrinks
+    FHistoryManager.MaxItems := FHistory.MaxItems;
 
   // Notify the host so it can refresh button states
   FireHistoryChanged;
@@ -1369,6 +1385,7 @@ begin
   FreeAndNil(FHistoryManager);
   try
     FHistoryManager := THistoryManager.Create(ResolvedName, FHistory.MaxItems);
+    FHistoryManager.OnTruncateQuery := FOnHistoryTruncateQuery;
     FHistoryManager.Load;
     FHistoryFileLoaded := ResolvedName;
   except
@@ -1403,6 +1420,15 @@ procedure TCustomTranslate.FireHistoryChanged;
 begin
   if Assigned(FOnHistoryChanged) then
     FOnHistoryChanged(Self);
+end;
+
+procedure TCustomTranslate.SetOnHistoryTruncateQuery(const Value: THistoryTruncateQueryEvent);
+begin
+  FOnHistoryTruncateQuery := Value;
+  // Propagate to the live manager; a nil manager is created later with the
+  // stored value already wired in EnsureHistoryManager
+  if Assigned(FHistoryManager) then
+    FHistoryManager.OnTruncateQuery := Value;
 end;
 
 { Protected }
@@ -1522,6 +1548,7 @@ begin
   FOnHistoryItem := nil;
   FOnHistoryChanged := nil;
   FOnHistoryItemActivated := nil;
+  FOnHistoryTruncateQuery := nil;
   FLangDisplayCache := TStringList.Create;
 
   // Search form and its position
@@ -3108,6 +3135,16 @@ begin
   // Nothing to go forward to from the empty screen
   if FPastLast then Exit(False);
   Result := FHistoryManager.CanNext;
+end;
+
+function TCustomTranslate.HistoryAtTail: boolean;
+begin
+  EnsureHistoryManager;
+  // Treat a missing manager as empty history so the first entry is safe to add
+  if FHistoryManager = nil then Exit(True);
+  // CanNext is False when the index is at the tail or below zero; both cases
+  // mean a new entry would be appended, not inserted with truncation
+  Result := not FHistoryManager.CanNext;
 end;
 
 function TCustomTranslate.HistoryCount: integer;
