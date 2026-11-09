@@ -1594,10 +1594,10 @@ begin
   SetLength(FLanguageCodes, 0);
   FLanguageCodes := nil;
 
-  FInitHeaders.Free;
-  FInitParameters.Free;
-  FParameterValues.Free;
-  FParameterEncode.Free;
+  FreeAndNil(FInitHeaders);
+  FreeAndNil(FInitParameters);
+  FreeAndNil(FParameterValues);
+  FreeAndNil(FParameterEncode);
   // Free the list only when we created it, the host owns the one it assigns
   if FUserParametersOwned then
     FreeAndNil(FUserParameters)
@@ -3479,6 +3479,7 @@ var
     Key, Val: string;
     UnderscorePos: integer;
   begin
+    if not Assigned(Dest) then Exit;
     Dest.Clear;
     Keys := TStringList.Create;
     try
@@ -3517,7 +3518,8 @@ begin
     ServiceProxy := Ini.ReadBool('Service', 'AllowProxy', False);
     ServiceColorRecent := Ini.ReadInteger('Service', 'ColorRecent', clBlue);
 
-    ServiceDescription.Clear;
+    if Assigned(ServiceDescription) then
+      ServiceDescription.Clear;
     Keys := TStringList.Create;
     try
       Ini.ReadSection('Service Description', Keys);
@@ -3636,11 +3638,15 @@ begin
     LoadSection('Languages', LanguagesOriginal);
     LoadSection('LanguagesTarget', LanguagesTargetOriginal);
 
-    LanguagesOriginal.RemoveEmptyValues;
-    LanguagesTargetOriginal.RemoveEmptyValues;
+    if Assigned(LanguagesOriginal) then
+      LanguagesOriginal.RemoveEmptyValues;
+    if Assigned(LanguagesTargetOriginal) then
+      LanguagesTargetOriginal.RemoveEmptyValues;
 
-    Languages.Assign(LanguagesOriginal);
-    LanguagesTarget.Assign(LanguagesTargetOriginal);
+    if Assigned(Languages) and Assigned(LanguagesOriginal) then
+      Languages.Assign(LanguagesOriginal);
+    if Assigned(LanguagesTarget) and Assigned(LanguagesTargetOriginal) then
+      LanguagesTarget.Assign(LanguagesTargetOriginal);
 
     FLanguageCodes := TLanguages.GetCodeArrayFromStringList(Languages);
   finally
