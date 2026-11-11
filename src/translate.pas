@@ -3099,11 +3099,18 @@ begin
   if FHistoryManager = nil then Exit;
 
   Added := FHistoryManager.AddText(ASourceText, ATargetText, SrcLang, TrgLang, Cfg) <> nil;
-  // Mark past-last even on a duplicate commit: the screen is about to be
-  // cleared and the first Back should still show this entry
-  if Added or AMarkEmpty then
+  if Added then
   begin
     FPastLast := AMarkEmpty;
+    FireHistoryChanged;
+  end
+  else if AMarkEmpty and not FHistoryManager.CanNext then
+  begin
+    // Duplicate commit at the tail: mark past-last so the first Back shows
+    // the current entry without moving. A duplicate in the middle does not
+    // change the position, so leave arrows reflecting the real state until
+    // the actual move happens (e.g. via the truncate dialog on next Add)
+    FPastLast := True;
     FireHistoryChanged;
   end;
   Result := Added;
