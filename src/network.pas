@@ -113,6 +113,21 @@ implementation
 
 {%Region -fold Web Request}
 
+var
+  // Serializes all SSL requests across threads, OpenSSL 3 is not thread safe
+  // by default without locking callbacks that Synapse does not always install
+  SSLRequestLock: TRTLCriticalSection;
+  SSLRequestLockInit: boolean = False;
+
+// Initializes the global SSL request lock exactly once
+procedure EnsureSSLRequestLock;
+begin
+  if SSLRequestLockInit then
+    Exit;
+  InitCriticalSection(SSLRequestLock);
+  SSLRequestLockInit := True;
+end;
+
 class function TNetwork.GetSynapseHeader(const AHeaders: TStringList; const AName: string): string;
 var
   j: integer;
@@ -311,151 +326,157 @@ begin
   if Trim(AUrl) = string.Empty then
     Exit;
 
-  if HTTP = nil then
-    HTTP := THTTPSend.Create;
-
-  rawStream := TMemoryStream.Create;
+  EnsureSSLRequestLock;
+  EnterCriticalSection(SSLRequestLock);
   try
-    // Common setup
-    HTTP.Protocol := '1.1';
-    HTTP.Sock.SSL.SSLType := LT_TLSv1_2;
+    if HTTP = nil then
+      HTTP := THTTPSend.Create;
 
-    // Timeouts
-    HTTP.Timeout := IfThen(ATimeout.Request > 0, ATimeout.Request, REQUEST_TIMEOUT);
-    HTTP.Sock.ConnectionTimeout := IfThen(ATimeout.Connection > 0, ATimeout.Connection, CONNECT_TIMEOUT);
-    HTTP.Sock.HTTPTunnelTimeout := HTTP.Sock.ConnectionTimeout;
-    HTTP.Sock.SocksTimeout := HTTP.Timeout;
-    HTTP.Sock.NonblockSendTimeout := HTTP.Timeout;
-    HTTP.Sock.SetSendTimeout(HTTP.Timeout);
-    HTTP.Sock.SetRecvTimeout(HTTP.Timeout);
-    HTTP.Sock.SetTimeout(HTTP.Timeout);
+    rawStream := TMemoryStream.Create;
+    try
+      // Common setup
+      HTTP.Protocol := '1.1';
+      HTTP.Sock.SSL.SSLType := LT_TLSv1_2;
 
-    if AllowProxy then
-      ApplyProxy(HTTP, AProxy);
+      // Timeouts
+      HTTP.Timeout := IfThen(ATimeout.Request > 0, ATimeout.Request, REQUEST_TIMEOUT);
+      HTTP.Sock.ConnectionTimeout := IfThen(ATimeout.Connection > 0, ATimeout.Connection, CONNECT_TIMEOUT);
+      HTTP.Sock.HTTPTunnelTimeout := HTTP.Sock.ConnectionTimeout;
+      HTTP.Sock.SocksTimeout := HTTP.Timeout;
+      HTTP.Sock.NonblockSendTimeout := HTTP.Timeout;
+      HTTP.Sock.SetSendTimeout(HTTP.Timeout);
+      HTTP.Sock.SetRecvTimeout(HTTP.Timeout);
+      HTTP.Sock.SetTimeout(HTTP.Timeout);
 
-    HTTP.Headers.Clear;
-    if AUserAgent <> string.Empty then
-      HTTP.Headers.Add('User-Agent: ' + AUserAgent);
-    if AContentType <> string.Empty then
-    begin
-      if AMethod = wmPost then
-        HTTP.MimeType := AContentType
-      else
-        HTTP.Headers.Add('Content-Type: ' + AContentType);
-    end;
-    if AAccept <> string.Empty then
-      HTTP.Headers.Add('Accept: ' + AAccept);
+      if AllowProxy then
+        ApplyProxy(HTTP, AProxy);
 
-    // Custom headers – use Names/Values to ensure "Name: Value" format
-    if Assigned(AHeaders) then
-      for i := 0 to AHeaders.Count - 1 do
-        HTTP.Headers.Add(AHeaders.Names[i] + ': ' + AHeaders.ValueFromIndex[i]);
-
-    // POST body (UTF-8)
-    if AMethod = wmPost then
-    begin
-      postStream := TStringStream.Create(APostData, TEncoding.UTF8);
-      try
-        HTTP.Document.CopyFrom(postStream, 0);
-        HTTP.Document.Position := 0;   // Synapse reads from current position
-      finally
-        FreeAndNil(postStream);
-      end;
-    end;
-
-    // Apply cookies before the request
-    if Assigned(ACookies) and (ACookies.Count > 0) then
-      HTTP.Cookies.Assign(ACookies);
-
-    // ***********************
-    // Execute request
-    // ***********************
-    rawStream.Clear;
-    HTTP.OutputStream := rawStream;
-    if AMethod = wmPost then
-      HTTP.HTTPMethod('POST', AUrl)
-    else
-      HTTP.HTTPMethod('GET', AUrl);
-
-    // Save cookies received in the response
-    if Assigned(ACookies) and Assigned(HTTP.Cookies) and (HTTP.Cookies.Count > 0) then
-      ACookies.Assign(HTTP.Cookies);
-
-    // Capture response headers
-    AResponseHeaders.Assign(HTTP.Headers);
-
-    // Error handling
-    if (HTTP.ResultCode div 100) <> 2 then
-    begin
-      // Try to get the server's error body first
-      rawStream.Position := 0;
-      if rawStream.Size > 0 then
+      HTTP.Headers.Clear;
+      if AUserAgent <> string.Empty then
+        HTTP.Headers.Add('User-Agent: ' + AUserAgent);
+      if AContentType <> string.Empty then
       begin
-        contentEncoding := GetSynapseHeader(AResponseHeaders, 'Content-Encoding');
-        bodyStream := TStringStream.Create('', TEncoding.UTF8);
-        try
-          if SameText(contentEncoding, 'gzip') and IsGzip(rawStream) then
-          begin
-            decompressedStream := DecompressGzipToStream(rawStream);
-            if Assigned(decompressedStream) then
-            try
-              bodyStream.CopyFrom(decompressedStream, 0);
-            finally
-              FreeAndNil(decompressedStream);
-            end
-            else
-              bodyStream.CopyFrom(rawStream, 0); // Fallback to compressed body
-          end
-          else
-            bodyStream.CopyFrom(rawStream, 0);
+        if AMethod = wmPost then
+          HTTP.MimeType := AContentType
+        else
+          HTTP.Headers.Add('Content-Type: ' + AContentType);
+      end;
+      if AAccept <> string.Empty then
+        HTTP.Headers.Add('Accept: ' + AAccept);
 
-          Result := bodyStream.DataString;
+      // Custom headers – use Names/Values to ensure "Name: Value" format
+      if Assigned(AHeaders) then
+        for i := 0 to AHeaders.Count - 1 do
+          HTTP.Headers.Add(AHeaders.Names[i] + ': ' + AHeaders.ValueFromIndex[i]);
+
+      // POST body (UTF-8)
+      if AMethod = wmPost then
+      begin
+        postStream := TStringStream.Create(APostData, TEncoding.UTF8);
+        try
+          HTTP.Document.CopyFrom(postStream, 0);
+          HTTP.Document.Position := 0;   // Synapse reads from current position
         finally
-          FreeAndNil(bodyStream);
+          FreeAndNil(postStream);
         end;
       end;
 
-      // Fallback to standard error description if body is empty
-      if Result = string.Empty then
+      // Apply cookies before the request
+      if Assigned(ACookies) and (ACookies.Count > 0) then
+        HTTP.Cookies.Assign(ACookies);
+
+      // ***********************
+      // Execute request
+      // ***********************
+      rawStream.Clear;
+      HTTP.OutputStream := rawStream;
+      if AMethod = wmPost then
+        HTTP.HTTPMethod('POST', AUrl)
+      else
+        HTTP.HTTPMethod('GET', AUrl);
+
+      // Save cookies received in the response
+      if Assigned(ACookies) and Assigned(HTTP.Cookies) and (HTTP.Cookies.Count > 0) then
+        ACookies.Assign(HTTP.Cookies);
+
+      // Capture response headers
+      AResponseHeaders.Assign(HTTP.Headers);
+
+      // Error handling
+      if (HTTP.ResultCode div 100) <> 2 then
       begin
-        if (HTTP.ResultCode = 0) and (HTTP.Sock.LastError <> 0) then
-          Result := 'Socket Error: ' + HTTP.Sock.LastErrorDesc
-        else
-          Result := 'HTTP Error: ' + IntToStr(HTTP.ResultCode) + ' ' + HTTP.ResultString;
+        // Try to get the server's error body first
+        rawStream.Position := 0;
+        if rawStream.Size > 0 then
+        begin
+          contentEncoding := GetSynapseHeader(AResponseHeaders, 'Content-Encoding');
+          bodyStream := TStringStream.Create('', TEncoding.UTF8);
+          try
+            if SameText(contentEncoding, 'gzip') and IsGzip(rawStream) then
+            begin
+              decompressedStream := DecompressGzipToStream(rawStream);
+              if Assigned(decompressedStream) then
+              try
+                bodyStream.CopyFrom(decompressedStream, 0);
+              finally
+                FreeAndNil(decompressedStream);
+              end
+              else
+                bodyStream.CopyFrom(rawStream, 0); // Fallback to compressed body
+            end
+            else
+              bodyStream.CopyFrom(rawStream, 0);
+
+            Result := bodyStream.DataString;
+          finally
+            FreeAndNil(bodyStream);
+          end;
+        end;
+
+        // Fallback to standard error description if body is empty
+        if Result = string.Empty then
+        begin
+          if (HTTP.ResultCode = 0) and (HTTP.Sock.LastError <> 0) then
+            Result := 'Socket Error: ' + HTTP.Sock.LastErrorDesc
+          else
+            Result := 'HTTP Error: ' + IntToStr(HTTP.ResultCode) + ' ' + HTTP.ResultString;
+        end;
+
+        AError := True;
+        Exit;
       end;
 
-      AError := True;
-      Exit;
-    end;
+      // Read response body
+      rawStream.Position := 0;
 
-    // Read response body
-    rawStream.Position := 0;
-
-    // Decompress gzip if needed
-    contentEncoding := GetSynapseHeader(AResponseHeaders, 'Content-Encoding');
-    bodyStream := TStringStream.Create(string.Empty, TEncoding.UTF8);
-    try
-      if SameText(contentEncoding, 'gzip') and IsGzip(rawStream) then
-      begin
-        decompressedStream := DecompressGzipToStream(rawStream);
-        if Assigned(decompressedStream) then
-        try
-          bodyStream.CopyFrom(decompressedStream, 0);
-        finally
-          FreeAndNil(decompressedStream);
+      // Decompress gzip if needed
+      contentEncoding := GetSynapseHeader(AResponseHeaders, 'Content-Encoding');
+      bodyStream := TStringStream.Create(string.Empty, TEncoding.UTF8);
+      try
+        if SameText(contentEncoding, 'gzip') and IsGzip(rawStream) then
+        begin
+          decompressedStream := DecompressGzipToStream(rawStream);
+          if Assigned(decompressedStream) then
+          try
+            bodyStream.CopyFrom(decompressedStream, 0);
+          finally
+            FreeAndNil(decompressedStream);
+          end
+          else
+            bodyStream.CopyFrom(rawStream, 0); // Fallback to compressed body
         end
         else
-          bodyStream.CopyFrom(rawStream, 0); // Fallback to compressed body
-      end
-      else
-        bodyStream.CopyFrom(rawStream, 0);
+          bodyStream.CopyFrom(rawStream, 0);
 
-      Result := bodyStream.DataString;
+        Result := bodyStream.DataString;
+      finally
+        FreeAndNil(bodyStream);
+      end;
     finally
-      FreeAndNil(bodyStream);
+      FreeAndNil(rawStream);
     end;
   finally
-    FreeAndNil(rawStream);
+    LeaveCriticalSection(SSLRequestLock);
   end;
 end;
 
@@ -463,9 +484,8 @@ end;
 
 {%Region -fold Web Stream Request}
 
-class function TNetwork.WebStreamRequest(AMethod: TWebMethod; const AUrl, APostData: string;
-  AHeaders: TStrings; const AUserAgent, AContentType, AAccept: string; ATimeout: TTimeout;
-  AOnChunk: TStreamChunkEvent; out AErrorMsg: string): boolean;
+class function TNetwork.WebStreamRequest(AMethod: TWebMethod; const AUrl, APostData: string; AHeaders: TStrings;
+  const AUserAgent, AContentType, AAccept: string; ATimeout: TTimeout; AOnChunk: TStreamChunkEvent; out AErrorMsg: string): boolean;
 var
   Sock: TTCPBlockSocket;
   Url, Host, Path, PortStr, Scheme: string;
@@ -491,214 +511,222 @@ begin
     Exit;
   end;
 
-  // Parse scheme, host, port and path
-  Url := AUrl;
-  Scheme := LowerCase(Copy(Url, 1, 8));
-  if Pos('https://', Scheme) = 1 then
-  begin
-    UseHTTPS := True;
-    Delete(Url, 1, 8);
-  end
-  else if Pos('http://', Scheme) = 1 then
-  begin
-    UseHTTPS := False;
-    Delete(Url, 1, 7);
-  end
-  else
-  begin
-    AErrorMsg := 'Unsupported scheme';
-    Exit;
-  end;
-
-  if UseHTTPS then
-    DefPort := 443
-  else
-    DefPort := 80;
-
-  Path := '/';
-  PosSlash := Pos('/', Url);
-  if PosSlash > 0 then
-  begin
-    Path := Copy(Url, PosSlash, MaxInt);
-    Url := Copy(Url, 1, PosSlash - 1);
-  end;
-
-  PortStr := '';
-  StatusCode := Pos(':', Url);
-  if StatusCode > 0 then
-  begin
-    Host := Copy(Url, 1, StatusCode - 1);
-    PortStr := Copy(Url, StatusCode + 1, MaxInt);
-  end
-  else
-    Host := Url;
-
-  Port := StrToIntDef(PortStr, DefPort);
-  if Host = '' then
-  begin
-    AErrorMsg := 'Empty host';
-    Exit;
-  end;
-
-  // Build HTTP request manually
-  Request := IfThen(AMethod = wmPost, 'POST ', 'GET ') + Path + ' HTTP/1.1' + CRLF;
-  Request := Request + 'Host: ' + Host;
-  if Port <> DefPort then
-    Request := Request + ':' + IntToStr(Port);
-  Request := Request + CRLF;
-  if AUserAgent <> '' then
-    Request := Request + 'User-Agent: ' + AUserAgent + CRLF;
-  if AContentType <> '' then
-    Request := Request + 'Content-Type: ' + AContentType + CRLF;
-  if AAccept <> '' then
-    Request := Request + 'Accept: ' + AAccept + CRLF;
-  if Assigned(AHeaders) then
-    for StatusCode := 0 to AHeaders.Count - 1 do
-      Request := Request + AHeaders.Names[StatusCode] + ': ' +
-        AHeaders.ValueFromIndex[StatusCode] + CRLF;
-  if AMethod = wmPost then
-    Request := Request + 'Content-Length: ' + IntToStr(Length(APostData)) + CRLF;
-  Request := Request + 'Connection: close' + CRLF + CRLF;
-  if AMethod = wmPost then
-    Request := Request + APostData;
-
-  Sock := TTCPBlockSocket.Create;
+  // Serialize streaming SSL with regular WebRequest, both share OpenSSL state
+  EnsureSSLRequestLock;
+  EnterCriticalSection(SSLRequestLock);
   try
-    Sock.SSL.SSLType := LT_TLSv1_2;
-    if ATimeout.Connection > 0 then
-      Sock.ConnectionTimeout := ATimeout.Connection
-    else
-      Sock.ConnectionTimeout := CONNECT_TIMEOUT;
-    if ATimeout.Request > 0 then
-      TimeoutVal := ATimeout.Request
-    else
-      TimeoutVal := REQUEST_TIMEOUT;
-    Sock.SetTimeout(TimeoutVal);
 
-    Sock.Connect(Host, IntToStr(Port));
-    if Sock.LastError <> 0 then
+    // Parse scheme, host, port and path
+    Url := AUrl;
+    Scheme := LowerCase(Copy(Url, 1, 8));
+    if Pos('https://', Scheme) = 1 then
     begin
-      AErrorMsg := 'Connect error: ' + Sock.LastErrorDesc;
+      UseHTTPS := True;
+      Delete(Url, 1, 8);
+    end
+    else if Pos('http://', Scheme) = 1 then
+    begin
+      UseHTTPS := False;
+      Delete(Url, 1, 7);
+    end
+    else
+    begin
+      AErrorMsg := 'Unsupported scheme';
       Exit;
     end;
 
     if UseHTTPS then
+      DefPort := 443
+    else
+      DefPort := 80;
+
+    Path := '/';
+    PosSlash := Pos('/', Url);
+    if PosSlash > 0 then
     begin
-      Sock.SSLDoConnect;
-      if Sock.LastError <> 0 then
-      begin
-        AErrorMsg := 'SSL error: ' + Sock.LastErrorDesc;
-        Exit;
-      end;
+      Path := Copy(Url, PosSlash, MaxInt);
+      Url := Copy(Url, 1, PosSlash - 1);
     end;
 
-    Sock.SendString(Request);
-    if Sock.LastError <> 0 then
+    PortStr := '';
+    StatusCode := Pos(':', Url);
+    if StatusCode > 0 then
     begin
-      AErrorMsg := 'Send error: ' + Sock.LastErrorDesc;
-      Exit;
-    end;
-
-    // Status line
-    StatusLine := Sock.RecvString(TimeoutVal);
-    if Sock.LastError <> 0 then
-    begin
-      AErrorMsg := 'Recv status error: ' + Sock.LastErrorDesc;
-      Exit;
-    end;
-
-    StatusCode := 0;
-    if Pos('HTTP/', StatusLine) = 1 then
-    begin
-      Value := Trim(Copy(StatusLine, Pos(' ', StatusLine) + 1, MaxInt));
-      StatusCode := StrToIntDef(Copy(Value, 1, Pos(' ', Value + ' ') - 1), 0);
-    end;
-
-    // Headers
-    ContentLength := -1;
-    IsChunked := False;
-    TransferEncoding := '';
-    HeaderDone := False;
-    repeat
-      HeaderLine := Sock.RecvString(TimeoutVal);
-      if Sock.LastError <> 0 then
-      begin
-        AErrorMsg := 'Recv header error: ' + Sock.LastErrorDesc;
-        Exit;
-      end;
-      if HeaderLine = '' then
-        HeaderDone := True
-      else if Pos('content-length:', LowerCase(HeaderLine)) = 1 then
-        ContentLength := StrToInt64Def(Trim(Copy(HeaderLine, 16, MaxInt)), -1)
-      else if Pos('transfer-encoding:', LowerCase(HeaderLine)) = 1 then
-      begin
-        TransferEncoding := LowerCase(Trim(Copy(HeaderLine, 19, MaxInt)));
-        if Pos('chunked', TransferEncoding) > 0 then
-          IsChunked := True;
-      end;
-    until HeaderDone;
-
-    if StatusCode <> 200 then
-    begin
-      AErrorMsg := 'HTTP ' + IntToStr(StatusCode);
-      Exit;
-    end;
-
-    // Body
-    Cancel := False;
-    if IsChunked then
-    begin
-      while not Cancel do
-      begin
-        HeaderLine := Sock.RecvString(TimeoutVal);
-        if Sock.LastError <> 0 then
-          Break;
-        ChunkSize := StrToIntDef('$' + Trim(HeaderLine), 0);
-        if ChunkSize = 0 then
-        begin
-          Sock.RecvString(TimeoutVal);
-          Break;
-        end;
-        BodyChunk := Sock.RecvBufferStr(ChunkSize, TimeoutVal);
-        if Sock.LastError <> 0 then
-          Break;
-        // Consume trailing CRLF after chunk data
-        Sock.RecvString(TimeoutVal);
-        if BodyChunk <> '' then
-          AOnChunk(BodyChunk, Cancel);
-      end;
-    end
-    else if ContentLength >= 0 then
-    begin
-      while (ContentLength > 0) and not Cancel do
-      begin
-        if ContentLength > 4096 then
-          ChunkSize := 4096
-        else
-          ChunkSize := ContentLength;
-        BodyChunk := Sock.RecvBufferStr(ChunkSize, TimeoutVal);
-        if Sock.LastError <> 0 then
-          Break;
-        if BodyChunk = '' then
-          Break;
-        Dec(ContentLength, Length(BodyChunk));
-        AOnChunk(BodyChunk, Cancel);
-      end;
+      Host := Copy(Url, 1, StatusCode - 1);
+      PortStr := Copy(Url, StatusCode + 1, MaxInt);
     end
     else
+      Host := Url;
+
+    Port := StrToIntDef(PortStr, DefPort);
+    if Host = '' then
     begin
-      while not Cancel do
-      begin
-        BodyChunk := Sock.RecvBufferStr(4096, TimeoutVal);
-        if BodyChunk = '' then
-          Break;
-        AOnChunk(BodyChunk, Cancel);
-      end;
+      AErrorMsg := 'Empty host';
+      Exit;
     end;
 
-    Result := True;
+    // Build HTTP request manually
+    Request := IfThen(AMethod = wmPost, 'POST ', 'GET ') + Path + ' HTTP/1.1' + CRLF;
+    Request := Request + 'Host: ' + Host;
+    if Port <> DefPort then
+      Request := Request + ':' + IntToStr(Port);
+    Request := Request + CRLF;
+    if AUserAgent <> '' then
+      Request := Request + 'User-Agent: ' + AUserAgent + CRLF;
+    if AContentType <> '' then
+      Request := Request + 'Content-Type: ' + AContentType + CRLF;
+    if AAccept <> '' then
+      Request := Request + 'Accept: ' + AAccept + CRLF;
+    if Assigned(AHeaders) then
+      for StatusCode := 0 to AHeaders.Count - 1 do
+        Request := Request + AHeaders.Names[StatusCode] + ': ' + AHeaders.ValueFromIndex[StatusCode] + CRLF;
+    if AMethod = wmPost then
+      Request := Request + 'Content-Length: ' + IntToStr(Length(APostData)) + CRLF;
+    Request := Request + 'Connection: close' + CRLF + CRLF;
+    if AMethod = wmPost then
+      Request := Request + APostData;
+
+    Sock := TTCPBlockSocket.Create;
+    try
+      Sock.SSL.SSLType := LT_TLSv1_2;
+      if ATimeout.Connection > 0 then
+        Sock.ConnectionTimeout := ATimeout.Connection
+      else
+        Sock.ConnectionTimeout := CONNECT_TIMEOUT;
+      if ATimeout.Request > 0 then
+        TimeoutVal := ATimeout.Request
+      else
+        TimeoutVal := REQUEST_TIMEOUT;
+      Sock.SetTimeout(TimeoutVal);
+
+      Sock.Connect(Host, IntToStr(Port));
+      if Sock.LastError <> 0 then
+      begin
+        AErrorMsg := 'Connect error: ' + Sock.LastErrorDesc;
+        Exit;
+      end;
+
+      if UseHTTPS then
+      begin
+        Sock.SSLDoConnect;
+        if Sock.LastError <> 0 then
+        begin
+          AErrorMsg := 'SSL error: ' + Sock.LastErrorDesc;
+          Exit;
+        end;
+      end;
+
+      Sock.SendString(Request);
+      if Sock.LastError <> 0 then
+      begin
+        AErrorMsg := 'Send error: ' + Sock.LastErrorDesc;
+        Exit;
+      end;
+
+      // Status line
+      StatusLine := Sock.RecvString(TimeoutVal);
+      if Sock.LastError <> 0 then
+      begin
+        AErrorMsg := 'Recv status error: ' + Sock.LastErrorDesc;
+        Exit;
+      end;
+
+      StatusCode := 0;
+      if Pos('HTTP/', StatusLine) = 1 then
+      begin
+        Value := Trim(Copy(StatusLine, Pos(' ', StatusLine) + 1, MaxInt));
+        StatusCode := StrToIntDef(Copy(Value, 1, Pos(' ', Value + ' ') - 1), 0);
+      end;
+
+      // Headers
+      ContentLength := -1;
+      IsChunked := False;
+      TransferEncoding := '';
+      HeaderDone := False;
+      repeat
+        HeaderLine := Sock.RecvString(TimeoutVal);
+        if Sock.LastError <> 0 then
+        begin
+          AErrorMsg := 'Recv header error: ' + Sock.LastErrorDesc;
+          Exit;
+        end;
+        if HeaderLine = '' then
+          HeaderDone := True
+        else if Pos('content-length:', LowerCase(HeaderLine)) = 1 then
+          ContentLength := StrToInt64Def(Trim(Copy(HeaderLine, 16, MaxInt)), -1)
+        else if Pos('transfer-encoding:', LowerCase(HeaderLine)) = 1 then
+        begin
+          TransferEncoding := LowerCase(Trim(Copy(HeaderLine, 19, MaxInt)));
+          if Pos('chunked', TransferEncoding) > 0 then
+            IsChunked := True;
+        end;
+      until HeaderDone;
+
+      if StatusCode <> 200 then
+      begin
+        AErrorMsg := 'HTTP ' + IntToStr(StatusCode);
+        Exit;
+      end;
+
+      // Body
+      Cancel := False;
+      if IsChunked then
+      begin
+        while not Cancel do
+        begin
+          HeaderLine := Sock.RecvString(TimeoutVal);
+          if Sock.LastError <> 0 then
+            Break;
+          ChunkSize := StrToIntDef('$' + Trim(HeaderLine), 0);
+          if ChunkSize = 0 then
+          begin
+            Sock.RecvString(TimeoutVal);
+            Break;
+          end;
+          BodyChunk := Sock.RecvBufferStr(ChunkSize, TimeoutVal);
+          if Sock.LastError <> 0 then
+            Break;
+          // Consume trailing CRLF after chunk data
+          Sock.RecvString(TimeoutVal);
+          if BodyChunk <> '' then
+            AOnChunk(BodyChunk, Cancel);
+        end;
+      end
+      else if ContentLength >= 0 then
+      begin
+        while (ContentLength > 0) and not Cancel do
+        begin
+          if ContentLength > 4096 then
+            ChunkSize := 4096
+          else
+            ChunkSize := ContentLength;
+          BodyChunk := Sock.RecvBufferStr(ChunkSize, TimeoutVal);
+          if Sock.LastError <> 0 then
+            Break;
+          if BodyChunk = '' then
+            Break;
+          Dec(ContentLength, Length(BodyChunk));
+          AOnChunk(BodyChunk, Cancel);
+        end;
+      end
+      else
+      begin
+        while not Cancel do
+        begin
+          BodyChunk := Sock.RecvBufferStr(4096, TimeoutVal);
+          if BodyChunk = '' then
+            Break;
+          AOnChunk(BodyChunk, Cancel);
+        end;
+      end;
+
+      Result := True;
+    finally
+      Sock.Free;
+    end;
+
   finally
-    Sock.Free;
+    LeaveCriticalSection(SSLRequestLock);
   end;
 end;
 
@@ -832,5 +860,15 @@ begin
 end;
 
 {%EndRegion}
+
+initialization
+  EnsureSSLRequestLock;
+
+finalization
+  if SSLRequestLockInit then
+  begin
+    DoneCriticalSection(SSLRequestLock);
+    SSLRequestLockInit := False;
+  end;
 
 end.
