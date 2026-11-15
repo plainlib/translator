@@ -664,7 +664,17 @@ begin
 
       if StatusCode <> 200 then
       begin
-        AErrorMsg := 'HTTP ' + IntToStr(StatusCode);
+        // Read error body so callers can show the real reason from the server
+        if (ContentLength > 0) or IsChunked or (ContentLength < 0) then
+        begin
+          BodyChunk := Sock.RecvBufferStr(2048, TimeoutVal);
+          if Trim(BodyChunk) <> '' then
+            AErrorMsg := 'HTTP ' + IntToStr(StatusCode) + ': ' + Trim(Copy(BodyChunk, 1, 400))
+          else
+            AErrorMsg := 'HTTP ' + IntToStr(StatusCode);
+        end
+        else
+          AErrorMsg := 'HTTP ' + IntToStr(StatusCode);
         Exit;
       end;
 
