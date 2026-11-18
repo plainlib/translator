@@ -77,10 +77,6 @@ SOFTWARE."/>
         <UnitName Value="LangDetect"/>
       </Item>
       <Item>
-        <Filename Value="src\network.pas"/>
-        <UnitName Value="Network"/>
-      </Item>
-      <Item>
         <Filename Value="src\scriptrunner.pas"/>
         <UnitName Value="ScriptRunner"/>
       </Item>
@@ -136,9 +132,6 @@ SOFTWARE."/>
       </Item>
       <Item>
         <PackageName Value="SynEdit"/>
-      </Item>
-      <Item>
-        <PackageName Value="laz_synapse"/>
       </Item>
       <Item>
         <PackageName Value="darkmode"/>

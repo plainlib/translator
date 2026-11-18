@@ -9,8 +9,7 @@ interface
 
 uses
   Translate, ConfigManager, FormConfig, FormSearch, TranslateHistory, 
-  Languages, LangDetect, Network, ScriptRunner, TranslatorRegister, 
-  LazarusPackageIntf;
+  Languages, LangDetect, ScriptRunner, TranslatorRegister, LazarusPackageIntf;
 
 implementation
 
