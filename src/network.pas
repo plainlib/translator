@@ -492,7 +492,8 @@ var
   Port, DefPort, TimeoutVal, PosSlash, StatusCode, ChunkSize: integer;
   UseHTTPS: boolean;
   Request, StatusLine, HeaderLine, BodyChunk, Value: string;
-  ContentLength: int64;
+  ErrorBody: string;
+  ContentLength, ErrorLength: int64;
   TransferEncoding: string;
   IsChunked: boolean;
   Cancel: boolean;
@@ -664,17 +665,101 @@ begin
 
       if StatusCode <> 200 then
       begin
-        // Read error body so callers can show the real reason from the server
-        if (ContentLength > 0) or IsChunked or (ContentLength < 0) then
+        ErrorBody := string.Empty;
+        ErrorLength := 0;
+
+        // Read chunked error response
+        if IsChunked then
         begin
-          BodyChunk := Sock.RecvBufferStr(2048, TimeoutVal);
-          if Trim(BodyChunk) <> '' then
-            AErrorMsg := 'HTTP ' + IntToStr(StatusCode) + ': ' + Trim(Copy(BodyChunk, 1, 400))
-          else
-            AErrorMsg := 'HTTP ' + IntToStr(StatusCode);
+          repeat
+            HeaderLine := Sock.RecvString(TimeoutVal);
+            if Sock.LastError <> 0 then
+              Break;
+
+            Value := Trim(Copy(HeaderLine, 1, Pos(';', HeaderLine + ';') - 1));
+            ChunkSize := StrToIntDef('$' + Value, -1);
+
+            if ChunkSize < 0 then
+              Break;
+
+            if ChunkSize = 0 then
+            begin
+              // Consume optional trailer headers
+              repeat
+                HeaderLine := Sock.RecvString(TimeoutVal);
+              until (HeaderLine = '') or (Sock.LastError <> 0);
+              Break;
+            end;
+
+            if ErrorLength + ChunkSize > 8192 then
+              ChunkSize := 8192 - ErrorLength;
+
+            if ChunkSize > 0 then
+            begin
+              BodyChunk := Sock.RecvBufferStr(ChunkSize, TimeoutVal);
+              if Sock.LastError <> 0 then
+                Break;
+
+              ErrorBody := ErrorBody + BodyChunk;
+              Inc(ErrorLength, Length(BodyChunk));
+            end;
+
+            // Consume trailing CRLF after chunk data
+            Sock.RecvString(TimeoutVal);
+
+            if ErrorLength >= 8192 then
+              Break;
+          until False;
         end
-        else
-          AErrorMsg := 'HTTP ' + IntToStr(StatusCode);
+        // Read response with Content-Length
+        else if ContentLength > 0 then
+        begin
+          while (ContentLength > 0) and (ErrorLength < 8192) do
+          begin
+            if ContentLength > 2048 then
+              ChunkSize := 2048
+            else
+              ChunkSize := ContentLength;
+
+            if ChunkSize > 8192 - ErrorLength then
+              ChunkSize := 8192 - ErrorLength;
+
+            BodyChunk := Sock.RecvBufferStr(ChunkSize, TimeoutVal);
+            if Sock.LastError <> 0 then
+              Break;
+            if BodyChunk = '' then
+              Break;
+
+            ErrorBody := ErrorBody + BodyChunk;
+            Inc(ErrorLength, Length(BodyChunk));
+            Dec(ContentLength, Length(BodyChunk));
+          end;
+        end
+        // Read response until the server closes the connection
+        else if ContentLength < 0 then
+        begin
+          repeat
+            BodyChunk := Sock.RecvBufferStr(2048, TimeoutVal);
+
+            if BodyChunk <> '' then
+            begin
+              if ErrorLength + Length(BodyChunk) > 8192 then
+                BodyChunk := Copy(BodyChunk, 1, 8192 - ErrorLength);
+
+              ErrorBody := ErrorBody + BodyChunk;
+              Inc(ErrorLength, Length(BodyChunk));
+            end;
+
+            if (Sock.LastError <> 0) or (BodyChunk = '') or (ErrorLength >= 8192) then
+              Break;
+          until False;
+        end;
+
+        AErrorMsg := 'HTTP ' + IntToStr(StatusCode);
+
+        if Trim(ErrorBody) <> string.Empty then
+          AErrorMsg := AErrorMsg + ': ' + Trim(ErrorBody);
+
         Exit;
       end;
 
