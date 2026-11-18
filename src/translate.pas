@@ -26,13 +26,7 @@ uses
   jsonparser,
   TranslateHistory,
   ScriptRunner,
-  Network,
-  {$PUSH}
-  {$WARNINGS OFF}
-  {$HINTS OFF}
-  {$NOTES OFF}
-  httpsend;
-  {$POP}
+  Network;
 
 type
   { TLangType }
@@ -232,7 +226,7 @@ type
     FTextToTranslate: string;
     FIsTruncated: boolean;
     FCookies: TStringList;
-    FCurrentHTTP: THTTPSend;
+    FCurrentHTTP: TNetworkHTTP;
     FHTTPList: TList;
 
     FServiceName: string;
@@ -1297,6 +1291,8 @@ begin
         FTargetLanguage := AResult.NewTarget;
     ldaNone:
       ; // nothing to apply
+    else
+      ;
   end;
 end;
 
@@ -1690,18 +1686,15 @@ end;
 procedure TCustomTranslate.AbortRequest;
 var
   i: integer;
-  HTTP: THTTPSend;
+  HTTP: TNetworkHTTP;
 begin
   if not Assigned(FHTTPList) then Exit;
 
   for i := 0 to FHTTPList.Count - 1 do
   begin
-    HTTP := THTTPSend(FHTTPList[i]);
+    HTTP := TNetworkHTTP(FHTTPList[i]);
     if Assigned(HTTP) then
-    begin
-      HTTP.Sock.StopFlag := True;
-      HTTP.Sock.AbortSocket;
-    end;
+      HTTP.Abort;
   end;
   FHTTPList.Clear;
 end;
@@ -1972,7 +1965,7 @@ var
   i: integer;
   header: string;
   Error: boolean;
-  localHTTP: THTTPSend;   // we will create and own the HTTP object
+  localHTTP: TNetworkHTTP;  // we will create and own the HTTP object
 begin
   Result := string.Empty;
   if FInitUrl = string.Empty then Exit;
@@ -1980,7 +1973,7 @@ begin
   FParameterValues.Clear;
   FCookies.Clear;
 
-  localHTTP := THTTPSend.Create;   // create new HTTP object
+  localHTTP := TNetworkHTTP.Create; // create new HTTP object
   FHTTPList.Add(localHTTP);        // add to list for abort
   FCurrentHTTP := localHTTP;       // allow external abort while the request is active
   try
@@ -2013,7 +2006,7 @@ var
   i: integer;
   header: string;
   Error: boolean;
-  localHTTP: THTTPSend;
+  localHTTP: TNetworkHTTP;
 begin
   Result := string.Empty;
   if FUrl = string.Empty then exit;
@@ -2036,7 +2029,7 @@ begin
       SetParametersList(TempHeaders);
     end;
 
-    localHTTP := THTTPSend.Create;
+    localHTTP := TNetworkHTTP.Create;
     FHTTPList.Add(localHTTP);
     FCurrentHTTP := localHTTP;
     try
@@ -2082,7 +2075,7 @@ var
   i: integer;
   header: string;
   Error: boolean;
-  localHTTP: THTTPSend;
+  localHTTP: TNetworkHTTP;
 begin
   Result := string.Empty;
   if FUrl = string.Empty then exit;
@@ -2111,7 +2104,7 @@ begin
       SetParametersList(TempHeaders);
     end;
 
-    localHTTP := THTTPSend.Create;
+    localHTTP := TNetworkHTTP.Create;
     FHTTPList.Add(localHTTP);
     FCurrentHTTP := localHTTP;
     try

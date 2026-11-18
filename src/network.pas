@@ -83,6 +83,16 @@ type
   { Streaming callback, set ACancel to True to abort the stream }
   TStreamChunkEvent = procedure(const AChunk: string; var ACancel: boolean) of object;
 
+  { HTTP request wrapper }
+  TNetworkHTTP = class
+  private
+    FHTTP: THTTPSend;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Abort;
+  end;
+
   TNetwork = class sealed
   public
     { Web Request }
@@ -92,10 +102,10 @@ type
     class function WebRequest(AMethod: TWebMethod; const AUrl: string; const APostData: string; AHeaders: TStrings;
       const AUserAgent, AContentType, AAccept: string; AllowProxy: boolean; AProxy: TProxy; ATimeout: TTimeout;
       var ACookies: TStringList; out AResponseHeaders: TStringList; out AError: boolean): string;
-    // Overload – caller gets ownership of the THTTPSend object
+    // Overload – caller takes ownership of the HTTP wrapper
     class function WebRequest(AMethod: TWebMethod; const AUrl: string; const APostData: string; AHeaders: TStrings;
       const AUserAgent, AContentType, AAccept: string; AllowProxy: boolean; AProxy: TProxy; ATimeout: TTimeout;
-      var ACookies: TStringList; out AResponseHeaders: TStringList; out AError: boolean; var HTTP: THTTPSend): string; overload;
+      var ACookies: TStringList; out AResponseHeaders: TStringList; out AError: boolean; var HTTP: TNetworkHTTP): string; overload;
     // Streaming request for SSE; proxy is not supported in MVP
     class function WebStreamRequest(AMethod: TWebMethod; const AUrl, APostData: string; AHeaders: TStrings;
       const AUserAgent, AContentType, AAccept: string; ATimeout: TTimeout; AOnChunk: TStreamChunkEvent;
@@ -110,6 +120,31 @@ const
   REQUEST_TIMEOUT = 30000;
 
 implementation
+
+{%Region -fold TNetworkHTTP}
+
+constructor TNetworkHTTP.Create;
+begin
+  inherited Create;
+  FHTTP := THTTPSend.Create;
+end;
+
+destructor TNetworkHTTP.Destroy;
+begin
+  FreeAndNil(FHTTP);
+  inherited Destroy;
+end;
+
+procedure TNetworkHTTP.Abort;
+begin
+  if Assigned(FHTTP) then
+  begin
+    FHTTP.Sock.StopFlag := True;
+    FHTTP.Sock.AbortSocket;
+  end;
+end;
+
+{%EndRegion}
 
 {%Region -fold Web Request}
 
@@ -299,7 +334,7 @@ class function TNetwork.WebRequest(AMethod: TWebMethod; const AUrl: string; cons
   AHeaders: TStrings; const AUserAgent, AContentType, AAccept: string; AllowProxy: boolean; AProxy: TProxy;
   ATimeout: TTimeout; var ACookies: TStringList; out AResponseHeaders: TStringList; out AError: boolean): string;
 var
-  HTTP: THTTPSend;
+  HTTP: TNetworkHTTP;
 begin
   HTTP := nil;
   // Call overloaded version, then free the HTTP object
@@ -310,13 +345,14 @@ end;
 
 class function TNetwork.WebRequest(AMethod: TWebMethod; const AUrl: string; const APostData: string;
   AHeaders: TStrings; const AUserAgent, AContentType, AAccept: string; AllowProxy: boolean; AProxy: TProxy;
-  ATimeout: TTimeout; var ACookies: TStringList; out AResponseHeaders: TStringList; out AError: boolean; var HTTP: THTTPSend): string;
+  ATimeout: TTimeout; var ACookies: TStringList; out AResponseHeaders: TStringList; out AError: boolean; var HTTP: TNetworkHTTP): string;
 var
   rawStream: TMemoryStream;
   decompressedStream: TMemoryStream;
   bodyStream: TStringStream;
   postStream: TStringStream;
   contentEncoding: string;
+  SynapseHTTP: THTTPSend;
   i: integer;
 begin
   Result := string.Empty;
@@ -330,52 +366,54 @@ begin
   EnterCriticalSection(SSLRequestLock);
   try
     if HTTP = nil then
-      HTTP := THTTPSend.Create;
+      HTTP := TNetworkHTTP.Create;
+
+    SynapseHTTP := HTTP.FHTTP;
 
     rawStream := TMemoryStream.Create;
     try
       // Common setup
-      HTTP.Protocol := '1.1';
-      HTTP.Sock.SSL.SSLType := LT_TLSv1_2;
+      SynapseHTTP.Protocol := '1.1';
+      SynapseHTTP.Sock.SSL.SSLType := LT_TLSv1_2;
 
       // Timeouts
-      HTTP.Timeout := IfThen(ATimeout.Request > 0, ATimeout.Request, REQUEST_TIMEOUT);
-      HTTP.Sock.ConnectionTimeout := IfThen(ATimeout.Connection > 0, ATimeout.Connection, CONNECT_TIMEOUT);
-      HTTP.Sock.HTTPTunnelTimeout := HTTP.Sock.ConnectionTimeout;
-      HTTP.Sock.SocksTimeout := HTTP.Timeout;
-      HTTP.Sock.NonblockSendTimeout := HTTP.Timeout;
-      HTTP.Sock.SetSendTimeout(HTTP.Timeout);
-      HTTP.Sock.SetRecvTimeout(HTTP.Timeout);
-      HTTP.Sock.SetTimeout(HTTP.Timeout);
+      SynapseHTTP.Timeout := IfThen(ATimeout.Request > 0, ATimeout.Request, REQUEST_TIMEOUT);
+      SynapseHTTP.Sock.ConnectionTimeout := IfThen(ATimeout.Connection > 0, ATimeout.Connection, CONNECT_TIMEOUT);
+      SynapseHTTP.Sock.HTTPTunnelTimeout := SynapseHTTP.Sock.ConnectionTimeout;
+      SynapseHTTP.Sock.SocksTimeout := SynapseHTTP.Timeout;
+      SynapseHTTP.Sock.NonblockSendTimeout := SynapseHTTP.Timeout;
+      SynapseHTTP.Sock.SetSendTimeout(SynapseHTTP.Timeout);
+      SynapseHTTP.Sock.SetRecvTimeout(SynapseHTTP.Timeout);
+      SynapseHTTP.Sock.SetTimeout(SynapseHTTP.Timeout);
 
       if AllowProxy then
-        ApplyProxy(HTTP, AProxy);
+        ApplyProxy(SynapseHTTP, AProxy);
 
-      HTTP.Headers.Clear;
+      SynapseHTTP.Headers.Clear;
       if AUserAgent <> string.Empty then
-        HTTP.Headers.Add('User-Agent: ' + AUserAgent);
+        SynapseHTTP.Headers.Add('User-Agent: ' + AUserAgent);
       if AContentType <> string.Empty then
       begin
         if AMethod = wmPost then
-          HTTP.MimeType := AContentType
+          SynapseHTTP.MimeType := AContentType
         else
-          HTTP.Headers.Add('Content-Type: ' + AContentType);
+          SynapseHTTP.Headers.Add('Content-Type: ' + AContentType);
       end;
       if AAccept <> string.Empty then
-        HTTP.Headers.Add('Accept: ' + AAccept);
+        SynapseHTTP.Headers.Add('Accept: ' + AAccept);
 
       // Custom headers – use Names/Values to ensure "Name: Value" format
       if Assigned(AHeaders) then
         for i := 0 to AHeaders.Count - 1 do
-          HTTP.Headers.Add(AHeaders.Names[i] + ': ' + AHeaders.ValueFromIndex[i]);
+          SynapseHTTP.Headers.Add(AHeaders.Names[i] + ': ' + AHeaders.ValueFromIndex[i]);
 
       // POST body (UTF-8)
       if AMethod = wmPost then
       begin
         postStream := TStringStream.Create(APostData, TEncoding.UTF8);
         try
-          HTTP.Document.CopyFrom(postStream, 0);
-          HTTP.Document.Position := 0;   // Synapse reads from current position
+          SynapseHTTP.Document.CopyFrom(postStream, 0);
+          SynapseHTTP.Document.Position := 0;   // Synapse reads from current position
         finally
           FreeAndNil(postStream);
         end;
@@ -383,27 +421,27 @@ begin
 
       // Apply cookies before the request
       if Assigned(ACookies) and (ACookies.Count > 0) then
-        HTTP.Cookies.Assign(ACookies);
+        SynapseHTTP.Cookies.Assign(ACookies);
 
       // ***********************
       // Execute request
       // ***********************
       rawStream.Clear;
-      HTTP.OutputStream := rawStream;
+      SynapseHTTP.OutputStream := rawStream;
       if AMethod = wmPost then
-        HTTP.HTTPMethod('POST', AUrl)
+        SynapseHTTP.HTTPMethod('POST', AUrl)
       else
-        HTTP.HTTPMethod('GET', AUrl);
+        SynapseHTTP.HTTPMethod('GET', AUrl);
 
       // Save cookies received in the response
-      if Assigned(ACookies) and Assigned(HTTP.Cookies) and (HTTP.Cookies.Count > 0) then
-        ACookies.Assign(HTTP.Cookies);
+      if Assigned(ACookies) and Assigned(SynapseHTTP.Cookies) and (SynapseHTTP.Cookies.Count > 0) then
+        ACookies.Assign(SynapseHTTP.Cookies);
 
       // Capture response headers
-      AResponseHeaders.Assign(HTTP.Headers);
+      AResponseHeaders.Assign(SynapseHTTP.Headers);
 
       // Error handling
-      if (HTTP.ResultCode div 100) <> 2 then
+      if (SynapseHTTP.ResultCode div 100) <> 2 then
       begin
         // Try to get the server's error body first
         rawStream.Position := 0;
@@ -436,10 +474,10 @@ begin
         // Fallback to standard error description if body is empty
         if Result = string.Empty then
         begin
-          if (HTTP.ResultCode = 0) and (HTTP.Sock.LastError <> 0) then
-            Result := 'Socket Error: ' + HTTP.Sock.LastErrorDesc
+          if (SynapseHTTP.ResultCode = 0) and (SynapseHTTP.Sock.LastError <> 0) then
+            Result := 'Socket Error: ' + SynapseHTTP.Sock.LastErrorDesc
           else
-            Result := 'HTTP Error: ' + IntToStr(HTTP.ResultCode) + ' ' + HTTP.ResultString;
+            Result := 'HTTP Error: ' + IntToStr(SynapseHTTP.ResultCode) + ' ' + SynapseHTTP.ResultString;
         end;
 
         AError := True;
